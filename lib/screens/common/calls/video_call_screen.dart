@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -332,6 +333,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -353,7 +355,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             )
           else
             Container(
-              color: const Color(0xFF1B2C49),
+              color: colors.heading,
               child: Center(
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

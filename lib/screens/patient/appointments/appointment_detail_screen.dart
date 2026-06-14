@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/appointment_model.dart';
@@ -11,20 +12,21 @@ class AppointmentDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     final provider = context.read<AppointmentProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0B3267)),
+          icon: Icon(Icons.arrow_back, color: colors.primaryDark),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Appointment Details',
+        title: Text('Appointment Details',
             style: TextStyle(
-                color: Color(0xFF1B2C49), fontWeight: FontWeight.bold)),
+                color: colors.heading, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -42,7 +44,7 @@ class AppointmentDetailScreen extends StatelessWidget {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE3F2FD),
+                    color: colors.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: appointment.doctorImage != null &&
@@ -51,10 +53,10 @@ class AppointmentDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           child: Image.network(appointment.doctorImage!,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, __, ___) => Icon(
                                   Icons.person,
-                                  color: Color(0xFF1664CD))))
-                      : const Icon(Icons.person, color: Color(0xFF1664CD)),
+                                  color: colors.primary)))
+                      : Icon(Icons.person, color: colors.primary),
                 ),
                 const SizedBox(width: 15),
                 Expanded(
@@ -62,10 +64,10 @@ class AppointmentDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(appointment.doctorName ?? 'Doctor',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1B2C49))),
+                              color: colors.heading)),
                       const SizedBox(height: 4),
                       Text(appointment.specialty ?? '',
                           style:
@@ -189,10 +191,10 @@ class AppointmentDetailScreen extends StatelessWidget {
                 style: const TextStyle(fontSize: 12, color: Colors.grey)),
             const SizedBox(height: 2),
             Text(value,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1B2C49))),
+                    color: AppColors.heading)),
           ],
         ),
       ],

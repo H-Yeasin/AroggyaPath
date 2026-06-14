@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:async';
-import 'dart:ui' as ui;
-import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../models/doctor_model.dart';
 
 class MarkerFactory {
@@ -11,88 +9,98 @@ class MarkerFactory {
   factory MarkerFactory() => _instance;
   MarkerFactory._internal();
 
-  // Cache for custom markers to avoid re-downloading/processing
-  final Map<String, BitmapDescriptor> _markerCache = {};
-
-  /// Create a marker for the user's location
+  /// Create a marker for the user's current location.
   Marker createUserMarker(LatLng position) {
     return Marker(
-      markerId: const MarkerId('user_location'),
-      position: position,
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-      infoWindow: const InfoWindow(
-        title: 'Your Location',
-        snippet: 'You are here',
+      point: position,
+      width: 40,
+      height: 40,
+      child: GestureDetector(
+        onTap: () {
+          // Could show a snackbar — caller provides context if needed.
+        },
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.person_pin_circle, color: Colors.blue, size: 36),
+          ],
+        ),
       ),
     );
   }
 
-  /// Create a marker for a doctor
-  Future<Marker> createCustomDoctorMarker({
+  /// Create a marker for a doctor with a custom icon, distance label,
+  /// and tap handler.
+  Marker createCustomDoctorMarker({
     required Doctor doctor,
     required double distanceKm,
     required VoidCallback onTap,
-  }) async {
-    LatLng position;
-    if (doctor.latitude != null && doctor.longitude != null) {
-      position = LatLng(doctor.latitude!, doctor.longitude!);
-    } else {
-      position = const LatLng(0, 0);
-    }
-
-    BitmapDescriptor icon;
-
-    // Check cache first
-    if (_markerCache.containsKey('static_doctor_icon')) {
-      icon = _markerCache['static_doctor_icon']!;
-    } else {
-      try {
-        // Resize icon to 50px width
-        final Uint8List markerIcon = await _getBytesFromAsset(
-          'assets/icons/doclocation.png',
-          50,
-        );
-        icon = BitmapDescriptor.bytes(markerIcon);
-        // Cache it
-        _markerCache['static_doctor_icon'] = icon;
-      } catch (e) {
-        debugPrint('Error loading static doctor icon: $e');
-        icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
-      }
-    }
+  }) {
+    final LatLng position = (doctor.latitude != null && doctor.longitude != null)
+        ? LatLng(doctor.latitude!, doctor.longitude!)
+        : const LatLng(0, 0);
 
     return Marker(
-      markerId: MarkerId(doctor.id),
-      position: position,
-      infoWindow: InfoWindow(
-        title: doctor.fullName,
-        snippet:
-            '${doctor.specialty} - ${distanceKm.toStringAsFixed(1)} km away',
+      point: position,
+      width: 50,
+      height: 60,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Doctor icon from asset, with fallback
+            Image.asset(
+              'assets/icons/doclocation.png',
+              width: 40,
+              height: 40,
+              errorBuilder: (_, __, ___) => Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.local_hospital,
+                    color: Colors.white, size: 28),
+              ),
+            ),
+            // Distance label
+            Container(
+              margin: const EdgeInsets.only(top: 2),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 3,
+                  ),
+                ],
+              ),
+              child: Text(
+                '${distanceKm.toStringAsFixed(1)} km',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-      icon: icon,
-      onTap: onTap,
     );
   }
 
-  // Helper to resize asset image
-  Future<Uint8List> _getBytesFromAsset(String path, int width) async {
-    ByteData data = await rootBundle.load(path);
-    ui.Codec codec = await ui.instantiateImageCodec(
-      data.buffer.asUint8List(),
-      targetWidth: width,
-    );
-    ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(
-      format: ui.ImageByteFormat.png,
-    ))!.buffer.asUint8List();
-  }
-
-  /// Create a generic marker for selection
+  /// Create a generic selection marker.
   Marker createSelectedMarker(LatLng position) {
     return Marker(
-      markerId: const MarkerId('selected'),
-      position: position,
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+      point: position,
+      width: 40,
+      height: 40,
+      child: const Icon(Icons.location_on, color: Colors.blue, size: 36),
     );
   }
 }

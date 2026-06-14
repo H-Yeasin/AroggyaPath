@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../services/api_service.dart';
 
@@ -55,7 +56,10 @@ class _SignupScreenState extends State<SignupScreen> {
       if (res['success'] == true && res['data'] != null) {
         final list = res['data'] as List;
         setState(() {
-          _specialties = list.map((c) => c['speciality_name']?.toString() ?? '').where((s) => s.isNotEmpty).toList();
+          _specialties = list
+              .map((c) => c['speciality_name']?.toString() ?? '')
+              .where((s) => s.isNotEmpty)
+              .toList();
           _loadingCategories = false;
         });
       } else {
@@ -94,10 +98,22 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     if (_role == 'doctor') {
-      if (_licenseCtrl.text.trim().isEmpty) { _snack('Medical license is required', true); return; }
-      if (_specialty == null || _specialty!.isEmpty) { _snack('Please select a specialty', true); return; }
-      if (_experienceCtrl.text.trim().isEmpty) { _snack('Years of experience is required', true); return; }
-      if (_referralEnabled && _referralCtrl.text.trim().isEmpty) { _snack('Referral code is required', true); return; }
+      if (_licenseCtrl.text.trim().isEmpty) {
+        _snack('Medical license is required', true);
+        return;
+      }
+      if (_specialty == null || _specialty!.isEmpty) {
+        _snack('Please select a specialty', true);
+        return;
+      }
+      if (_experienceCtrl.text.trim().isEmpty) {
+        _snack('Years of experience is required', true);
+        return;
+      }
+      if (_referralEnabled && _referralCtrl.text.trim().isEmpty) {
+        _snack('Referral code is required', true);
+        return;
+      }
     }
 
     setState(() => _isLoading = true);
@@ -138,8 +154,10 @@ class _SignupScreenState extends State<SignupScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(children: [
-          Icon(Icons.gavel, color: Color(0xFF1664CD)), SizedBox(width: 10),
-          Text('Terms of Service', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Icon(Icons.gavel, color: AppColors.patientPrimary),
+          SizedBox(width: 10),
+          Text('Terms of Service',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         ]),
         content: const SingleChildScrollView(
           child: Text(
@@ -152,12 +170,23 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () { Navigator.pop(ctx); setState(() => _agreed = false); },
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
+          TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                setState(() => _agreed = false);
+              },
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.grey))),
           ElevatedButton(
-            onPressed: () { Navigator.pop(ctx); setState(() => _agreed = true); },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1664CD)),
-            child: const Text('Accept', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _agreed = true);
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.patientPrimary),
+            child: const Text('Accept',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -166,9 +195,14 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   void dispose() {
-    _nameCtrl.dispose(); _emailCtrl.dispose(); _phoneCtrl.dispose();
-    _passwordCtrl.dispose(); _confirmCtrl.dispose();
-    _licenseCtrl.dispose(); _referralCtrl.dispose(); _experienceCtrl.dispose();
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _phoneCtrl.dispose();
+    _passwordCtrl.dispose();
+    _confirmCtrl.dispose();
+    _licenseCtrl.dispose();
+    _referralCtrl.dispose();
+    _experienceCtrl.dispose();
     super.dispose();
   }
 
@@ -177,7 +211,8 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     final isDoctor = _role == 'doctor';
-    final accent = isDoctor ? const Color(0xFF4CAF50) : const Color(0xFF1664CD);
+    final accent =
+        isDoctor ? AppColors.doctorPrimary : AppColors.patientPrimary;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -185,24 +220,28 @@ class _SignupScreenState extends State<SignupScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1B2C49)),
+          icon: const Icon(Icons.arrow_back, color: AppColors.heading),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isDoctor ? 'Register as Doctor' : 'Register as Patient',
-          style: const TextStyle(color: Color(0xFF1B2C49), fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+              color: AppColors.heading,
+              fontSize: 18,
+              fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Form(
           key: _formKey,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             // Role Toggle
             Container(
               margin: const EdgeInsets.only(top: 12, bottom: 20),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.08),
+                color: Colors.grey.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(children: [
@@ -213,15 +252,33 @@ class _SignupScreenState extends State<SignupScreen> {
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: !isDoctor ? const Color(0xFF1664CD) : Colors.transparent,
+                        color: !isDoctor ? accent : Colors.transparent,
                         borderRadius: BorderRadius.circular(14),
-                        boxShadow: !isDoctor ? [BoxShadow(color: const Color(0xFF1664CD).withOpacity(0.25), blurRadius: 8, offset: const Offset(0, 2))] : [],
+                        boxShadow: !isDoctor
+                            ? [
+                                BoxShadow(
+                                    color: AppColors.patientPrimary
+                                        .withValues(alpha: 0.25),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2))
+                              ]
+                            : [],
                       ),
-                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Icon(Icons.person, size: 18, color: !isDoctor ? Colors.white : Colors.grey),
-                        const SizedBox(width: 6),
-                        Text('Patient', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: !isDoctor ? Colors.white : Colors.grey)),
-                      ]),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.person,
+                                size: 18,
+                                color: !isDoctor ? Colors.white : Colors.grey),
+                            const SizedBox(width: 6),
+                            Text('Patient',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: !isDoctor
+                                        ? Colors.white
+                                        : Colors.grey)),
+                          ]),
                     ),
                   ),
                 ),
@@ -230,21 +287,41 @@ class _SignupScreenState extends State<SignupScreen> {
                     onTap: () {
                       setState(() => _role = 'doctor');
                       if (_specialties.isEmpty) _fetchCategories();
-                      if (_loadingReferral && !_referralEnabled) _fetchReferralSetting();
+                      if (_loadingReferral && !_referralEnabled)
+                        _fetchReferralSetting();
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: isDoctor ? const Color(0xFF4CAF50) : Colors.transparent,
+                        color: isDoctor
+                            ? AppColors.doctorPrimary
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(14),
-                        boxShadow: isDoctor ? [BoxShadow(color: const Color(0xFF4CAF50).withOpacity(0.25), blurRadius: 8, offset: const Offset(0, 2))] : [],
+                        boxShadow: isDoctor
+                            ? [
+                                BoxShadow(
+                                    color: AppColors.doctorPrimary
+                                        .withValues(alpha: 0.25),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2))
+                              ]
+                            : [],
                       ),
-                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Icon(Icons.medical_services, size: 18, color: isDoctor ? Colors.white : Colors.grey),
-                        const SizedBox(width: 6),
-                        Text('Doctor', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isDoctor ? Colors.white : Colors.grey)),
-                      ]),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.medical_services,
+                                size: 18,
+                                color: isDoctor ? Colors.white : Colors.grey),
+                            const SizedBox(width: 6),
+                            Text('Doctor',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        isDoctor ? Colors.white : Colors.grey)),
+                          ]),
                     ),
                   ),
                 ),
@@ -262,12 +339,15 @@ class _SignupScreenState extends State<SignupScreen> {
             const SizedBox(height: 6),
             _field(_emailCtrl, 'you@example.com', Icons.email_outlined,
                 keyboard: TextInputType.emailAddress,
-                v: (v) => (v == null || !v.contains('@')) ? 'Valid email required' : null),
+                v: (v) => (v == null || !v.contains('@'))
+                    ? 'Valid email required'
+                    : null),
             const SizedBox(height: 16),
 
             _label('Phone (optional)'),
             const SizedBox(height: 6),
-            _field(_phoneCtrl, 'Phone number', Icons.call, keyboard: TextInputType.phone),
+            _field(_phoneCtrl, 'Phone number', Icons.call,
+                keyboard: TextInputType.phone),
             const SizedBox(height: 16),
 
             // ── Doctor-specific fields ──
@@ -277,14 +357,21 @@ class _SignupScreenState extends State<SignupScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
+                  color: AppColors.statusAcceptedBg,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.2)),
+                  border: Border.all(
+                      color: AppColors.doctorPrimary.withValues(alpha: 0.2)),
                 ),
                 child: const Row(children: [
-                  Icon(Icons.info_outline, color: Color(0xFF4CAF50), size: 18),
+                  Icon(Icons.info_outline,
+                      color: AppColors.doctorPrimary, size: 18),
                   SizedBox(width: 8),
-                  Expanded(child: Text('Doctor verification details', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2E7D32), fontSize: 13))),
+                  Expanded(
+                      child: Text('Doctor verification details',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.doctorGreenDark,
+                              fontSize: 13))),
                 ]),
               ),
               const SizedBox(height: 16),
@@ -302,18 +389,26 @@ class _SignupScreenState extends State<SignupScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.withOpacity(0.4)),
+                  border: Border.all(color: Colors.grey.withValues(alpha: 0.4)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: _loadingCategories
-                    ? const Padding(padding: EdgeInsets.all(14), child: Center(child: CircularProgressIndicator(strokeWidth: 2)))
+                    ? const Padding(
+                        padding: EdgeInsets.all(14),
+                        child: Center(
+                            child: CircularProgressIndicator(strokeWidth: 2)))
                     : DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           isExpanded: true,
                           value: _specialty,
-                          hint: const Text('Select specialty', style: TextStyle(color: Colors.grey)),
-                          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF4CAF50)),
-                          items: _specialties.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                          hint: const Text('Select specialty',
+                              style: TextStyle(color: Colors.grey)),
+                          icon: const Icon(Icons.arrow_drop_down,
+                              color: AppColors.doctorPrimary),
+                          items: _specialties
+                              .map((s) =>
+                                  DropdownMenuItem(value: s, child: Text(s)))
+                              .toList(),
                           onChanged: (v) => setState(() => _specialty = v),
                         ),
                       ),
@@ -330,11 +425,15 @@ class _SignupScreenState extends State<SignupScreen> {
 
               // Referral code (if enabled)
               if (_loadingReferral)
-                const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 8), child: CircularProgressIndicator(strokeWidth: 2)))
+                const Center(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: CircularProgressIndicator(strokeWidth: 2)))
               else if (_referralEnabled) ...[
                 _label('Referral Code *'),
                 const SizedBox(height: 6),
-                _field(_referralCtrl, 'Enter referral code', Icons.discount_outlined,
+                _field(_referralCtrl, 'Enter referral code',
+                    Icons.discount_outlined,
                     v: (v) => (v == null || v.isEmpty) ? 'Required' : null),
                 const SizedBox(height: 16),
               ],
@@ -346,14 +445,14 @@ class _SignupScreenState extends State<SignupScreen> {
             _field(_passwordCtrl, 'Min. 6 characters', Icons.lock_outlined,
                 obscure: _obscure,
                 suffix: IconButton(
-                  icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility, size: 20, color: Colors.grey),
+                  icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility,
+                      size: 20, color: Colors.grey),
                   onPressed: () => setState(() => _obscure = !_obscure),
-                ),
-                v: (v) {
-                  if (v == null || v.isEmpty) return 'Required';
-                  if (v.length < 6) return 'At least 6 characters';
-                  return null;
-                }),
+                ), v: (v) {
+              if (v == null || v.isEmpty) return 'Required';
+              if (v.length < 6) return 'At least 6 characters';
+              return null;
+            }),
             const SizedBox(height: 16),
 
             _label('Confirm Password *'),
@@ -361,32 +460,40 @@ class _SignupScreenState extends State<SignupScreen> {
             _field(_confirmCtrl, 'Re-enter password', Icons.lock_outlined,
                 obscure: _obscureConfirm,
                 suffix: IconButton(
-                  icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility, size: 20, color: Colors.grey),
-                  onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
-                ),
-                v: (v) {
-                  if (v == null || v.isEmpty) return 'Required';
-                  if (v != _passwordCtrl.text) return 'Passwords do not match';
-                  return null;
-                }),
+                  icon: Icon(
+                      _obscureConfirm ? Icons.visibility_off : Icons.visibility,
+                      size: 20,
+                      color: Colors.grey),
+                  onPressed: () =>
+                      setState(() => _obscureConfirm = !_obscureConfirm),
+                ), v: (v) {
+              if (v == null || v.isEmpty) return 'Required';
+              if (v != _passwordCtrl.text) return 'Passwords do not match';
+              return null;
+            }),
             const SizedBox(height: 20),
 
             // EULA
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               SizedBox(
-                width: 24, height: 24,
+                width: 24,
+                height: 24,
                 child: Checkbox(
                   value: _agreed,
                   activeColor: accent,
                   onChanged: (v) {
-                    if (v == true) _showEula(); else setState(() => _agreed = false);
+                    if (v == true)
+                      _showEula();
+                    else
+                      setState(() => _agreed = false);
                   },
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: GestureDetector(
-                  onTap: () => _agreed ? setState(() => _agreed = false) : _showEula(),
+                  onTap: () =>
+                      _agreed ? setState(() => _agreed = false) : _showEula(),
                   child: Padding(
                     padding: const EdgeInsets.only(top: 12),
                     child: RichText(
@@ -394,9 +501,17 @@ class _SignupScreenState extends State<SignupScreen> {
                         style: TextStyle(fontSize: 13, color: Colors.black87),
                         children: [
                           TextSpan(text: 'I agree to the '),
-                          TextSpan(text: 'Terms of Service', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1664CD))),
+                          TextSpan(
+                              text: 'Terms of Service',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.patientPrimary)),
                           TextSpan(text: ' and confirm '),
-                          TextSpan(text: 'zero tolerance', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                          TextSpan(
+                              text: 'zero tolerance',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red)),
                           TextSpan(text: ' for objectionable content.'),
                         ],
                       ),
@@ -419,11 +534,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: accent,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                     elevation: 2,
                   ),
-                  child: Text('Create ${isDoctor ? "Doctor" : "Patient"} Account',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: Text(
+                      'Create ${isDoctor ? "Doctor" : "Patient"} Account',
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             const SizedBox(height: 16),
@@ -433,7 +551,7 @@ class _SignupScreenState extends State<SignupScreen> {
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Already have an account? Log in',
-                    style: TextStyle(color: Color(0xFF4B5563))),
+                    style: TextStyle(color: AppColors.bodyText)),
               ),
             ),
             const SizedBox(height: 40),
@@ -445,10 +563,17 @@ class _SignupScreenState extends State<SignupScreen> {
 
   // ── Helpers ──
   Widget _label(String text) {
-    return Text(text, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF1B2C49)));
+    return Text(text,
+        style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+            color: AppColors.heading));
   }
 
-  Widget _field(TextEditingController ctrl, String hint, IconData icon, {
+  Widget _field(
+    TextEditingController ctrl,
+    String hint,
+    IconData icon, {
     TextInputType? keyboard,
     bool obscure = false,
     Widget? suffix,
@@ -461,19 +586,21 @@ class _SignupScreenState extends State<SignupScreen> {
       validator: v,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey.withOpacity(0.6), fontSize: 14),
-        prefixIcon: Icon(icon, color: const Color(0xFF1664CD), size: 20),
+        hintStyle:
+            TextStyle(color: Colors.grey.withValues(alpha: 0.6), fontSize: 14),
+        prefixIcon: Icon(icon, color: AppColors.patientPrimary, size: 20),
         suffixIcon: suffix,
-        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.withOpacity(0.3))),
+            borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3))),
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.withOpacity(0.3))),
+            borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3))),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF1664CD))),
+            borderSide: const BorderSide(color: AppColors.patientPrimary)),
         errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Colors.red)),

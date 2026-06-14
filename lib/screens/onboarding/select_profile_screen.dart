@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../config/app_theme.dart';
 import '../login_screen.dart';
 import '../signup_screen.dart';
 
@@ -20,7 +21,7 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please select your profile type'),
-          backgroundColor: Colors.red.withOpacity(0.9),
+          backgroundColor: Colors.red.withValues(alpha: 0.9),
           behavior: SnackBarBehavior.floating,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -43,7 +44,7 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please select your profile type'),
-          backgroundColor: Colors.red.withOpacity(0.9),
+          backgroundColor: Colors.red.withValues(alpha: 0.9),
           behavior: SnackBarBehavior.floating,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -54,8 +55,7 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            SignupScreen(initialRole: _selectedRole!.toLowerCase()),
+        builder: (_) => SignupScreen(initialRole: _selectedRole!.toLowerCase()),
       ),
     );
   }
@@ -65,6 +65,7 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
     final isPatient = _selectedRole == 'Patient';
     final isDoctor = _selectedRole == 'Doctor';
     final hasSelection = _selectedRole != null;
+    final colors = AppTheme.of(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -78,11 +79,11 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFE3F2FD),
+                color: AppColors.patientPrimaryContainer,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: const Icon(Icons.medical_services,
-                  size: 56, color: Color(0xFF1664CD)),
+                  size: 56, color: AppColors.patientPrimary),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -90,13 +91,13 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1B2C49),
+                color: AppColors.heading,
               ),
             ),
             const SizedBox(height: 8),
             const Text(
               'Please select your profile to continue',
-              style: TextStyle(fontSize: 15, color: Color(0xFF4B5563)),
+              style: TextStyle(fontSize: 15, color: AppColors.bodyText),
             ),
             const SizedBox(height: 6),
             Text(
@@ -108,10 +109,8 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
               style: TextStyle(
                 fontSize: 13,
                 color: hasSelection
-                    ? (isPatient
-                        ? const Color(0xFF1664CD)
-                        : const Color(0xFF4CAF50))
-                    : const Color(0xFF4B5563),
+                    ? (isPatient ? colors.primary : AppColors.doctorPrimary)
+                    : AppColors.bodyText,
                 fontWeight: hasSelection ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
@@ -126,7 +125,7 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
                   subtitle: 'Find & book\ndoctors nearby',
                   icon: Icons.person,
                   isSelected: isPatient,
-                  color: const Color(0xFF1664CD),
+                  color: AppColors.patientPrimary,
                   onTap: () => setState(() => _selectedRole = 'Patient'),
                 ),
               ),
@@ -137,7 +136,7 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
                   subtitle: 'Manage patients\n& appointments',
                   icon: Icons.medical_services,
                   isSelected: isDoctor,
-                  color: const Color(0xFF4CAF50),
+                  color: AppColors.doctorPrimary,
                   onTap: () => setState(() => _selectedRole = 'Doctor'),
                 ),
               ),
@@ -151,22 +150,22 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
+                  color: AppColors.statusAcceptedBg,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFF4CAF50)
-                      .withOpacity(0.3)),
+                  border: Border.all(
+                      color: AppColors.doctorPrimary.withValues(alpha: 0.3)),
                 ),
                 child: Column(children: [
                   Row(children: [
                     const Icon(Icons.info_outline,
-                        color: Color(0xFF4CAF50), size: 20),
+                        color: AppColors.doctorPrimary, size: 20),
                     const SizedBox(width: 8),
                     const Expanded(
                       child: Text(
                         'Doctor registration requires:',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF2E7D32),
+                          color: AppColors.doctorGreenDark,
                         ),
                       ),
                     ),
@@ -186,9 +185,7 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
                 onPressed: _continueToLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: hasSelection
-                      ? (isPatient
-                          ? const Color(0xFF1664CD)
-                          : const Color(0xFF4CAF50))
+                      ? (isPatient ? colors.primary : AppColors.doctorPrimary)
                       : Colors.grey,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -210,15 +207,11 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
                 onPressed: _continueToSignup,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: hasSelection
-                      ? (isPatient
-                          ? const Color(0xFF1664CD)
-                          : const Color(0xFF4CAF50))
+                      ? (isPatient ? colors.primary : AppColors.doctorPrimary)
                       : Colors.grey,
                   side: BorderSide(
                     color: hasSelection
-                        ? (isPatient
-                            ? const Color(0xFF1664CD)
-                            : const Color(0xFF4CAF50))
+                        ? (isPatient ? colors.primary : AppColors.doctorPrimary)
                         : Colors.grey,
                   ),
                   shape: RoundedRectangleBorder(
@@ -250,35 +243,50 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.06) : Colors.white,
+          color: isSelected ? color.withValues(alpha: 0.06) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? color : Colors.grey.withOpacity(0.25),
+            color: isSelected ? color : Colors.grey.withValues(alpha: 0.25),
             width: isSelected ? 2.5 : 1.5,
           ),
           boxShadow: isSelected
-              ? [BoxShadow(color: color.withOpacity(0.15), blurRadius: 16, offset: const Offset(0, 6))]
-              : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+              ? [
+                  BoxShadow(
+                      color: color.withValues(alpha: 0.15),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6))
+                ]
+              : [
+                  BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 8)
+                ],
         ),
         child: Column(children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isSelected ? color.withOpacity(0.1) : Colors.grey.withOpacity(0.08),
+              color: isSelected
+                  ? color.withValues(alpha: 0.1)
+                  : Colors.grey.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 40, color: isSelected ? color : Colors.grey),
+            child:
+                Icon(icon, size: 40, color: isSelected ? color : Colors.grey),
           ),
           const SizedBox(height: 16),
           Text(title,
               style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold,
-                  color: isSelected ? color : const Color(0xFF1B2C49))),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? color : AppColors.heading)),
           const SizedBox(height: 6),
           Text(subtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13,
-                  color: isSelected ? color.withOpacity(0.8) : Colors.grey,
+              style: TextStyle(
+                  fontSize: 13,
+                  color:
+                      isSelected ? color.withValues(alpha: 0.8) : Colors.grey,
                   height: 1.4)),
         ]),
       ),
@@ -289,9 +297,12 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: Row(children: [
-        const Icon(Icons.check_circle, color: Color(0xFF4CAF50), size: 16),
+        const Icon(Icons.check_circle,
+            color: AppColors.doctorPrimary, size: 16),
         const SizedBox(width: 6),
-        Text(text, style: const TextStyle(fontSize: 13, color: Color(0xFF33691E))),
+        Text(text,
+            style: const TextStyle(
+                fontSize: 13, color: AppColors.doctorGreenText)),
       ]),
     );
   }

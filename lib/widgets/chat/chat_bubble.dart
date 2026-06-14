@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 
 class ChatBubble extends StatelessWidget {
   final Map<String, dynamic> message;
@@ -27,6 +28,7 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     final String text = message['content']?.toString() ?? '';
     final List<dynamic> attachments = message['fileUrl'] ?? [];
     final time = message['createdAt']?.toString() ?? '';
@@ -59,8 +61,8 @@ class ChatBubble extends StatelessWidget {
                         horizontal: 20, vertical: 14),
                     decoration: BoxDecoration(
                       gradient: isMe
-                          ? const LinearGradient(
-                              colors: [Color(0xFF6C5CE7), Color(0xFF8E7CFE)],
+                          ? LinearGradient(
+                              colors: [colors.chatPrimary, colors.chatSecondary],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             )
@@ -111,7 +113,7 @@ class ChatBubble extends StatelessWidget {
                             text,
                             style: TextStyle(
                               color:
-                                  isMe ? Colors.white : const Color(0xFF1B2C49),
+                                  isMe ? Colors.white : colors.heading,
                               fontSize: 15,
                               height: 1.4,
                             ),

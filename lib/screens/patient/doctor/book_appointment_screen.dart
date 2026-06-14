@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -74,6 +75,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Future<void> _selectDate() async {
+    final colors = AppTheme.of(context);
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
@@ -81,7 +83,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       lastDate: DateTime.now().add(const Duration(days: 90)),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: Color(0xFF0D53C1)),
+          colorScheme: ColorScheme.light(primary: colors.primaryLight),
         ),
         child: child!,
       ),
@@ -287,8 +289,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -337,7 +340,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               child: ElevatedButton(
                 onPressed: _isLoading ? () {} : _submitAppointment,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0D53C1),
+                  backgroundColor: colors.primaryLight,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
@@ -395,32 +398,34 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Widget _buildTypeOption(String label, IconData icon, bool isSelected) {
+    final colors = AppTheme.of(context);
     return GestureDetector(
       onTap: () => setState(() => selectedType = label),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE3F2FD) : Colors.grey[100],
+          color: isSelected ? colors.primaryContainer : Colors.grey[100],
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? const Color(0xFF0D47A1) : Colors.transparent,
+            color: isSelected ? colors.primaryDark : Colors.transparent,
             width: 2,
           ),
         ),
         child: Column(children: [
-          Icon(icon, color: isSelected ? const Color(0xFF0D47A1) : Colors.grey),
+          Icon(icon, color: isSelected ? colors.primaryDark : Colors.grey),
           const SizedBox(height: 4),
           Text(label,
               style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? const Color(0xFF0D47A1) : Colors.grey)),
+                  color: isSelected ? colors.primaryDark : Colors.grey)),
         ]),
       ),
     );
   }
 
   Widget _buildDependentSelector(DependentProvider provider) {
+    final colors = AppTheme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -442,13 +447,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               ChoiceChip(
                 label: const Text('Myself'),
                 selected: selectedDependent == null,
-                selectedColor: const Color(0xFFE3F2FD),
+                selectedColor: colors.primaryContainer,
                 onSelected: (_) => setState(() => selectedDependent = null),
               ),
               ...provider.activeDependents.map((dep) => ChoiceChip(
                     label: Text(dep.displayName),
                     selected: selectedDependent?.id == dep.id,
-                    selectedColor: const Color(0xFFE3F2FD),
+                    selectedColor: colors.primaryContainer,
                     onSelected: (_) => setState(() => selectedDependent = dep),
                   )),
             ],
@@ -459,6 +464,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Widget _buildDateSelector() {
+    final colors = AppTheme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -470,7 +476,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       ),
       child: ListTile(
         contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.calendar_today, color: Color(0xFF0D47A1)),
+        leading: Icon(Icons.calendar_today, color: colors.primaryDark),
         title: Text(
           selectedDate != null
               ? DateFormat('EEE, MMM d, yyyy').format(selectedDate!)
@@ -484,6 +490,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Widget _buildTimeSlotGrid() {
+    final colors = AppTheme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -514,7 +521,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   label: Text(slot.displayTime,
                       style: const TextStyle(fontSize: 13)),
                   selected: isSelected,
-                  selectedColor: const Color(0xFFE3F2FD),
+                  selectedColor: colors.primaryContainer,
                   onSelected: (_) => setState(() => selectedTimeSlot = slot),
                 );
               }).toList(),
@@ -525,6 +532,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Widget _buildSymptomsInput() {
+    final colors = AppTheme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -554,7 +562,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   borderSide: BorderSide(color: Colors.grey[300]!)),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Color(0xFF0D47A1))),
+                  borderSide: BorderSide(color: colors.primaryDark)),
             ),
           ),
         ],

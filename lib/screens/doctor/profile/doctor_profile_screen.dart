@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,10 +51,11 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     final user = context.watch<UserProvider>().user;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -61,20 +63,20 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
             const SizedBox(height: 20),
             CircleAvatar(
               radius: 50,
-              backgroundColor: const Color(0xFFE3F2FD),
+              backgroundColor: colors.primaryContainer,
               backgroundImage: user?.profileImage != null
                   ? CachedNetworkImageProvider(user!.profileImage!)
                   : null,
               child: user?.profileImage == null
-                  ? const Icon(Icons.person, size: 50, color: Color(0xFF1664CD))
+                  ? Icon(Icons.person, size: 50, color: colors.primary)
                   : null,
             ),
             const SizedBox(height: 16),
             Text('Dr. ${user?.fullName ?? "Doctor"}',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1B2C49))),
+                    color: colors.heading)),
             const SizedBox(height: 4),
             Text(user?.email ?? '',
                 style: const TextStyle(fontSize: 14, color: Colors.grey)),
@@ -84,7 +86,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5E9),
+                    color: colors.statusAcceptedBg,
                     borderRadius: BorderRadius.circular(12)),
                 child: Text(user!.specialty!,
                     style: const TextStyle(
@@ -177,11 +179,12 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
   Widget _buildMenuItem(IconData icon, String title, String subtitle,
       {required VoidCallback onTap}) {
+    final colors = AppTheme.of(context);
     return ListTile(
-      leading: Icon(icon, color: const Color(0xFF1664CD)),
+      leading: Icon(icon, color: colors.primary),
       title: Text(title,
-          style: const TextStyle(
-              fontWeight: FontWeight.w600, color: Color(0xFF1B2C49))),
+          style: TextStyle(
+              fontWeight: FontWeight.w600, color: colors.heading)),
       subtitle: Text(subtitle,
           style: const TextStyle(fontSize: 12, color: Colors.grey)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),

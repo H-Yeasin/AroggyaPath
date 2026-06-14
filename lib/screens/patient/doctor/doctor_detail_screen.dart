@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import '../../../models/doctor_model.dart';
 import '../../../services/api_service.dart';
 import '../../../services/doctor_service.dart';
@@ -46,6 +47,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     final bool hasVideoCall = widget.doctor.isVideoCallAvailable;
     final String? currentUserRole =
         Provider.of<UserProvider>(context, listen: false).user?.role;
@@ -98,21 +100,21 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 6),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE3F2FD),
+                                color: colors.primaryContainer,
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                    color: const Color(0xFF2196F3),
+                                    color: colors.info,
                                     width: 1.5),
                               ),
-                              child: const Row(
+                              child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(Icons.videocam,
-                                        color: Color(0xFF1976D2), size: 14),
+                                        color: colors.info, size: 14),
                                     SizedBox(width: 2),
                                     Text('Video Available',
                                         style: TextStyle(
-                                            color: Color(0xFF1565C0),
+                                            color: colors.info,
                                             fontWeight: FontWeight.w500,
                                             fontSize: 10)),
                                   ]),
@@ -261,7 +263,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0D53C1),
+                        backgroundColor: colors.primaryLight,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)),
                       ),

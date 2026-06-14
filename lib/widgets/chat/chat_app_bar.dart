@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -27,8 +28,9 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return AppBar(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: colors.surfaceAlt,
       elevation: 0,
       leading: IconButton(
         icon: Icon(isSelectionMode ? Icons.close : Icons.arrow_back,

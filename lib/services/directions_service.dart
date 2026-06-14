@@ -1,95 +1,113 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 
 class DirectionsService {
-  // Google Maps Directions API Key
-  static const String _apiKey = 'AIzaSyDwpV4RKu-t9aThomHv7SPcbY0uAj80dek';
+  /// Free OSRM (OpenStreetMap Routing Machine) public API — no key required.
+  /// Production note: the public demo server is rate-limited. For production
+  /// use, host your own OSRM instance or use a sponsored tile service.
+  static const String _baseUrl = 'https://router.project-osrm.org';
 
-  /// Get directions between two points
+  /// Get driving directions between two points using OSRM.
+  /// Returns decoded polyline points, distance text, and duration text.
   Future<Map<String, dynamic>?> getDirections({
     required LatLng origin,
     required LatLng destination,
   }) async {
     try {
+      // OSRM expects: lng,lat;lng,lat
       final String url =
-          'https://maps.googleapis.com/maps/api/directions/json?'
-          'origin=${origin.latitude},${origin.longitude}&'
-          'destination=${destination.latitude},${destination.longitude}&'
-          'mode=driving&'
-          'key=$_apiKey';
+          '$_baseUrl/route/v1/driving/'
+          '${origin.longitude},${origin.latitude};'
+          '${destination.longitude},${destination.latitude}'
+          '?overview=full&geometries=geojson&steps=true';
 
-      debugPrint('Fetching directions from Google Maps API...');
+      debugPrint('Fetching directions from OSRM...');
 
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        if (data['status'] == 'OK' && data['routes'].isNotEmpty) {
+        if (data['code'] == 'Ok' &&
+            data['routes'] != null &&
+            data['routes'].isNotEmpty) {
           final route = data['routes'][0];
-          final polylinePoints = _decodePolyline(
-            route['overview_polyline']['points'],
-          );
+          final geometry = route['geometry'];
+
+          // Parse GeoJSON LineString coordinates into LatLng list
+          final List<LatLng> polylinePoints = [];
+          if (geometry['type'] == 'LineString') {
+            for (final coord in geometry['coordinates']) {
+              // GeoJSON coords are [longitude, latitude]
+              polylinePoints.add(LatLng(
+                (coord[1] as num).toDouble(),
+                (coord[0] as num).toDouble(),
+              ));
+            }
+          }
+
+          // Extract step-by-step directions (optional, for UI)
+          final List<Map<String, dynamic>> steps = [];
+          if (route['legs'] != null && route['legs'].isNotEmpty) {
+            final leg = route['legs'][0];
+            if (leg['steps'] != null) {
+              for (final step in leg['steps']) {
+                steps.add({
+                  'instruction': step['name'] ?? '',
+                  'distance': step['distance'] ?? 0,
+                  'duration': step['duration'] ?? 0,
+                });
+              }
+            }
+          }
+
+          // Convert meters to human-readable text
+          final double distanceMeters =
+              (route['distance'] as num?)?.toDouble() ?? 0;
+          final double durationSeconds =
+              (route['duration'] as num?)?.toDouble() ?? 0;
 
           return {
             'polylinePoints': polylinePoints,
-            'distance': route['legs'][0]['distance']['text'],
-            'duration': route['legs'][0]['duration']['text'],
-            'steps': route['legs'][0]['steps'],
+            'distance': _formatDistance(distanceMeters),
+            'duration': _formatDuration(durationSeconds),
+            'steps': steps,
           };
         } else {
-          debugPrint('Directions API Status: ${data['status']}');
+          debugPrint('OSRM API code: ${data['code']}');
           return null;
         }
       } else {
-        debugPrint('HTTP Error: ${response.statusCode}');
+        debugPrint('OSRM HTTP Error: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      debugPrint('Error fetching directions: $e');
+      debugPrint('Error fetching OSRM directions: $e');
       return null;
     }
   }
 
-  /// Decode Google polyline to LatLng points
-  List<LatLng> _decodePolyline(String encoded) {
-    List<LatLng> points = [];
-    int index = 0;
-    int len = encoded.length;
-    int lat = 0;
-    int lng = 0;
-
-    while (index < len) {
-      int b;
-      int shift = 0;
-      int result = 0;
-
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-
-      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-
-      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lng += dlng;
-
-      points.add(LatLng(lat / 1E5, lng / 1E5));
+  /// Format distance in meters to human-readable text.
+  String _formatDistance(double meters) {
+    if (meters < 1000) {
+      return '${meters.round()} m';
+    } else {
+      return '${(meters / 1000).toStringAsFixed(1)} km';
     }
+  }
 
-    return points;
+  /// Format duration in seconds to human-readable text.
+  String _formatDuration(double seconds) {
+    if (seconds < 60) {
+      return '${seconds.round()} sec';
+    } else if (seconds < 3600) {
+      return '${(seconds / 60).round()} min';
+    } else {
+      final hours = (seconds / 3600).floor();
+      final minutes = ((seconds % 3600) / 60).round();
+      return '$hours hr $minutes min';
+    }
   }
 }

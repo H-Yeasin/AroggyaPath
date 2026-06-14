@@ -37,10 +37,12 @@
             </intent-filter>
         </activity>
 
-        <!-- Google Maps API Key -->
+        <!-- Map is now rendered by flutter_map (free OpenStreetMap tiles) — no Google Maps key needed -->
+        <!--
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_GOOGLE_MAPS_API_KEY" />
+        -->
 
         <!-- Flutter-related meta-data -->
         <meta-data

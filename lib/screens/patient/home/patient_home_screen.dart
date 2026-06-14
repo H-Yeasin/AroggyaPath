@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import '../../../config/app_theme.dart';
 import '../../../models/doctor_model.dart';
 import '../../../providers/appointment_provider.dart';
 import '../../../providers/doctor_provider.dart';
@@ -31,14 +33,14 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   final MarkerFactory _markerFactory = MarkerFactory();
   final DirectionsService _directionsService = DirectionsService();
 
-  GoogleMapController? _mapController;
+  final MapController _mapController = MapController();
 
   LatLng _currentPosition = const LatLng(23.8103, 90.4125);
   bool _isLoadingLocation = true;
   bool _locationPermissionGranted = false;
-  Set<Marker> _markers = {};
-  Set<Polyline> _polylines = {};
-  final Set<Polyline> _directionPolylines = {};
+  List<Marker> _markers = [];
+  List<Polyline> _polylines = [];
+  final List<Polyline> _directionPolylines = [];
 
   Timer? _refreshTimer;
   bool _isScreenInitialized = false;
@@ -123,7 +125,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   @override
   void dispose() {
     _refreshTimer?.cancel();
-    _mapController?.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -187,9 +189,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
           _isLoadingLocation = false;
         });
 
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(_currentPosition, 14),
-        );
+        _mapController.move(_currentPosition, 14);
 
         _printCurrentLocation();
         _addDoctorMarkers();
@@ -298,8 +298,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   Future<void> _addDoctorMarkers() async {
     try {
       final doctors = context.read<DoctorProvider>().nearbyDoctors;
-      Set<Marker> markers = {};
-      Set<Polyline> polylines = {};
+      List<Marker> markers = [];
+      List<Polyline> polylines = [];
 
       markers.add(_markerFactory.createUserMarker(_currentPosition));
 
@@ -327,16 +327,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
           polylines.add(
             Polyline(
-              polylineId: PolylineId('route_${doctor.id}'),
               points: [_currentPosition, doctorLocation],
               color: routeColor,
-              width: 4,
-              startCap: Cap.roundCap,
-              endCap: Cap.roundCap,
-              geodesic: true,
-              patterns: distanceKm > 15
-                  ? [PatternItem.dash(20), PatternItem.gap(10)]
-                  : [],
+              strokeWidth: 4,
+              pattern: distanceKm > 15
+                  ? StrokePattern.dashed(segments: const [10, 7])
+                  : const StrokePattern.solid(),
             ),
           );
         }
@@ -392,38 +388,24 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
         _directionPolylines.add(
           Polyline(
-            polylineId: PolylineId('direction_$doctorId'),
             points: polylinePoints,
             color: Colors.blue,
-            width: 6,
-            startCap: Cap.roundCap,
-            endCap: Cap.roundCap,
-            geodesic: true,
+            strokeWidth: 6,
           ),
         );
       });
 
-      // Zoom to show both locations
-      LatLngBounds bounds = LatLngBounds(
-        southwest: LatLng(
-          _currentPosition.latitude < doctorLocation.latitude
-              ? _currentPosition.latitude
-              : doctorLocation.latitude,
-          _currentPosition.longitude < doctorLocation.longitude
-              ? _currentPosition.longitude
-              : doctorLocation.longitude,
-        ),
-        northeast: LatLng(
-          _currentPosition.latitude > doctorLocation.latitude
-              ? _currentPosition.latitude
-              : doctorLocation.latitude,
-          _currentPosition.longitude > doctorLocation.longitude
-              ? _currentPosition.longitude
-              : doctorLocation.longitude,
+      // Zoom to fit both user and doctor locations
+      final bounds = LatLngBounds.fromPoints([
+        _currentPosition,
+        doctorLocation,
+      ]);
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: bounds,
+          padding: const EdgeInsets.all(100),
         ),
       );
-
-      _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -561,10 +543,11 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     final userProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F6FF),
+      backgroundColor: colors.surfaceAlt,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _onRefresh,
@@ -598,7 +581,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                             children: [
                               CircleAvatar(
                                 radius: 28,
-                                backgroundColor: const Color(0xFFE3F2FD),
+                                backgroundColor: colors.primaryContainer,
                                 child: ClipOval(
                                   child: userProvider.user?.profileImage != null
                                       ? CachedNetworkImage(
@@ -607,17 +590,17 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                           width: 56,
                                           height: 56,
                                           fit: BoxFit.cover,
-                                          placeholder: (_, __) => const Icon(
+                                          placeholder: (_, __) => Icon(
                                               Icons.person,
                                               size: 30,
-                                              color: Color(0xFF1664CD)),
-                                          errorWidget: (_, __, ___) =>
-                                              const Icon(Icons.person,
-                                                  size: 30,
-                                                  color: Color(0xFF1664CD)),
+                                              color: colors.primary),
+                                          errorWidget: (_, __, ___) => Icon(
+                                              Icons.person,
+                                              size: 30,
+                                              color: colors.primary),
                                         )
-                                      : const Icon(Icons.person,
-                                          size: 30, color: Color(0xFF1664CD)),
+                                      : Icon(Icons.person,
+                                          size: 30, color: colors.primary),
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -630,10 +613,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                           'Welcome to AroggyaPath',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF1B2C49),
+                                        color: colors.heading,
                                       ),
                                     ),
                                     Row(
@@ -739,29 +722,27 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                             )
                           : Stack(
                               children: [
-                                GoogleMap(
-                                  initialCameraPosition: CameraPosition(
-                                    target: _currentPosition,
-                                    zoom: 13,
+                                FlutterMap(
+                                  mapController: _mapController,
+                                  options: MapOptions(
+                                    initialCenter: _currentPosition,
+                                    initialZoom: 13,
                                   ),
-                                  markers: _markers,
-                                  polylines: {
-                                    ..._polylines,
-                                    ..._directionPolylines,
-                                  },
-                                  myLocationEnabled: _locationPermissionGranted,
-                                  myLocationButtonEnabled: false,
-                                  zoomControlsEnabled: true,
-                                  zoomGesturesEnabled: true,
-                                  scrollGesturesEnabled: true,
-                                  tiltGesturesEnabled: true,
-                                  rotateGesturesEnabled: true,
-                                  mapType: MapType.normal,
-                                  onMapCreated: (controller) {
-                                    if (mounted) {
-                                      _mapController = controller;
-                                    }
-                                  },
+                                  children: [
+                                    TileLayer(
+                                      urlTemplate:
+                                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                      userAgentPackageName:
+                                          'com.aroggyapath.app',
+                                    ),
+                                    MarkerLayer(markers: _markers),
+                                    PolylineLayer(
+                                      polylines: [
+                                        ..._polylines,
+                                        ..._directionPolylines,
+                                      ],
+                                    ),
+                                  ],
                                 ),
                                 // Map Legend
                                 Positioned(
@@ -784,12 +765,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Text(
+                                        Text(
                                           'Distance',
                                           style: TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
-                                            color: Color(0xFF1B2C49),
+                                            color: colors.heading,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
@@ -824,17 +805,15 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                           ],
                                         ),
                                         child: IconButton(
-                                          icon: const Icon(Icons.add,
-                                              color: Color(0xFF0D47A1),
+                                          icon: Icon(Icons.add,
+                                              color: colors.primaryDark,
                                               size: 24),
-                                          onPressed: () async {
+                                          onPressed: () {
                                             final currentZoom =
-                                                await _mapController
-                                                        ?.getZoomLevel() ??
-                                                    13;
-                                            _mapController?.animateCamera(
-                                              CameraUpdate.zoomTo(
-                                                  currentZoom + 1),
+                                                _mapController.camera.zoom;
+                                            _mapController.move(
+                                              _mapController.camera.center,
+                                              currentZoom + 1,
                                             );
                                           },
                                         ),
@@ -854,17 +833,15 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                           ],
                                         ),
                                         child: IconButton(
-                                          icon: const Icon(Icons.remove,
-                                              color: Color(0xFF0D47A1),
+                                          icon: Icon(Icons.remove,
+                                              color: colors.primaryDark,
                                               size: 24),
-                                          onPressed: () async {
+                                          onPressed: () {
                                             final currentZoom =
-                                                await _mapController
-                                                        ?.getZoomLevel() ??
-                                                    13;
-                                            _mapController?.animateCamera(
-                                              CameraUpdate.zoomTo(
-                                                  currentZoom - 1),
+                                                _mapController.camera.zoom;
+                                            _mapController.move(
+                                              _mapController.camera.center,
+                                              currentZoom - 1,
                                             );
                                           },
                                         ),
@@ -890,16 +867,15 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                         ],
                                       ),
                                       child: IconButton(
-                                        icon: const Icon(Icons.my_location,
-                                            color: Color(0xFF0D47A1), size: 24),
+                                        icon: Icon(Icons.my_location,
+                                            color: colors.primaryDark,
+                                            size: 24),
                                         onPressed: () async {
                                           if (!_locationPermissionGranted) {
                                             await _getCurrentLocation();
                                           } else {
-                                            _mapController?.animateCamera(
-                                              CameraUpdate.newLatLngZoom(
-                                                  _currentPosition, 14),
-                                            );
+                                            _mapController.move(
+                                                _currentPosition, 14);
                                           }
                                         },
                                       ),
@@ -940,12 +916,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Upcoming Appointment',
                             style: TextStyle(
                               fontSize: 19,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1B2C49),
+                              color: colors.heading,
                             ),
                           ),
                           const SizedBox(height: 15),
@@ -963,12 +939,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Nearby Doctors',
                         style: TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1B2C49),
+                          color: colors.heading,
                         ),
                       ),
                       TextButton(
@@ -1103,13 +1079,13 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
   // ─── Upcoming Appointment Card ───
   Widget _buildUpcomingAppointmentCard(appointment) {
+    final colors = AppTheme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        border:
-            Border.all(color: const Color(0xFF4CAF50).withValues(alpha: 0.3)),
+        border: Border.all(color: colors.success.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -1123,11 +1099,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
+              color: colors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.calendar_today,
-                color: Color(0xFF4CAF50), size: 28),
+            child: Icon(Icons.calendar_today, color: colors.success, size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -1136,10 +1111,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               children: [
                 Text(
                   appointment.doctorName ?? 'Doctor',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Color(0xFF1B2C49),
+                    color: colors.heading,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -1174,28 +1149,29 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   }
 
   Widget _buildStatusBadge(String status) {
+    final colors = AppTheme.of(context);
     Color bgColor;
     Color textColor;
     String label;
 
     switch (status.toLowerCase()) {
       case 'pending':
-        bgColor = const Color(0xFFFFF3E0);
+        bgColor = colors.statusPendingBg;
         textColor = Colors.orange;
         label = 'Pending';
         break;
       case 'accepted':
-        bgColor = const Color(0xFFE8F5E9);
+        bgColor = colors.statusAcceptedBg;
         textColor = Colors.green;
         label = 'Accepted';
         break;
       case 'completed':
-        bgColor = const Color(0xFFE3F2FD);
+        bgColor = colors.primaryContainer;
         textColor = Colors.blue;
         label = 'Completed';
         break;
       case 'cancelled':
-        bgColor = const Color(0xFFFFEBEE);
+        bgColor = colors.statusCancelledBg;
         textColor = Colors.red;
         label = 'Cancelled';
         break;
@@ -1259,6 +1235,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
   // ─── Custom Doctor Card ───
   Widget _buildCustomDoctorCard(Doctor doctor) {
+    final colors = AppTheme.of(context);
     final bool isAvailable = _isDoctorAvailable(doctor);
     final String visitingHours = _getVisitingHours(doctor);
 
@@ -1287,9 +1264,9 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 child: SizedBox(
                   width: 80,
                   height: 80,
-                  child: doctor.image != null && doctor.image!.isNotEmpty
+                  child: doctor.image.isNotEmpty
                       ? CachedNetworkImage(
-                          imageUrl: doctor.image!,
+                          imageUrl: doctor.image,
                           fit: BoxFit.cover,
                           placeholder: (_, __) => Container(
                             color: Colors.grey[100],
@@ -1332,8 +1309,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: isAvailable
-                                ? const Color(0xFFE8F5E9)
-                                : const Color(0xFFFFF3E0),
+                                ? colors.statusAcceptedBg
+                                : colors.statusPendingBg,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -1410,9 +1387,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                           )
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isAvailable
-                        ? const Color(0xFF0D47A1)
-                        : Colors.grey[300],
+                    backgroundColor:
+                        isAvailable ? colors.primaryDark : Colors.grey[300],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1437,11 +1413,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F6FF),
+                    color: colors.surfaceAlt,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child:
-                      const Icon(Icons.info_outline, color: Color(0xFF0D47A1)),
+                  child: Icon(Icons.info_outline, color: colors.primaryDark),
                 ),
               ),
             ],

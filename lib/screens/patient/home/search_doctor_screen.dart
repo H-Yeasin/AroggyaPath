@@ -1,7 +1,8 @@
 import 'dart:math' show cos, sqrt;
 
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../config/app_theme.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/doctor_model.dart';
@@ -165,8 +166,9 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: colors.surfaceAlt,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -197,9 +199,10 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
   }
 
   Widget _buildBody() {
+    final colors = AppTheme.of(context);
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF1664CD)),
+      return Center(
+        child: CircularProgressIndicator(color: colors.primary),
       );
     }
     if (_errorMessage != null) {
@@ -220,7 +223,7 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1664CD),
+                  backgroundColor: colors.primary,
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -245,10 +248,10 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
                 _searchController.text.isEmpty
                     ? 'No doctors available'
                     : 'No doctors found',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1B2C49))),
+                    color: colors.heading)),
           ],
         ),
       );
@@ -266,6 +269,7 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
   }
 
   Widget _buildDoctorCard(Doctor doctor) {
+    final colors = AppTheme.of(context);
     final bool isAvailable = _isDoctorAvailable(doctor);
     final String visitingHours = _getVisitingHours(doctor);
 
@@ -318,10 +322,10 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
                       children: [
                         Expanded(
                           child: Text(doctor.fullName,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1B2C49)),
+                                  color: colors.heading),
                               overflow: TextOverflow.ellipsis),
                         ),
                         Container(
@@ -329,8 +333,8 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: isAvailable
-                                ? const Color(0xFFE8F5E9)
-                                : const Color(0xFFFFF3E0),
+                                ? colors.statusAcceptedBg
+                                : colors.statusPendingBg,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(isAvailable ? 'Available' : 'No Schedule',
@@ -388,7 +392,7 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isAvailable
-                        ? const Color(0xFF0D47A1)
+                        ? colors.primaryDark
                         : Colors.grey[300],
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -405,11 +409,11 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
               ),
               const SizedBox(width: 12),
               Container(
-                decoration: const BoxDecoration(
-                    color: Color(0xFFE3F2FD), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                    color: colors.primaryContainer, shape: BoxShape.circle),
                 child: IconButton(
                   icon:
-                      const Icon(Icons.info_outline, color: Color(0xFF0D47A1)),
+                      Icon(Icons.info_outline, color: colors.primaryDark),
                   onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(

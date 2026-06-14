@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import '../../../config/app_theme.dart';
 
 class FullMapScreen extends StatefulWidget {
   final LatLng currentPosition;
-  final Set<Marker> markers;
-  final Set<Polyline> polylines;
+  final List<Marker> markers;
+  final List<Polyline> polylines;
 
   const FullMapScreen({
     super.key,
@@ -18,40 +20,44 @@ class FullMapScreen extends StatefulWidget {
 }
 
 class _FullMapScreenState extends State<FullMapScreen> {
-  GoogleMapController? _mapController;
+  final MapController _mapController = MapController();
 
   @override
   void dispose() {
-    _mapController?.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Stack(
           children: [
-            // Full Screen Map
-            GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: widget.currentPosition,
-                zoom: 13,
+            // Full Screen Map — free OpenStreetMap tiles via flutter_map
+            FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: widget.currentPosition,
+                initialZoom: 13,
+                onMapReady: () {
+                  // Map is ready — no action needed.
+                },
               ),
-              markers: widget.markers,
-              polylines: widget.polylines,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: true,
-              zoomGesturesEnabled: true,
-              scrollGesturesEnabled: true,
-              tiltGesturesEnabled: true,
-              rotateGesturesEnabled: true,
-              mapType: MapType.normal,
-              onMapCreated: (controller) {
-                _mapController = controller;
-              },
+              children: [
+                // OpenStreetMap tile layer (free, no API key)
+                TileLayer(
+                  urlTemplate:
+                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.aroggyapath.app',
+                ),
+                // Doctor + user markers
+                MarkerLayer(markers: widget.markers),
+                // Polylines (straight lines + direction routes)
+                PolylineLayer(polylines: widget.polylines),
+              ],
             ),
 
             // Close Button
@@ -73,7 +79,7 @@ class _FullMapScreenState extends State<FullMapScreen> {
                     ],
                   ),
                   child: const Icon(Icons.close,
-                      color: Color(0xFF0D47A1), size: 24),
+                      color: AppColors.patientPrimaryDark, size: 24),
                 ),
               ),
             ),
@@ -97,11 +103,11 @@ class _FullMapScreenState extends State<FullMapScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Distance',
+                    Text('Distance',
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1B2C49))),
+                            color: colors.heading)),
                     const SizedBox(height: 8),
                     _buildLegendItem(Colors.green, '< 5 km'),
                     _buildLegendItem(Colors.lightGreen, '5-10 km'),
@@ -131,13 +137,11 @@ class _FullMapScreenState extends State<FullMapScreen> {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.add,
-                          color: Color(0xFF0D47A1), size: 28),
-                      onPressed: () async {
-                        final currentZoom =
-                            await _mapController?.getZoomLevel() ?? 13;
-                        _mapController?.animateCamera(
-                          CameraUpdate.zoomTo(currentZoom + 1),
-                        );
+                          color: AppColors.patientPrimaryDark, size: 28),
+                      onPressed: () {
+                        final currentZoom = _mapController.camera.zoom;
+                        _mapController.move(
+                            _mapController.camera.center, currentZoom + 1);
                       },
                     ),
                   ),
@@ -155,13 +159,11 @@ class _FullMapScreenState extends State<FullMapScreen> {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.remove,
-                          color: Color(0xFF0D47A1), size: 28),
-                      onPressed: () async {
-                        final currentZoom =
-                            await _mapController?.getZoomLevel() ?? 13;
-                        _mapController?.animateCamera(
-                          CameraUpdate.zoomTo(currentZoom - 1),
-                        );
+                          color: AppColors.patientPrimaryDark, size: 28),
+                      onPressed: () {
+                        final currentZoom = _mapController.camera.zoom;
+                        _mapController.move(
+                            _mapController.camera.center, currentZoom - 1);
                       },
                     ),
                   ),
@@ -186,11 +188,9 @@ class _FullMapScreenState extends State<FullMapScreen> {
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.my_location,
-                      color: Color(0xFF0D47A1), size: 28),
+                      color: AppColors.patientPrimaryDark, size: 28),
                   onPressed: () {
-                    _mapController?.animateCamera(
-                      CameraUpdate.newLatLngZoom(widget.currentPosition, 14),
-                    );
+                    _mapController.move(widget.currentPosition, 14);
                   },
                 ),
               ),

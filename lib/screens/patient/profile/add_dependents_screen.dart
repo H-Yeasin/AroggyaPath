@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/dependent_provider.dart';
@@ -64,19 +65,20 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Add Family Member',
-            style: TextStyle(color: Color(0xFF1B2C49))),
+        title: Text('Add Family Member',
+            style: TextStyle(color: colors.heading)),
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('Save',
+            child: Text('Save',
                 style: TextStyle(
-                    color: Color(0xFF1664CD), fontWeight: FontWeight.bold)),
+                    color: colors.primary, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -150,7 +152,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                   ? '${_dob!.day}/${_dob!.month}/${_dob!.year}'
                   : 'Select Date of Birth'),
               leading:
-                  const Icon(Icons.calendar_today, color: Color(0xFF1664CD)),
+                  Icon(Icons.calendar_today, color: colors.primary),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () async {
                 final picked = await showDatePicker(

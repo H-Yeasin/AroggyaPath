@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 
 class ChatInput extends StatelessWidget {
   final TextEditingController controller;
@@ -24,6 +25,7 @@ class ChatInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Column(children: [
       if (selectedFiles.isNotEmpty)
         Container(
@@ -76,8 +78,8 @@ class ChatInput extends StatelessWidget {
           ),
           child: Row(children: [
             IconButton(
-              icon: const Icon(Icons.add_circle_outline,
-                  color: Color(0xFF6C5CE7), size: 26),
+              icon: Icon(Icons.add_circle_outline,
+                  color: colors.chatPrimary, size: 26),
               onPressed: onPickImage,
             ),
             Expanded(
@@ -100,9 +102,9 @@ class ChatInput extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.all(4),
                 padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF6C5CE7), Color(0xFF8E7CFE)],
+                    colors: [colors.chatPrimary, colors.chatSecondary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

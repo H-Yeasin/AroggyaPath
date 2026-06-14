@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../config/app_theme.dart';
 import '../appointments/doctor_appointments_screen.dart';
 import '../home/doctor_home_screen.dart';
 import '../profile/doctor_profile_screen.dart';
@@ -29,6 +30,7 @@ class _DoctorMainNavigationState extends State<DoctorMainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
@@ -48,8 +50,8 @@ class _DoctorMainNavigationState extends State<DoctorMainNavigation> {
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           elevation: 0,
-          selectedItemColor: const Color(0xFF1664CD),
-          unselectedItemColor: const Color(0xFF4B5563),
+          selectedItemColor: colors.primary,
+          unselectedItemColor: colors.bodyText,
           selectedLabelStyle:
               const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           items: const [
@@ -83,25 +85,25 @@ class _PlaceholderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: colors.surfaceAlt,
       body: Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                  color: const Color(0xFF1664CD).withAlpha(25),
-                  shape: BoxShape.circle),
-              child: Icon(icon, size: 48, color: const Color(0xFF1664CD))),
+                  color: colors.primary.withAlpha(25), shape: BoxShape.circle),
+              child: Icon(icon, size: 48, color: colors.primary)),
           const SizedBox(height: 24),
           Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1B2C49))),
+                  color: colors.heading)),
           const SizedBox(height: 8),
-          const Text('Coming soon',
-              style: TextStyle(fontSize: 14, color: Color(0xFF4B5563))),
+          Text('Coming soon',
+              style: TextStyle(fontSize: 14, color: colors.bodyText)),
         ]),
       ),
     );

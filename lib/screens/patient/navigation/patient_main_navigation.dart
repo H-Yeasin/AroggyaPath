@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import '../home/patient_home_screen.dart';
 import '../appointments/patient_appointments_screen.dart';
 import '../profile/patient_profile_screen.dart';
@@ -39,6 +40,7 @@ class _PatientMainNavigationState extends State<PatientMainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -68,8 +70,8 @@ class _PatientMainNavigationState extends State<PatientMainNavigation> {
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           elevation: 0,
-          selectedItemColor: const Color(0xFF1664CD),
-          unselectedItemColor: const Color(0xFF4B5563),
+          selectedItemColor: colors.primary,
+          unselectedItemColor: colors.bodyText,
           selectedLabelStyle: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,

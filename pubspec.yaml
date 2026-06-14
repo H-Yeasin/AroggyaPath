@@ -34,7 +34,8 @@ dependencies:
   # Location & Maps
   geolocator: ^13.0.2
   geocoding: ^2.1.1
-  google_maps_flutter: ^2.5.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
   # UI & Media
   font_awesome_flutter: ^10.8.0

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -247,8 +248,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: colors.surfaceAlt,
       appBar: ChatAppBar(
         userName: widget.doctorName,
         userAvatar: widget.doctorAvatar,
@@ -262,11 +264,11 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         onBack: () => Navigator.pop(context),
         actions: [
           IconButton(
-            icon: const Icon(Icons.call, color: Color(0xFF4CAF50)),
+            icon: Icon(Icons.call, color: colors.success),
             onPressed: () => _initiateCall(false),
           ),
           IconButton(
-            icon: const Icon(Icons.videocam, color: Color(0xFF1664CD)),
+            icon: Icon(Icons.videocam, color: colors.primary),
             onPressed: () => _initiateCall(true),
           ),
         ],
@@ -339,6 +341,7 @@ class CallLogPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Center(

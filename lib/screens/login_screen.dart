@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../config/app_theme.dart';
 import '../components/custom_textfield.dart';
 import '../providers/auth_provider.dart';
 import 'doctor/navigation/doctor_main_navigation.dart';
@@ -68,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen>
               'This account is registered as ${role ?? "unknown"}. '
               'Please select the correct role.',
             ),
-            backgroundColor: Colors.orange,
+            backgroundColor: AppColors.warning,
             duration: const Duration(seconds: 4),
           ),
         );
@@ -113,6 +114,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final isPatient = _selectedRole == 'patient';
+    final colors = AppTheme.of(context);
 
     return Scaffold(
       body: Container(
@@ -123,14 +125,14 @@ class _LoginScreenState extends State<LoginScreen>
             end: Alignment.bottomCenter,
             colors: isPatient
                 ? const [
-                    Color(0xFFE3F2FD),
-                    Color(0xFFF5F8FF),
+                    AppColors.patientPrimaryContainer,
+                    AppColors.background,
                     Colors.white,
                     Colors.white,
                   ]
                 : const [
-                    Color(0xFFE8F5E9),
-                    Color(0xFFF1F8E9),
+                    AppColors.statusAcceptedBg,
+                    AppColors.doctorGradientMid,
                     Colors.white,
                     Colors.white,
                   ],
@@ -152,8 +154,8 @@ class _LoginScreenState extends State<LoginScreen>
                     boxShadow: [
                       BoxShadow(
                         color: isPatient
-                            ? const Color(0xFF1664CD).withOpacity(0.15)
-                            : const Color(0xFF4CAF50).withOpacity(0.15),
+                            ? AppColors.patientPrimary.withValues(alpha: 0.15)
+                            : AppColors.doctorPrimary.withValues(alpha: 0.15),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -162,9 +164,7 @@ class _LoginScreenState extends State<LoginScreen>
                   child: Icon(
                     Icons.medical_services,
                     size: 48,
-                    color: isPatient
-                        ? const Color(0xFF1664CD)
-                        : const Color(0xFF4CAF50),
+                    color: isPatient ? colors.primary : AppColors.doctorPrimary,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -173,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen>
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1B2C49),
+                    color: AppColors.heading,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -181,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen>
                   'Your Health Companion',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF4B5563),
+                    color: AppColors.bodyText,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -190,22 +190,21 @@ class _LoginScreenState extends State<LoginScreen>
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 40),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: TabBar(
                     controller: _tabController,
                     indicator: BoxDecoration(
-                      color: isPatient
-                          ? const Color(0xFF1664CD)
-                          : const Color(0xFF4CAF50),
+                      color:
+                          isPatient ? colors.primary : AppColors.doctorPrimary,
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
                           color: (isPatient
-                                  ? const Color(0xFF1664CD)
-                                  : const Color(0xFF4CAF50))
-                              .withOpacity(0.3),
+                                  ? colors.primary
+                                  : AppColors.doctorPrimary)
+                              .withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -251,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen>
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 20,
                         offset: const Offset(0, 4),
                       ),
@@ -260,13 +259,11 @@ class _LoginScreenState extends State<LoginScreen>
                   child: Column(
                     children: [
                       Text(
-                        isPatient
-                            ? 'Sign in as Patient'
-                            : 'Sign in as Doctor',
+                        isPatient ? 'Sign in as Patient' : 'Sign in as Doctor',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1B2C49),
+                          color: AppColors.heading,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -276,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen>
                             : 'Manage appointments and help patients',
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF4B5563),
+                          color: AppColors.bodyText,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -285,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen>
                       // Email
                       CustomTextfield(
                         prefixIcon: const Icon(Icons.email_outlined,
-                            color: Color(0xFF4B5563), size: 20),
+                            color: AppColors.bodyText, size: 20),
                         controller: _emailController,
                         hintText: 'Email',
                         obsecureText: false,
@@ -296,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen>
                       // Password
                       CustomTextfield(
                         prefixIcon: const Icon(Icons.lock_outlined,
-                            color: Color(0xFF4B5563), size: 20),
+                            color: AppColors.bodyText, size: 20),
                         controller: _passwordController,
                         hintText: 'Password',
                         obsecureText: _obscurePassword,
@@ -308,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
                             size: 20,
-                            color: const Color(0xFF4B5563),
+                            color: AppColors.bodyText,
                           ),
                         ),
                         width: double.infinity,
@@ -329,8 +326,8 @@ class _LoginScreenState extends State<LoginScreen>
                             style: TextStyle(
                               fontSize: 13,
                               color: isPatient
-                                  ? const Color(0xFF1664CD)
-                                  : const Color(0xFF4CAF50),
+                                  ? colors.primary
+                                  : AppColors.doctorPrimary,
                             ),
                           ),
                         ),
@@ -351,8 +348,8 @@ class _LoginScreenState extends State<LoginScreen>
                               onPressed: _signIn,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: isPatient
-                                    ? const Color(0xFF1664CD)
-                                    : const Color(0xFF4CAF50),
+                                    ? colors.primary
+                                    : AppColors.doctorPrimary,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14)),
@@ -361,8 +358,7 @@ class _LoginScreenState extends State<LoginScreen>
                               child: const Text(
                                 'Log in',
                                 style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ),
                           );
@@ -375,7 +371,7 @@ class _LoginScreenState extends State<LoginScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text("Don't have an account?",
-                              style: TextStyle(color: Color(0xFF4B5563))),
+                              style: TextStyle(color: AppColors.bodyText)),
                           GestureDetector(
                             onTap: () => Navigator.push(
                               context,
@@ -387,8 +383,8 @@ class _LoginScreenState extends State<LoginScreen>
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: isPatient
-                                    ? const Color(0xFF1664CD)
-                                    : const Color(0xFF4CAF50),
+                                    ? colors.primary
+                                    : AppColors.doctorPrimary,
                               ),
                             ),
                           ),

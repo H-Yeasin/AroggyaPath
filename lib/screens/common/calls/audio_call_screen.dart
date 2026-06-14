@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../services/active_call_state.dart';
+import '../../../../config/app_theme.dart';
 import '../../../services/agora_chat_service.dart';
 import '../../../services/agora_service.dart';
 import '../../../services/api_service.dart';
@@ -311,6 +312,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -318,11 +320,14 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
       },
       child: Scaffold(
         body: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFF1E3C72), Color(0xFF2A5298)])),
+                  colors: [
+                colors.callDark,
+                colors.callAccent
+              ])),
           child: SafeArea(
             child: Column(children: [
               const SizedBox(height: 60),

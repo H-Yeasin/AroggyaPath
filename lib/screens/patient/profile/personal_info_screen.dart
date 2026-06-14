@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -74,21 +75,22 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     final user = context.watch<UserProvider>().user;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Personal Info',
-            style: TextStyle(color: Color(0xFF1B2C49))),
+        title: Text('Personal Info',
+            style: TextStyle(color: colors.heading)),
         actions: [
           TextButton(
               onPressed: _save,
-              child: const Text('Save',
+              child: Text('Save',
                   style: TextStyle(
-                      color: Color(0xFF1664CD), fontWeight: FontWeight.bold))),
+                      color: colors.primary, fontWeight: FontWeight.bold))),
         ],
       ),
       body: SingleChildScrollView(
@@ -101,15 +103,15 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               child: Stack(children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundColor: const Color(0xFFE3F2FD),
+                  backgroundColor: colors.primaryContainer,
                   backgroundImage: _profileImage != null
                       ? FileImage(_profileImage!)
                       : (user?.profileImage != null
                           ? NetworkImage(user!.profileImage!)
                           : null) as ImageProvider?,
                   child: (_profileImage == null && user?.profileImage == null)
-                      ? const Icon(Icons.person,
-                          size: 50, color: Color(0xFF1664CD))
+                      ? Icon(Icons.person,
+                          size: 50, color: colors.primary)
                       : null,
                 ),
                 Positioned(
@@ -117,8 +119,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   right: 0,
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                        color: Color(0xFF1664CD), shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                        color: colors.primary, shape: BoxShape.circle),
                     child: const Icon(Icons.camera_alt,
                         color: Colors.white, size: 18),
                   ),

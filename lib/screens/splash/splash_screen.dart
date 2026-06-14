@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../config/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../arogyascreens/main_page.dart';
 import '../onboarding/select_profile_screen.dart';
@@ -59,6 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -76,12 +78,12 @@ class _SplashScreenState extends State<SplashScreen> {
                         size: 100,
                         color: Theme.of(context).colorScheme.primary),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'AroggyaPath',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF4CAF50),
+                        color: colors.success,
                       ),
                     ),
                   ],
@@ -89,29 +91,29 @@ class _SplashScreenState extends State<SplashScreen> {
               },
             ),
             const SizedBox(height: 32),
-            const Text(
+            Text(
               'AroggyaPath',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2F2F32),
+                color: colors.legacyBlack,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Your Health Companion',
               style: TextStyle(
                 fontSize: 16,
-                color: Color(0xFFA2A8B4),
+                color: colors.legacyGrey,
               ),
             ),
             const SizedBox(height: 48),
-            const SizedBox(
+            SizedBox(
               width: 24,
               height: 24,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                valueColor: AlwaysStoppedAnimation<Color>(colors.success),
               ),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/dependent_model.dart';
@@ -23,16 +24,17 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Family Members',
-            style: TextStyle(color: Color(0xFF1B2C49))),
+        title: Text('Family Members',
+            style: TextStyle(color: colors.heading)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add, color: Color(0xFF1664CD)),
+            icon: Icon(Icons.add, color: colors.primary),
             onPressed: () async {
               await Navigator.push(
                 context,
@@ -80,6 +82,7 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
   }
 
   Widget _buildDependentCard(DependentModel dep, DependentProvider provider) {
+    final colors = AppTheme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -92,16 +95,16 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: const Color(0xFFE3F2FD),
+          backgroundColor: colors.primaryContainer,
           child: Text(
             dep.fullName.isNotEmpty ? dep.fullName[0].toUpperCase() : '?',
-            style: const TextStyle(
-                color: Color(0xFF1664CD), fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: colors.primary, fontWeight: FontWeight.bold),
           ),
         ),
         title: Text(dep.displayName,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, color: Color(0xFF1B2C49))),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: colors.heading)),
         subtitle: Text('${dep.relationship ?? 'Family'} • Age ${dep.age}',
             style: const TextStyle(color: Colors.grey)),
         trailing: PopupMenuButton<String>(

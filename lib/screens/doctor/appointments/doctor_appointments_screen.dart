@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/appointment_model.dart';
@@ -24,14 +25,15 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Appointment Management',
+        title: Text('Appointment Management',
             style: TextStyle(
-                color: Color(0xFF1B2C49),
+                color: colors.heading,
                 fontSize: 20,
                 fontWeight: FontWeight.bold)),
       ),
@@ -71,7 +73,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
                         color:
-                            isSelected ? const Color(0xFF1664CD) : Colors.white,
+                            isSelected ? colors.primary : Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       alignment: Alignment.center,
@@ -119,6 +121,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
 
   Widget _buildAppointmentCard(
       AppointmentModel apt, AppointmentProvider provider) {
+    final colors = AppTheme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -133,13 +136,13 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
         Row(children: [
           CircleAvatar(
               radius: 24,
-              backgroundColor: const Color(0xFFE3F2FD),
+              backgroundColor: colors.primaryContainer,
               child: Text(
                   apt.patientName?.isNotEmpty == true
                       ? apt.patientName![0].toUpperCase()
                       : 'P',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: Color(0xFF1664CD)))),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: colors.primary))),
           const SizedBox(width: 12),
           Expanded(
             child:
@@ -205,7 +208,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
             child: ElevatedButton(
               onPressed: () => _showCompleteDialog(apt, provider),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1664CD),
+                  backgroundColor: colors.primary,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10))),
               child: const Text('Complete Appointment',

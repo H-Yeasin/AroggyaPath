@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../config/app_theme.dart';
 import '../screens/common/calls/audio_call_screen.dart';
 import '../screens/common/calls/video_call_screen.dart';
 import '../services/socket_service.dart';
@@ -164,12 +165,13 @@ class IncomingCallDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: const Color(0xFF1B2C49),
+          color: colors.heading,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/dependent_provider.dart';
@@ -60,22 +61,23 @@ class _EditDependentScreenState extends State<EditDependentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     final relationships = ['Spouse', 'Child', 'Parent', 'Sibling', 'Other'];
     final genders = ['Male', 'Female', 'Other'];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text('Edit ${widget.dependent.fullName}',
-            style: const TextStyle(color: Color(0xFF1B2C49))),
+            style: TextStyle(color: colors.heading)),
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('Save',
+            child: Text('Save',
                 style: TextStyle(
-                    color: Color(0xFF1664CD),
+                    color: colors.primary,
                     fontWeight: FontWeight.bold)),
           ),
         ],

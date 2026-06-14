@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import '../../../../screens/patient/messages/patient_chat_screen.dart';
 import 'package:arogya_path3/screens/patient/navigation/patient_main_navigation.dart';
 import 'package:arogya_path3/services/api_service.dart';
@@ -345,6 +346,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -430,6 +432,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
   }
 
   Widget _buildChatItem(Map<String, dynamic> chat) {
+    final colors = AppTheme.of(context);
     final participants = chat['participants'] as List? ?? [];
 
     //  Robust search for doctor participant to avoid TypeError
@@ -608,10 +611,10 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
                         Expanded(
                           child: Text(
                             doctorName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1B2C49),
+                              color: colors.heading,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -627,10 +630,10 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
                             color: Colors.blue[50],
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Dr.',
                             style: TextStyle(
-                              color: Color(0xFF1E61D4),
+                              color: colors.primary,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
@@ -649,7 +652,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: unreadCount > 0
-                                  ? const Color(0xFF1B2C49)
+                                  ? colors.heading
                                   : Colors.grey,
                               fontSize: 14,
                               fontWeight: unreadCount > 0
@@ -667,7 +670,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6C5CE7),
+                              color: colors.chatPrimary,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(

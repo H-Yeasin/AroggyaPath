@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/appointment_provider.dart';
@@ -23,6 +24,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     final user = context.watch<UserProvider>().user;
     final appointments = context.watch<AppointmentProvider>();
 
@@ -37,7 +39,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
     }).length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -47,17 +49,17 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
             Row(children: [
               CircleAvatar(
                 radius: 28,
-                backgroundColor: const Color(0xFFE3F2FD),
+                backgroundColor: colors.primaryContainer,
                 child: user?.profileImage != null
                     ? ClipOval(
                         child: Image.network(user!.profileImage!,
                             width: 56,
                             height: 56,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, __, ___) => Icon(
                                 Icons.person,
-                                color: Color(0xFF1664CD))))
-                    : const Icon(Icons.person, color: Color(0xFF1664CD)),
+                                color: colors.primary)))
+                    : Icon(Icons.person, color: colors.primary),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -65,10 +67,10 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Dr. ${user?.fullName ?? "Doctor"}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1B2C49))),
+                              color: colors.heading)),
                       Text(user?.specialty ?? 'Specialist',
                           style: const TextStyle(
                               fontSize: 14, color: Colors.grey)),
@@ -79,15 +81,15 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
 
             // Stats cards
             Text('Today\'s Overview',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1B2C49))),
+                    color: colors.heading)),
             const SizedBox(height: 16),
             Row(children: [
               _buildStatCard('Pending', '$pending', Colors.orange),
               const SizedBox(width: 12),
-              _buildStatCard('Today', '$todayTotal', const Color(0xFF1664CD)),
+              _buildStatCard('Today', '$todayTotal', colors.primary),
             ]),
             const SizedBox(height: 12),
             Row(children: [
@@ -99,10 +101,10 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
 
             // Upcoming appointments
             Text('Upcoming Appointments',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1B2C49))),
+                    color: colors.heading)),
             const SizedBox(height: 16),
             if (appointments.upcomingAppointments.isEmpty)
               Container(
@@ -135,14 +137,14 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                       child: Row(children: [
                         CircleAvatar(
                             radius: 24,
-                            backgroundColor: const Color(0xFFE3F2FD),
+                            backgroundColor: colors.primaryContainer,
                             child: Text(
                                 apt.patientName?.isNotEmpty == true
                                     ? apt.patientName![0].toUpperCase()
                                     : 'P',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1664CD)))),
+                                    color: colors.primary))),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(

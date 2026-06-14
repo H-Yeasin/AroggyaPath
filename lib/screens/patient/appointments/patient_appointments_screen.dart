@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/appointment_model.dart';
@@ -27,13 +28,14 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FF),
+      backgroundColor: colors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
+          icon: Icon(Icons.arrow_back, color: colors.heading),
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
@@ -43,9 +45,9 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
             );
           },
         ),
-        title: const Text('My Appointments',
+        title: Text('My Appointments',
             style: TextStyle(
-                color: Color(0xFF1B2C49),
+                color: colors.heading,
                 fontSize: 22,
                 fontWeight: FontWeight.bold)),
       ),
@@ -100,6 +102,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
   }
 
   Widget _buildTabRow() {
+    final colors = AppTheme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -110,7 +113,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: _showUpcoming ? const Color(0xFF1664CD) : Colors.white,
+                  color: _showUpcoming ? colors.primary : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
@@ -129,7 +132,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color:
-                      !_showUpcoming ? const Color(0xFF1664CD) : Colors.white,
+                      !_showUpcoming ? colors.primary : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
@@ -146,6 +149,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
   }
 
   Widget _buildAppointmentCard(AppointmentModel appointment) {
+    final colors = AppTheme.of(context);
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -169,7 +173,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: const Color(0xFFE3F2FD),
+                color: colors.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -179,10 +183,10 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
                         borderRadius: BorderRadius.circular(12),
                         child: Image.network(appointment.doctorImage!,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, __, ___) => Icon(
                                 Icons.person,
-                                color: Color(0xFF1664CD))))
-                    : const Icon(Icons.person, color: Color(0xFF1664CD)),
+                                color: colors.primary)))
+                    : Icon(Icons.person, color: colors.primary),
               ),
             ),
             const SizedBox(width: 16),
@@ -191,10 +195,10 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(appointment.doctorName ?? 'Doctor',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1B2C49))),
+                          color: colors.heading)),
                   const SizedBox(height: 4),
                   Text(appointment.specialty ?? '',
                       style: const TextStyle(fontSize: 13, color: Colors.grey)),
