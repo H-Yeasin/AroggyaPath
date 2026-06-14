@@ -67,7 +67,7 @@ class _FullMapScreenState extends State<FullMapScreen> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 8,
                       ),
                     ],
@@ -89,7 +89,7 @@ class _FullMapScreenState extends State<FullMapScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 8,
                     ),
                   ],
@@ -124,7 +124,7 @@ class _FullMapScreenState extends State<FullMapScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withValues(alpha: 0.2),
                           blurRadius: 8,
                         ),
                       ],
@@ -148,7 +148,7 @@ class _FullMapScreenState extends State<FullMapScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withValues(alpha: 0.2),
                           blurRadius: 8,
                         ),
                       ],
@@ -179,7 +179,7 @@ class _FullMapScreenState extends State<FullMapScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 8,
                     ),
                   ],
@@ -216,8 +216,8 @@ class _FullMapScreenState extends State<FullMapScreen> {
           ),
           const SizedBox(width: 8),
           Text(label,
-              style: const TextStyle(
-                  fontSize: 11, fontWeight: FontWeight.w600)),
+              style:
+                  const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
         ],
       ),
     );

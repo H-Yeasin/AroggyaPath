@@ -1,14 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../models/doctor_model.dart';
-import '../../../models/dependent_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../models/appointment_model.dart';
+import '../../../models/dependent_model.dart';
+import '../../../models/doctor_model.dart';
 import '../../../providers/appointment_provider.dart';
 import '../../../providers/dependent_provider.dart';
 import '../../../utils/api_config.dart';
@@ -126,7 +127,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       final token = prefs.getString('auth_token');
       final response = await http
           .post(
-            Uri.parse('${ApiConfig.baseUrl}${ApiConfig.appointments}/available'),
+            Uri.parse(
+                '${ApiConfig.baseUrl}${ApiConfig.appointments}/available'),
             headers: {
               'Content-Type': 'application/json',
               if (token != null) 'Authorization': 'Bearer $token',
@@ -170,8 +172,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   String _getDayName(DateTime date) {
     const dayNames = [
-      'monday', 'tuesday', 'wednesday', 'thursday',
-      'friday', 'saturday', 'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
     ];
     return dayNames[date.weekday - 1];
   }
@@ -261,8 +268,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(
-                    jsonResponse['message'] ?? 'Booking failed'),
+                content: Text(jsonResponse['message'] ?? 'Booking failed'),
                 backgroundColor: Colors.red),
           );
         }
@@ -272,8 +278,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       debugPrint('Booking error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
       return false;
@@ -292,18 +297,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          widget.isReschedule
-              ? 'Reschedule Appointment'
-              : 'Book Appointment',
+          widget.isReschedule ? 'Reschedule Appointment' : 'Book Appointment',
           style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
       body: SingleChildScrollView(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(
           children: [
             // Appointment Type Selector
@@ -368,7 +368,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,8 +380,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           const SizedBox(height: 12),
           Row(children: [
             Expanded(
-              child: _buildTypeOption(
-                  'Physical Visit', Icons.person, selectedType == 'Physical Visit'),
+              child: _buildTypeOption('Physical Visit', Icons.person,
+                  selectedType == 'Physical Visit'),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -424,7 +426,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,8 +449,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     label: Text(dep.displayName),
                     selected: selectedDependent?.id == dep.id,
                     selectedColor: const Color(0xFFE3F2FD),
-                    onSelected: (_) =>
-                        setState(() => selectedDependent = dep),
+                    onSelected: (_) => setState(() => selectedDependent = dep),
                   )),
             ],
           ),
@@ -461,7 +464,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+        ],
       ),
       child: ListTile(
         contentPadding: EdgeInsets.zero,
@@ -484,7 +489,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,7 +511,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               children: availableSlots.map((slot) {
                 final isSelected = selectedTimeSlot?.start == slot.start;
                 return ChoiceChip(
-                  label: Text(slot.displayTime, style: const TextStyle(fontSize: 13)),
+                  label: Text(slot.displayTime,
+                      style: const TextStyle(fontSize: 13)),
                   selected: isSelected,
                   selectedColor: const Color(0xFFE3F2FD),
                   onSelected: (_) => setState(() => selectedTimeSlot = slot),
@@ -522,7 +530,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -597,6 +598,118 @@ class ApiService {
     } catch (e) {
       debugPrint('File upload error: $e');
       return {'success': false, 'message': _getErrorMessage(e)};
+    }
+  }
+
+  // ========================================
+  // CHAT METHODS
+  // ========================================
+
+  /// Get Agora Chat Token
+  static Future<Map<String, dynamic>> getAgoraChatToken() async {
+    debugPrint('Fetching Agora Chat Token');
+    return await get('/api/v1/chat/token', requiresAuth: true);
+  }
+
+  /// Get My Chats
+  static Future<Map<String, dynamic>> getMyChats() async {
+    debugPrint('Getting my chats');
+    return await get('/api/v1/chat', requiresAuth: true);
+  }
+
+  /// Get Chat Messages
+  static Future<Map<String, dynamic>> getChatMessages({
+    required String chatId,
+    required int page,
+    required int limit,
+  }) async {
+    debugPrint('Getting messages for chatId: $chatId');
+    return await get(
+      '/api/v1/chat/$chatId/messages?page=$page&limit=$limit',
+      requiresAuth: true,
+    );
+  }
+
+  /// Create or Get Chat
+  static Future<Map<String, dynamic>> createOrGetChat({
+    required String userId,
+  }) async {
+    final cleanUserId = userId.split('/').first;
+    debugPrint('Creating/Getting chat with: $cleanUserId');
+    return await post('/api/v1/chat', {'userId': cleanUserId}, requiresAuth: true);
+  }
+
+  /// Mark Chat as Read
+  static Future<Map<String, dynamic>> markChatAsRead({
+    required String chatId,
+  }) async {
+    debugPrint('Marking chat as read: $chatId');
+    return await patch('/api/v1/chat/$chatId/read', {}, requiresAuth: true);
+  }
+
+  /// Get Agora RTC Token for a channel
+  static Future<Map<String, dynamic>> getAgoraToken({
+    required String channelName,
+  }) async {
+    return await get(
+      '/api/v1/call/token?channelName=$channelName',
+      requiresAuth: true,
+    );
+  }
+
+  /// End a call
+  static Future<Map<String, dynamic>> endCall({
+    required String chatId,
+    required String toUserId,
+    String? uuid,
+  }) async {
+    return await post('/api/v1/call/end', {
+      'chatId': chatId,
+      'userId': toUserId,
+      'uuid': uuid ?? '',
+    }, requiresAuth: true);
+  }
+
+  /// Send message via multipart (supports files)
+  static Future<Map<String, dynamic>> sendMessage({
+    required String chatId,
+    String? content,
+    List<File>? files,
+    String? contentType,
+  }) async {
+    try {
+      final url = '$_baseUrl/api/v1/chat/$chatId/messages';
+      debugPrint('POST (Multipart): $url');
+
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+
+      if (_token != null) {
+        request.headers['Authorization'] = 'Bearer $_token';
+      }
+
+      if (content != null && content.isNotEmpty) {
+        request.fields['content'] = content;
+      }
+      if (contentType != null) {
+        request.fields['contentType'] = contentType;
+      }
+      if (files != null) {
+        for (var file in files) {
+          request.files.add(await http.MultipartFile.fromPath(
+            'files',
+            file.path,
+          ));
+        }
+      }
+
+      final streamedResponse = await request.send().timeout(
+        const Duration(seconds: 30),
+      );
+      final response = await http.Response.fromStream(streamedResponse);
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('Send message error: $e');
+      return {'success': false, 'message': 'Failed to send message: $e'};
     }
   }
 

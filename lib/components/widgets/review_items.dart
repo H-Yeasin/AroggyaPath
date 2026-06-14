@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../models/review.dart';
 import '../const.dart';
 
@@ -16,7 +17,7 @@ class ReviewItems extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             blurRadius: 10,
           ),
         ],
@@ -30,7 +31,7 @@ class ReviewItems extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 25,
-                backgroundColor: Color(review.color).withOpacity(0.4),
+                backgroundColor: Color(review.color).withValues(alpha: 0.4),
                 backgroundImage: NetworkImage(review.image),
               ),
               const SizedBox(width: 10),
@@ -89,7 +90,8 @@ class ReviewItems extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             review.comment,
-            overflow: TextOverflow.ellipsis,maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
             style: const TextStyle(
               fontSize: 15,
               letterSpacing: 0,

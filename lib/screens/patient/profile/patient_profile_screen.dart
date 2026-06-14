@@ -1,10 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
-import '../../../providers/user_provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/user_provider.dart';
 
 class PatientProfileScreen extends StatefulWidget {
   const PatientProfileScreen({super.key});
@@ -88,14 +88,17 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
             if (user?.role != null) ...[
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE8F5E9),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(user!.role!.toUpperCase(),
                     style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green)),
               ),
             ],
 
@@ -106,20 +109,27 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 8)
+                ],
               ),
               child: Column(children: [
                 _buildMenuItem(Icons.person_outline, 'Personal Info',
                     'Edit your profile details',
-                    onTap: () => Navigator.pushNamed(context, '/personal-info')),
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/personal-info')),
                 _buildDivider(),
-                _buildMenuItem(Icons.people_outline, 'Family Members',
-                    'Manage dependents',
-                    onTap: () => Navigator.pushNamed(context, '/dependents-list')),
+                _buildMenuItem(
+                    Icons.people_outline, 'Family Members', 'Manage dependents',
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/dependents-list')),
                 _buildDivider(),
                 _buildMenuItem(Icons.lock_outline, 'Change Password',
                     'Update your password',
-                    onTap: () => Navigator.pushNamed(context, '/change-password')),
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/change-password')),
                 _buildDivider(),
                 _buildMenuItem(Icons.help_outline, 'Help & Support',
                     'Frequently asked questions', onTap: () {
@@ -145,7 +155,8 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red),
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),
@@ -161,8 +172,10 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     return ListTile(
       leading: Icon(icon, color: const Color(0xFF1664CD)),
       title: Text(title,
-          style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1B2C49))),
-      subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          style: const TextStyle(
+              fontWeight: FontWeight.w600, color: Color(0xFF1B2C49))),
+      subtitle: Text(subtitle,
+          style: const TextStyle(fontSize: 12, color: Colors.grey)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
       onTap: onTap,
     );

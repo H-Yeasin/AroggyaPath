@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../models/emergency_contacts.dart';
+
 import '../components/const.dart';
+import '../models/emergency_contacts.dart';
 
 class DoctorDetailScreen extends StatelessWidget {
   final EmergencyContact doctor;
@@ -142,7 +143,7 @@ class DoctorDetailScreen extends StatelessWidget {
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: purple.withOpacity(0.3),
+                                  color: purple.withValues(alpha: 0.3),
                                 ),
                                 child: const Icon(
                                   Icons.location_on,
@@ -163,7 +164,8 @@ class DoctorDetailScreen extends StatelessWidget {
                                         fontWeight: FontWeight.bold,
                                       ),
                                       overflow: TextOverflow.visible,
-                                      softWrap: true, // Ensures the text truncates if it's too long
+                                      softWrap:
+                                          true, // Ensures the text truncates if it's too long
                                       // maxLines:1, // Limits text to a single line
                                     ),
                                   ],
@@ -186,7 +188,7 @@ class DoctorDetailScreen extends StatelessWidget {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: grey.withOpacity(0.3),
+              color: grey.withValues(alpha: 0.3),
               blurRadius: 5,
             ),
           ],

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../components/const.dart';
+import '../components/widgets/list_of_doctor.dart';
 // Hospital booking temporarily disabled during migration
 // import 'package:arogya_path3/hospital/appoinment.dart';
 import '../models/emergency_contacts.dart';
 import '../models/symptom.dart';
-import '../components/widgets/list_of_doctor.dart';
 import 'doctor_details_screen.dart';
-import '../components/const.dart';
 
 class DoctorAppoinmentHomeScreen extends StatefulWidget {
   const DoctorAppoinmentHomeScreen({super.key});
@@ -56,7 +57,7 @@ class _DoctorAppoinmentHomeScreenState
                       padding: const EdgeInsets.symmetric(
                           horizontal: 18, vertical: 15),
                       decoration: BoxDecoration(
-                        color: grey.withOpacity(0.1),
+                        color: grey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -162,7 +163,7 @@ class _DoctorAppoinmentHomeScreenState
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: purple.withOpacity(0.2),
+                      color: purple.withValues(alpha: 0.2),
                       blurRadius: 15,
                       spreadRadius: 5,
                       offset: const Offset(-0, 10),
@@ -214,7 +215,7 @@ class _DoctorAppoinmentHomeScreenState
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: grey.withOpacity(0.2),
+                    color: grey.withValues(alpha: 0.2),
                     blurRadius: 10,
                   ),
                 ],
@@ -226,7 +227,7 @@ class _DoctorAppoinmentHomeScreenState
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                        color: purple.withOpacity(0.15),
+                        color: purple.withValues(alpha: 0.15),
                         shape: BoxShape.circle),
                     padding: const EdgeInsets.all(12),
                     child: const Icon(

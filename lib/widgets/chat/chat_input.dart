@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class ChatInput extends StatelessWidget {
@@ -51,8 +52,8 @@ class ChatInput extends StatelessWidget {
                     decoration: const BoxDecoration(
                         color: Colors.red, shape: BoxShape.circle),
                     padding: const EdgeInsets.all(4),
-                    child: const Icon(Icons.close,
-                        color: Colors.white, size: 16),
+                    child:
+                        const Icon(Icons.close, color: Colors.white, size: 16),
                   ),
                 ),
               ),
@@ -68,7 +69,7 @@ class ChatInput extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 15,
                   offset: const Offset(0, 5))
             ],
@@ -108,7 +109,9 @@ class ChatInput extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: isSending
-                    ? const SizedBox(width: 20, height: 20,
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.send_rounded,

@@ -11,6 +11,7 @@ import 'providers/dependent_provider.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/patient/navigation/patient_main_navigation.dart';
+import 'screens/doctor/navigation/doctor_main_navigation.dart';
 import 'screens/patient/profile/personal_info_screen.dart';
 import 'screens/patient/profile/dependents_list_screen.dart';
 import 'screens/patient/profile/add_dependents_screen.dart';
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/splash': (context) => const SplashScreen(),
           '/patient-home': (context) => const PatientMainNavigation(),
+          '/doctor-home': (context) => const DoctorMainNavigation(),
           '/personal-info': (context) => const PersonalInfoScreen(),
           '/dependents-list': (context) => const DependentsListScreen(),
           '/add-dependent': (context) => const AddDependentScreen(),

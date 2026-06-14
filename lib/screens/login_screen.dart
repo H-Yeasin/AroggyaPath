@@ -1,13 +1,14 @@
+import 'package:arogya_path3/screens/doctor/navigation/doctor_main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../providers/auth_provider.dart';
-import 'signup_screen.dart';
-import 'forgatepass_screen.dart';
-import '../arogyascreens/main_page.dart';
-import 'patient/navigation/patient_main_navigation.dart';
+
 import '../components/custom_button.dart';
 import '../components/custom_textfield.dart';
+import '../providers/auth_provider.dart';
+import 'forgatepass_screen.dart';
+import 'patient/navigation/patient_main_navigation.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -42,14 +43,13 @@ class _LoginScreenState extends State<LoginScreen> {
       if (role == 'patient') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (_) => const PatientMainNavigation()),
+          MaterialPageRoute(builder: (_) => const PatientMainNavigation()),
         );
       } else {
-        // Doctor or other roles → existing main page
+        // Doctor → new doctor dashboard
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const MainPage()),
+          MaterialPageRoute(builder: (_) => const DoctorMainNavigation()),
         );
       }
     } else if (mounted && auth.error != null) {

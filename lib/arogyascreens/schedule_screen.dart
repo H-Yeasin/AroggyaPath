@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/schedule.dart';
-import '../components/widgets/schedule_items.dart';
+
 import '../components/const.dart';
+import '../components/widgets/schedule_items.dart';
+import '../models/schedule.dart';
 
 class ScheduleScreen extends StatelessWidget {
   const ScheduleScreen({super.key});
@@ -34,12 +35,12 @@ class ScheduleScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: grey.withOpacity(0.1),
+                        color: grey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: TabBar(
                         indicatorColor: purple,
-                        unselectedLabelColor: black.withOpacity(0.5),
+                        unselectedLabelColor: black.withValues(alpha: 0.5),
                         labelStyle: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -88,7 +89,9 @@ class ScheduleScreen extends StatelessWidget {
                                 nearest.length,
                                 (index) => Padding(
                                   padding: const EdgeInsets.only(bottom: 15),
-                                  child: ScheduleItems(schedule: nearest[index],),
+                                  child: ScheduleItems(
+                                    schedule: nearest[index],
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 10),
@@ -104,9 +107,11 @@ class ScheduleScreen extends StatelessWidget {
                               const SizedBox(height: 20),
                               ...List.generate(
                                 futures.length,
-                                (index) =>  Padding(
+                                (index) => Padding(
                                   padding: const EdgeInsets.only(bottom: 15),
-                                  child: ScheduleItems(schedule: futures[index],),
+                                  child: ScheduleItems(
+                                    schedule: futures[index],
+                                  ),
                                 ),
                               ),
                             ],
@@ -121,7 +126,7 @@ class ScheduleScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                         const Center(
+                        const Center(
                           child: Text(
                             "Cnceled",
                             style: TextStyle(

@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/socket_service.dart';
-import '../screens/common/calls/video_call_screen.dart';
+
 import '../screens/common/calls/audio_call_screen.dart';
+import '../screens/common/calls/video_call_screen.dart';
+import '../services/socket_service.dart';
 
 class CallManager {
   static final CallManager _instance = CallManager._internal();
@@ -34,8 +36,7 @@ class CallManager {
     });
 
     _reconnectSubscription?.cancel();
-    _reconnectSubscription =
-        SocketService.instance.reconnectStream.listen((_) {
+    _reconnectSubscription = SocketService.instance.reconnectStream.listen((_) {
       debugPrint('CallManager: Socket reconnected - ensuring listeners');
       _setupCallListeners();
     });
@@ -90,25 +91,29 @@ class CallManager {
         onAccept: () {
           Navigator.pop(ctx);
           if (isVideo) {
-            Navigator.push(_context!, MaterialPageRoute(builder: (_) =>
-              VideoCallScreen(
-                chatId: chatId,
-                userName: fromUserName,
-                userAvatar: fromUserAvatar,
-                otherUserId: fromUserId,
-                isInitiator: false,
-              ),
-            ));
+            Navigator.push(
+                _context!,
+                MaterialPageRoute(
+                  builder: (_) => VideoCallScreen(
+                    chatId: chatId,
+                    userName: fromUserName,
+                    userAvatar: fromUserAvatar,
+                    otherUserId: fromUserId,
+                    isInitiator: false,
+                  ),
+                ));
           } else {
-            Navigator.push(_context!, MaterialPageRoute(builder: (_) =>
-              AudioCallScreen(
-                chatId: chatId,
-                userName: fromUserName,
-                userAvatar: fromUserAvatar,
-                otherUserId: fromUserId,
-                isInitiator: false,
-              ),
-            ));
+            Navigator.push(
+                _context!,
+                MaterialPageRoute(
+                  builder: (_) => AudioCallScreen(
+                    chatId: chatId,
+                    userName: fromUserName,
+                    userAvatar: fromUserAvatar,
+                    otherUserId: fromUserId,
+                    isInitiator: false,
+                  ),
+                ));
           }
         },
         onReject: () {
@@ -181,7 +186,9 @@ class IncomingCallDialog extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(callerName,
-                style: const TextStyle(color: Colors.white, fontSize: 22,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
@@ -198,7 +205,8 @@ class IncomingCallDialog extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: const BoxDecoration(
                         color: Colors.red, shape: BoxShape.circle),
-                    child: const Icon(Icons.call_end, color: Colors.white, size: 32),
+                    child: const Icon(Icons.call_end,
+                        color: Colors.white, size: 32),
                   ),
                 ),
                 GestureDetector(

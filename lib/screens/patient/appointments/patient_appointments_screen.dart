@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../models/appointment_model.dart';
 import '../../../providers/appointment_provider.dart';
-import 'appointment_detail_screen.dart';
 import '../navigation/patient_main_navigation.dart';
+import 'appointment_detail_screen.dart';
 
 class PatientAppointmentsScreen extends StatefulWidget {
   const PatientAppointmentsScreen({super.key});
@@ -73,8 +73,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
                     _showUpcoming
                         ? 'No upcoming appointments'
                         : 'No past appointments',
-                    style: const TextStyle(
-                        fontSize: 16, color: Colors.grey),
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 ],
               ),
@@ -111,9 +110,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: _showUpcoming
-                      ? const Color(0xFF1664CD)
-                      : Colors.white,
+                  color: _showUpcoming ? const Color(0xFF1664CD) : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
@@ -131,9 +128,8 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: !_showUpcoming
-                      ? const Color(0xFF1664CD)
-                      : Colors.white,
+                  color:
+                      !_showUpcoming ? const Color(0xFF1664CD) : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
@@ -154,8 +150,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) =>
-                AppointmentDetailScreen(appointment: appointment)),
+            builder: (_) => AppointmentDetailScreen(appointment: appointment)),
       ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -165,7 +160,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04), blurRadius: 8)
+                color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
           ],
         ),
         child: Row(
@@ -182,14 +177,12 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
                         appointment.doctorImage!.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                            appointment.doctorImage!,
+                        child: Image.network(appointment.doctorImage!,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                const Icon(Icons.person,
-                                    color: Color(0xFF1664CD))))
-                    : const Icon(Icons.person,
-                        color: Color(0xFF1664CD)),
+                            errorBuilder: (_, __, ___) => const Icon(
+                                Icons.person,
+                                color: Color(0xFF1664CD))))
+                    : const Icon(Icons.person, color: Color(0xFF1664CD)),
               ),
             ),
             const SizedBox(width: 16),
@@ -204,23 +197,21 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
                           color: Color(0xFF1B2C49))),
                   const SizedBox(height: 4),
                   Text(appointment.specialty ?? '',
-                      style: const TextStyle(
-                          fontSize: 13, color: Colors.grey)),
+                      style: const TextStyle(fontSize: 13, color: Colors.grey)),
                   const SizedBox(height: 6),
                   Row(children: [
-                    const Icon(Icons.access_time,
-                        size: 14, color: Colors.grey),
+                    const Icon(Icons.access_time, size: 14, color: Colors.grey),
                     const SizedBox(width: 4),
                     Text(appointment.formattedDate,
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.grey)),
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey)),
                     const SizedBox(width: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: _getStatusColor(appointment.status)
-                            .withOpacity(0.15),
+                            .withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -228,8 +219,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
                         style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color:
-                                _getStatusColor(appointment.status)),
+                            color: _getStatusColor(appointment.status)),
                       ),
                     ),
                   ]),

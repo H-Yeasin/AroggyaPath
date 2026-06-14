@@ -134,6 +134,38 @@ class AgoraService {
     }
   }
 
+  /// Join channel with user account (string ID — for MongoDB interop)
+  Future<void> joinChannelWithUserAccount({
+    required String channelName,
+    required String userAccount,
+    bool isVideo = true,
+    String? token,
+  }) async {
+    if (!_isInitialized) await initialize(skipPermissions: !isVideo);
+    try {
+      if (_currentChannel != null && _currentChannel != channelName) {
+        try { await _engine!.leaveChannel(); } catch (_) {}
+      }
+      if (isVideo) {
+        await _engine!.enableVideo();
+      } else {
+        await _engine!.disableVideo();
+      }
+      await _engine!.joinChannelWithUserAccount(
+        token: token ?? AgoraConfig.token,
+        channelId: channelName,
+        userAccount: userAccount,
+        options: const ChannelMediaOptions(
+          clientRoleType: ClientRoleType.clientRoleBroadcaster,
+        ),
+      );
+      _currentChannel = channelName;
+    } catch (e) {
+      debugPrint("Error joining channel: $e");
+      rethrow;
+    }
+  }
+
   Future<void> toggleAudio(bool muted) => _engine?.muteLocalAudioStream(muted) ?? Future.value();
   Future<void> toggleVideo(bool muted) => _engine?.muteLocalVideoStream(muted) ?? Future.value();
   Future<void> switchCamera() => _engine?.switchCamera() ?? Future.value();

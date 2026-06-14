@@ -1,0 +1,109 @@
+import 'package:flutter/material.dart';
+
+import '../appointments/doctor_appointments_screen.dart';
+import '../home/doctor_home_screen.dart';
+import '../profile/doctor_profile_screen.dart';
+
+/// Doctor Main Navigation — 4-tab bottom nav:
+///   0: Home         → DoctorHomeScreen (appointment overview + stats)
+///   1: Appointments → DoctorAppointmentsScreen (pending/accepted/completed)
+///   2: Messages     → Placeholder (Agora Chat — reuse patient chat)
+///   3: Profile      → DoctorProfileScreen
+
+class DoctorMainNavigation extends StatefulWidget {
+  const DoctorMainNavigation({super.key});
+
+  @override
+  State<DoctorMainNavigation> createState() => _DoctorMainNavigationState();
+}
+
+class _DoctorMainNavigationState extends State<DoctorMainNavigation> {
+  int _currentIndex = 0;
+
+  final List<Widget> _screens = const [
+    DoctorHomeScreen(),
+    DoctorAppointmentsScreen(),
+    _PlaceholderScreen(title: 'Messages', icon: Icons.message_outlined),
+    DoctorProfileScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(index: _currentIndex, children: _screens),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.only(top: 10, bottom: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withAlpha(13),
+                blurRadius: 15,
+                offset: const Offset(0, -5)),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          selectedItemColor: const Color(0xFF1664CD),
+          unselectedItemColor: const Color(0xFF4B5563),
+          selectedLabelStyle:
+              const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, size: 28),
+                activeIcon: Icon(Icons.home, size: 28),
+                label: 'Home'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_today_outlined, size: 26),
+                activeIcon: Icon(Icons.calendar_today, size: 26),
+                label: 'Appointments'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.message_outlined, size: 26),
+                activeIcon: Icon(Icons.message, size: 26),
+                label: 'Messages'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline, size: 28),
+                activeIcon: Icon(Icons.person, size: 28),
+                label: 'Profile'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlaceholderScreen extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  const _PlaceholderScreen({required this.title, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFF),
+      body: Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF1664CD).withAlpha(25),
+                  shape: BoxShape.circle),
+              child: Icon(icon, size: 48, color: const Color(0xFF1664CD))),
+          const SizedBox(height: 24),
+          Text(title,
+              style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1B2C49))),
+          const SizedBox(height: 8),
+          const Text('Coming soon',
+              style: TextStyle(fontSize: 14, color: Color(0xFF4B5563))),
+        ]),
+      ),
+    );
+  }
+}

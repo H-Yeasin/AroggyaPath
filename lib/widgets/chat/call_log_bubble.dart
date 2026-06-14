@@ -38,12 +38,12 @@ class CallLogBubble extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, size: 16,
-                color: status == 'missed' ? Colors.red : Colors.grey),
+            Icon(icon,
+                size: 16, color: status == 'missed' ? Colors.red : Colors.grey),
             const SizedBox(width: 8),
             Text('$label ${duration.isNotEmpty ? '($duration)' : ''}',
                 style: const TextStyle(fontSize: 12, color: Colors.grey)),

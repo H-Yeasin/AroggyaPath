@@ -30,13 +30,16 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
   Future<void> _save() async {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name is required'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Name is required'), backgroundColor: Colors.red),
       );
       return;
     }
     if (_dob == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Date of birth is required'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Date of birth is required'),
+            backgroundColor: Colors.red),
       );
       return;
     }
@@ -51,7 +54,9 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Family member added!'), backgroundColor: Colors.green),
+        const SnackBar(
+            content: Text('Family member added!'),
+            backgroundColor: Colors.green),
       );
       Navigator.pop(context);
     }
@@ -64,11 +69,14 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Add Family Member', style: TextStyle(color: Color(0xFF1B2C49))),
+        title: const Text('Add Family Member',
+            style: TextStyle(color: Color(0xFF1B2C49))),
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('Save', style: TextStyle(color: Color(0xFF1664CD), fontWeight: FontWeight.bold)),
+            child: const Text('Save',
+                style: TextStyle(
+                    color: Color(0xFF1664CD), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -84,12 +92,18 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+              ],
             ),
             child: DropdownButtonFormField<String>(
               value: _relationship,
-              decoration: const InputDecoration(labelText: 'Relationship', border: InputBorder.none),
-              items: _relationships.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+              decoration: const InputDecoration(
+                  labelText: 'Relationship', border: InputBorder.none),
+              items: _relationships
+                  .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                  .toList(),
               onChanged: (v) => setState(() => _relationship = v!),
             ),
           ),
@@ -101,12 +115,18 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+              ],
             ),
             child: DropdownButtonFormField<String>(
               value: _gender,
-              decoration: const InputDecoration(labelText: 'Gender', border: InputBorder.none),
-              items: _genders.map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+              decoration: const InputDecoration(
+                  labelText: 'Gender', border: InputBorder.none),
+              items: _genders
+                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                  .toList(),
               onChanged: (v) => setState(() => _gender = v!),
             ),
           ),
@@ -119,14 +139,18 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+              ],
             ),
             child: ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(_dob != null
                   ? '${_dob!.day}/${_dob!.month}/${_dob!.year}'
                   : 'Select Date of Birth'),
-              leading: const Icon(Icons.calendar_today, color: Color(0xFF1664CD)),
+              leading:
+                  const Icon(Icons.calendar_today, color: Color(0xFF1664CD)),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () async {
                 final picked = await showDatePicker(
@@ -141,7 +165,8 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
           ),
           const SizedBox(height: 16),
 
-          _buildTextField('Phone (optional)', _phoneController, TextInputType.phone),
+          _buildTextField(
+              'Phone (optional)', _phoneController, TextInputType.phone),
         ]),
       ),
     );
@@ -154,7 +179,9 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+        ],
       ),
       child: TextField(
         controller: controller,

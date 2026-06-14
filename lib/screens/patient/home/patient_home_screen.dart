@@ -1,24 +1,23 @@
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../models/doctor_model.dart';
-import '../../../providers/doctor_provider.dart';
 import '../../../providers/appointment_provider.dart';
+import '../../../providers/doctor_provider.dart';
 import '../../../providers/user_provider.dart';
-import '../../../services/location_service.dart';
 import '../../../services/directions_service.dart';
+import '../../../services/location_service.dart';
 import '../../../utils/marker_factory.dart';
+import '../doctor/book_appointment_screen.dart';
+import '../doctor/doctor_detail_screen.dart';
 import 'full_map_screen.dart';
 import 'search_doctor_screen.dart';
 import 'see_all_doctors_screen.dart';
-import '../doctor/doctor_detail_screen.dart';
-import '../doctor/book_appointment_screen.dart';
 
 class PatientHomeScreen extends StatefulWidget {
   const PatientHomeScreen({super.key});
@@ -92,30 +91,27 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             onError: (e) => debugPrint('Error fetching appointments: $e'),
           );
 
-      _getCurrentLocation()
-          .then((_) {
-            if (mounted) {
-              double? lat = _currentPosition.latitude;
-              double? lng = _currentPosition.longitude;
+      _getCurrentLocation().then((_) {
+        if (mounted) {
+          double? lat = _currentPosition.latitude;
+          double? lng = _currentPosition.longitude;
 
-              if (lat == 0 && lng == 0) {
-                lat = null;
-                lng = null;
-              }
+          if (lat == 0 && lng == 0) {
+            lat = null;
+            lng = null;
+          }
 
-              doctorProvider
-                  .fetchNearbyDoctors(lat: lat, lng: lng)
-                  .then((_) => debugPrint('Doctors loaded'))
-                  .catchError(
-                      (e) => debugPrint('Error fetching doctors: $e'));
-            }
-          })
-          .catchError((e) {
-            debugPrint('Error getting location: $e');
-            if (mounted) {
-              setState(() => _isLoadingLocation = false);
-            }
-          });
+          doctorProvider
+              .fetchNearbyDoctors(lat: lat, lng: lng)
+              .then((_) => debugPrint('Doctors loaded'))
+              .catchError((e) => debugPrint('Error fetching doctors: $e'));
+        }
+      }).catchError((e) {
+        debugPrint('Error getting location: $e');
+        if (mounted) {
+          setState(() => _isLoadingLocation = false);
+        }
+      });
     } catch (e) {
       debugPrint('Error initializing screen: $e');
       setState(() {
@@ -450,10 +446,9 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
       await Future.delayed(const Duration(milliseconds: 500));
 
       if (mounted) {
-        final doctor =
-            context.read<DoctorProvider>().nearbyDoctors.firstWhere(
-                  (d) => d.id == doctorId,
-                );
+        final doctor = context.read<DoctorProvider>().nearbyDoctors.firstWhere(
+              (d) => d.id == doctorId,
+            );
 
         Navigator.push(
           context,
@@ -487,10 +482,9 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
           ),
         );
 
-        final doctor =
-            context.read<DoctorProvider>().nearbyDoctors.firstWhere(
-                  (d) => d.id == doctorId,
-                );
+        final doctor = context.read<DoctorProvider>().nearbyDoctors.firstWhere(
+              (d) => d.id == doctorId,
+            );
 
         Navigator.push(
           context,
@@ -613,16 +607,14 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                           width: 56,
                                           height: 56,
                                           fit: BoxFit.cover,
-                                          placeholder: (_, __) =>
-                                              const Icon(Icons.person,
-                                                  size: 30,
-                                                  color:
-                                                      Color(0xFF1664CD)),
+                                          placeholder: (_, __) => const Icon(
+                                              Icons.person,
+                                              size: 30,
+                                              color: Color(0xFF1664CD)),
                                           errorWidget: (_, __, ___) =>
                                               const Icon(Icons.person,
                                                   size: 30,
-                                                  color:
-                                                      Color(0xFF1664CD)),
+                                                  color: Color(0xFF1664CD)),
                                         )
                                       : const Icon(Icons.person,
                                           size: 30, color: Color(0xFF1664CD)),
@@ -688,7 +680,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 10,
                               ),
                             ],
@@ -722,7 +714,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -757,8 +749,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                     ..._polylines,
                                     ..._directionPolylines,
                                   },
-                                  myLocationEnabled:
-                                      _locationPermissionGranted,
+                                  myLocationEnabled: _locationPermissionGranted,
                                   myLocationButtonEnabled: false,
                                   zoomControlsEnabled: true,
                                   zoomGesturesEnabled: true,
@@ -783,8 +774,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                       boxShadow: [
                                         BoxShadow(
-                                          color:
-                                              Colors.black.withOpacity(0.1),
+                                          color: Colors.black
+                                              .withValues(alpha: 0.1),
                                           blurRadius: 4,
                                         ),
                                       ],
@@ -808,8 +799,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                             Colors.lightGreen, '5-10 km'),
                                         _buildLegendItem(
                                             Colors.orange, '10-15 km'),
-                                        _buildLegendItem(
-                                            Colors.red, '> 15 km'),
+                                        _buildLegendItem(Colors.red, '> 15 km'),
                                       ],
                                     ),
                                   ),
@@ -828,7 +818,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                           boxShadow: [
                                             BoxShadow(
                                               color: Colors.black
-                                                  .withOpacity(0.1),
+                                                  .withValues(alpha: 0.1),
                                               blurRadius: 4,
                                             ),
                                           ],
@@ -858,7 +848,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                           boxShadow: [
                                             BoxShadow(
                                               color: Colors.black
-                                                  .withOpacity(0.1),
+                                                  .withValues(alpha: 0.1),
                                               blurRadius: 4,
                                             ),
                                           ],
@@ -890,20 +880,18 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(8),
                                         boxShadow: [
                                           BoxShadow(
                                             color: Colors.black
-                                                .withOpacity(0.1),
+                                                .withValues(alpha: 0.1),
                                             blurRadius: 4,
                                           ),
                                         ],
                                       ),
                                       child: IconButton(
                                         icon: const Icon(Icons.my_location,
-                                            color: Color(0xFF0D47A1),
-                                            size: 24),
+                                            color: Color(0xFF0D47A1), size: 24),
                                         onPressed: () async {
                                           if (!_locationPermissionGranted) {
                                             await _getCurrentLocation();
@@ -928,20 +916,18 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 Consumer<AppointmentProvider>(
                   builder: (context, aptProvider, child) {
                     final now = DateTime.now();
-                    final today =
-                        DateTime(now.year, now.month, now.day);
+                    final today = DateTime(now.year, now.month, now.day);
 
                     final upcoming = aptProvider.upcomingAppointments
                         .where((a) {
-                          final appointmentDay = DateTime(
-                            a.appointmentDate.year,
-                            a.appointmentDate.month,
-                            a.appointmentDate.day,
-                          );
-                          return appointmentDay.isAtSameMomentAs(today) ||
-                              appointmentDay.isAfter(today);
-                        })
-                        .toList()
+                      final appointmentDay = DateTime(
+                        a.appointmentDate.year,
+                        a.appointmentDate.month,
+                        a.appointmentDate.day,
+                      );
+                      return appointmentDay.isAtSameMomentAs(today) ||
+                          appointmentDay.isAfter(today);
+                    }).toList()
                       ..sort((a, b) =>
                           a.appointmentDate.compareTo(b.appointmentDate));
 
@@ -1026,18 +1012,17 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                     }
 
                     // Filter to 50km radius
-                    final nearbyDoctors = doctorProvider.nearbyDoctors
-                        .where((doc) {
-                          if (doc.latitude == null || doc.longitude == null) {
-                            return false;
-                          }
-                          final distance = _calculateDistanceInKm(
-                            _currentPosition,
-                            LatLng(doc.latitude!, doc.longitude!),
-                          );
-                          return distance <= 50;
-                        })
-                        .toList();
+                    final nearbyDoctors =
+                        doctorProvider.nearbyDoctors.where((doc) {
+                      if (doc.latitude == null || doc.longitude == null) {
+                        return false;
+                      }
+                      final distance = _calculateDistanceInKm(
+                        _currentPosition,
+                        LatLng(doc.latitude!, doc.longitude!),
+                      );
+                      return distance <= 50;
+                    }).toList();
 
                     if (nearbyDoctors.isEmpty) {
                       return const Center(
@@ -1076,8 +1061,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                             left: 20,
                             right: 20,
                           ),
-                          child: _buildCustomDoctorCard(
-                              nearbyDoctors[index]),
+                          child: _buildCustomDoctorCard(nearbyDoctors[index]),
                         );
                       },
                     );
@@ -1124,10 +1108,11 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.3)),
+        border:
+            Border.all(color: const Color(0xFF4CAF50).withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1138,7 +1123,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF4CAF50).withOpacity(0.1),
+              color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.calendar_today,
@@ -1168,8 +1153,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.access_time,
-                        size: 14, color: Colors.grey),
+                    const Icon(Icons.access_time, size: 14, color: Colors.grey),
                     const SizedBox(width: 4),
                     Text(
                       appointment.formattedDate,
@@ -1216,7 +1200,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
         label = 'Cancelled';
         break;
       default:
-        bgColor = Colors.grey.withOpacity(0.1);
+        bgColor = Colors.grey.withValues(alpha: 0.1);
         textColor = Colors.grey;
         label = status;
     }
@@ -1283,10 +1267,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.blue.withOpacity(0.1)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1303,8 +1287,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 child: SizedBox(
                   width: 80,
                   height: 80,
-                  child: doctor.image != null &&
-                          doctor.image!.isNotEmpty
+                  child: doctor.image != null && doctor.image!.isNotEmpty
                       ? CachedNetworkImage(
                           imageUrl: doctor.image!,
                           fit: BoxFit.cover,
@@ -1369,8 +1352,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                     const SizedBox(height: 4),
                     Text(
                       doctor.specialty,
-                      style:
-                          const TextStyle(color: Colors.grey, fontSize: 14),
+                      style: const TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                     const SizedBox(height: 6),
                     Row(
@@ -1398,8 +1380,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 15),
-                        Icon(Icons.location_on,
-                            size: 16, color: Colors.grey),
+                        Icon(Icons.location_on, size: 16, color: Colors.grey),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
@@ -1459,8 +1440,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                     color: const Color(0xFFF1F6FF),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.info_outline,
-                      color: Color(0xFF0D47A1)),
+                  child:
+                      const Icon(Icons.info_outline, color: Color(0xFF0D47A1)),
                 ),
               ),
             ],

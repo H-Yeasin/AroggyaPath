@@ -13,11 +13,13 @@ class ChatDateSeparator extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.15),
+            color: Colors.grey.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(date,
-              style: const TextStyle(fontSize: 12, color: Colors.grey,
+              style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
                   fontWeight: FontWeight.w500)),
         ),
       ),

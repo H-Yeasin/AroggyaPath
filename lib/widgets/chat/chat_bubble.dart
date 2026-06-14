@@ -1,6 +1,7 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 
 class ChatBubble extends StatelessWidget {
   final Map<String, dynamic> message;
@@ -34,13 +35,17 @@ class ChatBubble extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Container(
-        color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.transparent,
+        color: isSelected
+            ? Colors.blue.withValues(alpha: 0.1)
+            : Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Column(
-          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+              mainAxisAlignment:
+                  isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (!isMe) _buildAvatar(otherUserAvatar, otherUserPlaceholder),
@@ -50,7 +55,8 @@ class ChatBubble extends StatelessWidget {
                     constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.7,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 14),
                     decoration: BoxDecoration(
                       gradient: isMe
                           ? const LinearGradient(
@@ -68,7 +74,8 @@ class ChatBubble extends StatelessWidget {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(isMe ? 0.1 : 0.05),
+                          color:
+                              Colors.black.withValues(alpha: isMe ? 0.1 : 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -91,7 +98,8 @@ class ChatBubble extends StatelessWidget {
                                     child: url.startsWith('http')
                                         ? CachedNetworkImage(
                                             imageUrl: url, fit: BoxFit.cover)
-                                        : Image.file(File(url), fit: BoxFit.cover),
+                                        : Image.file(File(url),
+                                            fit: BoxFit.cover),
                                   ),
                                 ),
                               );
@@ -102,7 +110,8 @@ class ChatBubble extends StatelessWidget {
                           Text(
                             text,
                             style: TextStyle(
-                              color: isMe ? Colors.white : const Color(0xFF1B2C49),
+                              color:
+                                  isMe ? Colors.white : const Color(0xFF1B2C49),
                               fontSize: 15,
                               height: 1.4,
                             ),
@@ -112,7 +121,8 @@ class ChatBubble extends StatelessWidget {
                   ),
                 ),
                 if (isMe) const SizedBox(width: 8),
-                if (isMe) _buildAvatar(currentUserAvatar, 'assets/images/profile.png'),
+                if (isMe)
+                  _buildAvatar(currentUserAvatar, 'assets/images/profile.png'),
               ],
             ),
             if (time.isNotEmpty)
@@ -139,8 +149,11 @@ class ChatBubble extends StatelessWidget {
           width: 36,
           height: 36,
           child: url != null && url.isNotEmpty
-              ? CachedNetworkImage(imageUrl: url, fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => Image.asset(placeholder, fit: BoxFit.cover))
+              ? CachedNetworkImage(
+                  imageUrl: url,
+                  fit: BoxFit.cover,
+                  errorWidget: (_, __, ___) =>
+                      Image.asset(placeholder, fit: BoxFit.cover))
               : Image.asset(placeholder, fit: BoxFit.cover),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../models/emergency_contacts.dart';
 import '../const.dart';
 
@@ -16,7 +17,7 @@ class ListOfDoctor extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: grey.withOpacity(0.2),
+            color: grey.withValues(alpha: 0.2),
             blurRadius: 10,
           ),
         ],

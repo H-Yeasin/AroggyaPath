@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 import '../../models/schedule.dart';
 import '../const.dart';
-import 'package:intl/intl.dart';
 
 class ScheduleItems extends StatelessWidget {
   final Schedule schedule;
@@ -24,7 +25,7 @@ class ScheduleItems extends StatelessWidget {
           BoxShadow(
             blurRadius: 10,
             offset: Offset.zero,
-            color: grey.withOpacity(0.2),
+            color: grey.withValues(alpha: 0.2),
           ),
         ],
       ),
@@ -64,13 +65,15 @@ class ScheduleItems extends StatelessWidget {
                     image: NetworkImage(schedule.doctor.image),
                   ),
                   shape: BoxShape.circle,
-                  color: Color(schedule.doctor.color).withOpacity(0.5),
+                  color: Color(schedule.doctor.color).withValues(alpha: 0.5),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          const Divider(color: Colors.black12,),
+          const Divider(
+            color: Colors.black12,
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -138,7 +141,7 @@ class ScheduleItems extends StatelessWidget {
                 height: 50,
                 width: MediaQuery.of(context).size.width / 2.5,
                 decoration: BoxDecoration(
-                  color: grey.withOpacity(0.1),
+                  color: grey.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Center(

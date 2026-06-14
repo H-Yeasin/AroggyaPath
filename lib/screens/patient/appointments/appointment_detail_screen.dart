@@ -49,14 +49,12 @@ class AppointmentDetailScreen extends StatelessWidget {
                           appointment.doctorImage!.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                              appointment.doctorImage!,
+                          child: Image.network(appointment.doctorImage!,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.person,
-                                      color: Color(0xFF1664CD))))
-                      : const Icon(Icons.person,
-                          color: Color(0xFF1664CD)),
+                              errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.person,
+                                  color: Color(0xFF1664CD))))
+                      : const Icon(Icons.person, color: Color(0xFF1664CD)),
                 ),
                 const SizedBox(width: 15),
                 Expanded(
@@ -70,9 +68,8 @@ class AppointmentDetailScreen extends StatelessWidget {
                               color: Color(0xFF1B2C49))),
                       const SizedBox(height: 4),
                       Text(appointment.specialty ?? '',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600])),
+                          style:
+                              TextStyle(fontSize: 14, color: Colors.grey[600])),
                     ],
                   ),
                 ),
@@ -92,22 +89,18 @@ class AppointmentDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildDetailRow(
-                      Icons.calendar_today, 'Date',
-                      appointment.formattedDate),
+                      Icons.calendar_today, 'Date', appointment.formattedDate),
                   const Divider(height: 24),
-                  _buildDetailRow(
-                      Icons.access_time, 'Time',
+                  _buildDetailRow(Icons.access_time, 'Time',
                       appointment.appointmentTime ?? 'N/A'),
                   const Divider(height: 24),
-                  _buildDetailRow(
-                      Icons.medical_services, 'Type',
+                  _buildDetailRow(Icons.medical_services, 'Type',
                       appointment.appointmentType ?? 'Physical Visit'),
                   if (appointment.symptoms != null &&
                       appointment.symptoms!.isNotEmpty) ...[
                     const Divider(height: 24),
                     _buildDetailRow(
-                        Icons.description, 'Symptoms',
-                        appointment.symptoms!),
+                        Icons.description, 'Symptoms', appointment.symptoms!),
                   ],
                   const Divider(height: 24),
                   Row(children: [
@@ -120,14 +113,13 @@ class AppointmentDetailScreen extends StatelessWidget {
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: _getStatusColor(appointment.status)
-                            .withOpacity(0.15),
+                            .withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(appointment.status.toUpperCase(),
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color:
-                                  _getStatusColor(appointment.status))),
+                              color: _getStatusColor(appointment.status))),
                     ),
                   ]),
                 ],
@@ -150,21 +142,17 @@ class AppointmentDetailScreen extends StatelessWidget {
                             'Are you sure you want to cancel this appointment?'),
                         actions: [
                           TextButton(
-                              onPressed: () =>
-                                  Navigator.pop(ctx, false),
+                              onPressed: () => Navigator.pop(ctx, false),
                               child: const Text('No')),
                           TextButton(
-                              onPressed: () =>
-                                  Navigator.pop(ctx, true),
+                              onPressed: () => Navigator.pop(ctx, true),
                               child: const Text('Yes, Cancel',
-                                  style:
-                                      TextStyle(color: Colors.red))),
+                                  style: TextStyle(color: Colors.red))),
                         ],
                       ),
                     );
                     if (confirm == true) {
-                      await provider
-                          .cancelAppointment(appointment.id);
+                      await provider.cancelAppointment(appointment.id);
                       if (context.mounted) Navigator.pop(context);
                     }
                   },
@@ -198,12 +186,12 @@ class AppointmentDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label,
-                style: const TextStyle(
-                    fontSize: 12, color: Colors.grey)),
+                style: const TextStyle(fontSize: 12, color: Colors.grey)),
             const SizedBox(height: 2),
             Text(value,
                 style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                     color: Color(0xFF1B2C49))),
           ],
         ),

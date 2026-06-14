@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math' show cos, sqrt;
 
-import '../../../models/doctor_model.dart';
-import '../../../services/api_service.dart';
-import '../../../providers/user_provider.dart';
-import '../doctor/doctor_detail_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+
+import '../../../models/doctor_model.dart';
+import '../../../providers/user_provider.dart';
+import '../../../services/api_service.dart';
+import '../doctor/doctor_detail_screen.dart';
 
 class SearchDoctorScreen extends StatefulWidget {
   final LatLng? userPosition;
@@ -210,7 +211,8 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
               const SizedBox(height: 16),
-              Text(_errorMessage!, textAlign: TextAlign.center,
+              Text(_errorMessage!,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 16, color: Colors.grey)),
               const SizedBox(height: 24),
               ElevatedButton.icon(
@@ -232,15 +234,20 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(_searchController.text.isEmpty
-                ? Icons.medical_services_outlined
-                : Icons.search_off,
-                size: 64, color: Colors.grey),
+            Icon(
+                _searchController.text.isEmpty
+                    ? Icons.medical_services_outlined
+                    : Icons.search_off,
+                size: 64,
+                color: Colors.grey),
             const SizedBox(height: 16),
-            Text(_searchController.text.isEmpty
-                ? 'No doctors available'
-                : 'No doctors found',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+            Text(
+                _searchController.text.isEmpty
+                    ? 'No doctors available'
+                    : 'No doctors found',
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                     color: Color(0xFF1B2C49))),
           ],
         ),
@@ -263,8 +270,10 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
     final String visitingHours = _getVisitingHours(doctor);
 
     return GestureDetector(
-      onTap: () => Navigator.push(context,
-          MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctor: doctor))),
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => DoctorDetailsScreen(doctor: doctor))),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
@@ -273,7 +282,7 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -287,14 +296,16 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
                 child: SizedBox(
                   width: 70,
                   height: 70,
-                  child: doctor.image != null && doctor.image!.startsWith('http')
-                      ? Image.network(doctor.image!, fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
+                  child:
+                      doctor.image != null && doctor.image!.startsWith('http')
+                          ? Image.network(doctor.image!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                  color: Colors.grey[200],
+                                  child: const Icon(Icons.person, size: 40)))
+                          : Container(
                               color: Colors.grey[200],
-                              child: const Icon(Icons.person, size: 40)))
-                      : Container(
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.person, size: 40)),
+                              child: const Icon(Icons.person, size: 40)),
                 ),
               ),
               const SizedBox(width: 16),
@@ -307,43 +318,58 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
                       children: [
                         Expanded(
                           child: Text(doctor.fullName,
-                              style: const TextStyle(fontSize: 18,
+                              style: const TextStyle(
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF1B2C49)),
                               overflow: TextOverflow.ellipsis),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: isAvailable ? const Color(0xFFE8F5E9) : const Color(0xFFFFF3E0),
+                            color: isAvailable
+                                ? const Color(0xFFE8F5E9)
+                                : const Color(0xFFFFF3E0),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(isAvailable ? 'Available' : 'No Schedule',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold,
-                                  color: isAvailable ? Colors.green[700] : Colors.orange[700])),
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: isAvailable
+                                      ? Colors.green[700]
+                                      : Colors.orange[700])),
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(doctor.specialty,
-                        style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.grey)),
                     const SizedBox(height: 6),
                     Row(children: [
-                      Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
+                      Icon(Icons.access_time,
+                          size: 14, color: Colors.grey[600]),
                       const SizedBox(width: 4),
-                      Expanded(child: Text(visitingHours,
-                          style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                          overflow: TextOverflow.ellipsis)),
+                      Expanded(
+                          child: Text(visitingHours,
+                              style: TextStyle(
+                                  fontSize: 11, color: Colors.grey[600]),
+                              overflow: TextOverflow.ellipsis)),
                     ]),
                     const SizedBox(height: 6),
                     Row(children: [
                       const Icon(Icons.star, size: 16, color: Colors.orange),
                       Text(' ${doctor.rating.toStringAsFixed(1)} ',
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.bold)),
                       const SizedBox(width: 12),
-                      const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                      const Icon(Icons.location_on,
+                          size: 16, color: Colors.grey),
                       Text(_getDistanceText(doctor),
-                          style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                          style: const TextStyle(
+                              fontSize: 13, color: Colors.grey)),
                     ]),
                   ],
                 ),
@@ -354,27 +380,40 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: isAvailable
-                      ? () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctor: doctor)))
+                      ? () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  DoctorDetailsScreen(doctor: doctor)))
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isAvailable ? const Color(0xFF0D47A1) : Colors.grey[300],
+                    backgroundColor: isAvailable
+                        ? const Color(0xFF0D47A1)
+                        : Colors.grey[300],
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
                   ),
                   child: Text(isAvailable ? 'Book Now' : 'Not Available',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,
-                          color: isAvailable ? Colors.white : Colors.grey[600])),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              isAvailable ? Colors.white : Colors.grey[600])),
                 ),
               ),
               const SizedBox(width: 12),
               Container(
-                decoration: const BoxDecoration(color: Color(0xFFE3F2FD), shape: BoxShape.circle),
+                decoration: const BoxDecoration(
+                    color: Color(0xFFE3F2FD), shape: BoxShape.circle),
                 child: IconButton(
-                  icon: const Icon(Icons.info_outline, color: Color(0xFF0D47A1)),
-                  onPressed: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctor: doctor))),
+                  icon:
+                      const Icon(Icons.info_outline, color: Color(0xFF0D47A1)),
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => DoctorDetailsScreen(doctor: doctor))),
                 ),
               ),
             ]),

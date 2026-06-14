@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math' show cos, sqrt;
 
-import '../../../models/doctor_model.dart';
-import '../../../services/api_service.dart';
-import '../../../providers/user_provider.dart';
-import '../doctor/doctor_detail_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+
+import '../../../models/doctor_model.dart';
+import '../../../providers/user_provider.dart';
+import '../../../services/api_service.dart';
+import '../doctor/doctor_detail_screen.dart';
 
 class SeeAllDoctorsScreen extends StatefulWidget {
   final LatLng? userPosition;
@@ -33,8 +34,8 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
       _errorMessage = null;
     });
     try {
-      final result = await ApiService.get('/api/v1/user/role/doctor',
-          requiresAuth: true);
+      final result =
+          await ApiService.get('/api/v1/user/role/doctor', requiresAuth: true);
       if (result['success'] == true) {
         final doctorsData = result['data'] as List? ?? [];
         final currentUser =
@@ -47,10 +48,10 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
           loadedDoctors.sort((a, b) {
             if (a.latitude == null || a.longitude == null) return 1;
             if (b.latitude == null || b.longitude == null) return -1;
-            return _calculateDistanceInKm(widget.userPosition!,
-                    LatLng(a.latitude!, a.longitude!))
-                .compareTo(_calculateDistanceInKm(widget.userPosition!,
-                    LatLng(b.latitude!, b.longitude!)));
+            return _calculateDistanceInKm(
+                    widget.userPosition!, LatLng(a.latitude!, a.longitude!))
+                .compareTo(_calculateDistanceInKm(
+                    widget.userPosition!, LatLng(b.latitude!, b.longitude!)));
           });
         }
         setState(() {
@@ -77,7 +78,8 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
         cos((p2.latitude - p1.latitude) * p) / 2 +
         cos(p1.latitude * p) *
             cos(p2.latitude * p) *
-            (1 - cos((p2.longitude - p1.longitude) * p)) / 2;
+            (1 - cos((p2.longitude - p1.longitude) * p)) /
+            2;
     return 12742 * sqrt(a);
   }
 
@@ -188,8 +190,10 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
     final bool isAvailable = _isDoctorAvailable(doctor);
     final String visitingHours = _getVisitingHours(doctor);
     return GestureDetector(
-      onTap: () => Navigator.push(context,
-          MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctor: doctor))),
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => DoctorDetailsScreen(doctor: doctor))),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
@@ -198,7 +202,7 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4))
           ],
@@ -211,7 +215,8 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
                 width: 70,
                 height: 70,
                 child: doctor.image != null && doctor.image!.startsWith('http')
-                    ? Image.network(doctor.image!, fit: BoxFit.cover,
+                    ? Image.network(doctor.image!,
+                        fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
                             color: Colors.grey[200],
                             child: const Icon(Icons.person, size: 40)))
@@ -225,61 +230,64 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                              child: Text(doctor.fullName,
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF1B2C49)),
+                                  overflow: TextOverflow.ellipsis)),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isAvailable
+                                  ? const Color(0xFFE8F5E9)
+                                  : const Color(0xFFFFF3E0),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                                isAvailable ? 'Available' : 'No Schedule',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: isAvailable
+                                        ? Colors.green[700]
+                                        : Colors.orange[700])),
+                          ),
+                        ]),
+                    const SizedBox(height: 4),
+                    Text(doctor.specialty,
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.grey)),
+                    const SizedBox(height: 6),
+                    Row(children: [
+                      Icon(Icons.access_time,
+                          size: 14, color: Colors.grey[600]),
+                      const SizedBox(width: 4),
                       Expanded(
-                          child: Text(doctor.fullName,
-                              style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1B2C49)),
-                              overflow: TextOverflow.ellipsis)),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isAvailable
-                              ? const Color(0xFFE8F5E9)
-                              : const Color(0xFFFFF3E0),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                            isAvailable ? 'Available' : 'No Schedule',
-                            style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: isAvailable
-                                    ? Colors.green[700]
-                                    : Colors.orange[700])),
-                      ),
+                          child: Text(visitingHours,
+                              style: TextStyle(
+                                  fontSize: 11, color: Colors.grey[600]),
+                              overflow: TextOverflow.ellipsis))
                     ]),
-                const SizedBox(height: 4),
-                Text(doctor.specialty,
-                    style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                const SizedBox(height: 6),
-                Row(children: [
-                  Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Expanded(
-                      child: Text(visitingHours,
-                          style: TextStyle(
-                              fontSize: 11, color: Colors.grey[600]),
-                          overflow: TextOverflow.ellipsis))
-                ]),
-                const SizedBox(height: 6),
-                Row(children: [
-                  const Icon(Icons.star, size: 16, color: Colors.orange),
-                  Text(' ${doctor.rating.toStringAsFixed(1)} ',
-                      style: const TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                  Text(_getDistanceText(doctor),
-                      style:
-                          const TextStyle(fontSize: 13, color: Colors.grey)),
-                ]),
-              ]),
+                    const SizedBox(height: 6),
+                    Row(children: [
+                      const Icon(Icons.star, size: 16, color: Colors.orange),
+                      Text(' ${doctor.rating.toStringAsFixed(1)} ',
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 12),
+                      const Icon(Icons.location_on,
+                          size: 16, color: Colors.grey),
+                      Text(_getDistanceText(doctor),
+                          style: const TextStyle(
+                              fontSize: 13, color: Colors.grey)),
+                    ]),
+                  ]),
             ),
           ]),
           const SizedBox(height: 12),
@@ -287,7 +295,8 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
             Expanded(
               child: ElevatedButton(
                 onPressed: isAvailable
-                    ? () => Navigator.push(context,
+                    ? () => Navigator.push(
+                        context,
                         MaterialPageRoute(
                             builder: (_) =>
                                 DoctorDetailsScreen(doctor: doctor)))
@@ -304,8 +313,7 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color:
-                            isAvailable ? Colors.white : Colors.grey[600])),
+                        color: isAvailable ? Colors.white : Colors.grey[600])),
               ),
             ),
             const SizedBox(width: 12),
@@ -314,7 +322,8 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
                   color: Color(0xFFE3F2FD), shape: BoxShape.circle),
               child: IconButton(
                 icon: const Icon(Icons.info_outline, color: Color(0xFF0D47A1)),
-                onPressed: () => Navigator.push(context,
+                onPressed: () => Navigator.push(
+                    context,
                     MaterialPageRoute(
                         builder: (_) => DoctorDetailsScreen(doctor: doctor))),
               ),

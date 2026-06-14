@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../providers/dependent_provider.dart';
 import '../../../models/dependent_model.dart';
+import '../../../providers/dependent_provider.dart';
 import 'add_dependents_screen.dart';
 import 'edit_dependent_screen.dart';
 
@@ -36,8 +36,7 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
             onPressed: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => const AddDependentScreen()),
+                MaterialPageRoute(builder: (_) => const AddDependentScreen()),
               );
               if (mounted) {
                 context.read<DependentProvider>().fetchDependents();
@@ -86,7 +85,9 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+        ],
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -101,8 +102,7 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
         title: Text(dep.displayName,
             style: const TextStyle(
                 fontWeight: FontWeight.bold, color: Color(0xFF1B2C49))),
-        subtitle: Text(
-            '${dep.relationship ?? 'Family'} • Age ${dep.age}',
+        subtitle: Text('${dep.relationship ?? 'Family'} • Age ${dep.age}',
             style: const TextStyle(color: Colors.grey)),
         trailing: PopupMenuButton<String>(
           onSelected: (value) async {
@@ -110,8 +110,7 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) =>
-                        EditDependentScreen(dependent: dep)),
+                    builder: (_) => EditDependentScreen(dependent: dep)),
               );
               if (mounted) provider.fetchDependents();
             } else if (value == 'delete') {
@@ -119,8 +118,8 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('Remove Member'),
-                  content: Text(
-                      'Remove ${dep.fullName} from your family list?'),
+                  content:
+                      Text('Remove ${dep.fullName} from your family list?'),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(ctx, false),

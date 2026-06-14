@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../login_screen.dart';
 import '../../arogyascreens/main_page.dart';
 import '../patient/navigation/patient_main_navigation.dart';
+import '../doctor/navigation/doctor_main_navigation.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -31,8 +32,15 @@ class _SplashScreenState extends State<SplashScreen> {
             MaterialPageRoute(
                 builder: (context) => const PatientMainNavigation()),
           );
+        } else if (role == 'doctor') {
+          // Doctor → new doctor dashboard
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const DoctorMainNavigation()),
+          );
         } else {
-          // Doctor or other roles → old main page
+          // Other roles → old main page (fallback)
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MainPage()),

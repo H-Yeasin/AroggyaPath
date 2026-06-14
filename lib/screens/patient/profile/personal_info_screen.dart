@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
 import '../../../providers/user_provider.dart';
-import '../../../models/user_model.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   const PersonalInfoScreen({super.key});
@@ -61,8 +61,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     );
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated!'),
-            backgroundColor: Colors.green),
+        const SnackBar(
+            content: Text('Profile updated!'), backgroundColor: Colors.green),
       );
       Navigator.pop(context);
     } else if (mounted && provider.error != null) {
@@ -88,8 +88,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               onPressed: _save,
               child: const Text('Save',
                   style: TextStyle(
-                      color: Color(0xFF1664CD),
-                      fontWeight: FontWeight.bold))),
+                      color: Color(0xFF1664CD), fontWeight: FontWeight.bold))),
         ],
       ),
       body: SingleChildScrollView(
@@ -106,11 +105,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   backgroundImage: _profileImage != null
                       ? FileImage(_profileImage!)
                       : (user?.profileImage != null
-                              ? NetworkImage(user!.profileImage!)
-                              : null) as ImageProvider?,
+                          ? NetworkImage(user!.profileImage!)
+                          : null) as ImageProvider?,
                   child: (_profileImage == null && user?.profileImage == null)
-                      ? const Icon(Icons.person, size: 50,
-                          color: Color(0xFF1664CD))
+                      ? const Icon(Icons.person,
+                          size: 50, color: Color(0xFF1664CD))
                       : null,
                 ),
                 Positioned(
@@ -132,11 +131,10 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
           const SizedBox(height: 16),
           _buildTextField('Phone', _phoneController, TextInputType.phone),
           const SizedBox(height: 16),
-          _buildTextField('Address', _addressController, TextInputType.streetAddress,
-              2),
+          _buildTextField(
+              'Address', _addressController, TextInputType.streetAddress, 2),
           const SizedBox(height: 16),
-          _buildTextField('Bio', _bioController, TextInputType.multiline,
-              3),
+          _buildTextField('Bio', _bioController, TextInputType.multiline, 3),
         ]),
       ),
     );
@@ -149,7 +147,9 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+        ],
       ),
       child: TextField(
         controller: controller,
