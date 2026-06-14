@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 class ApiConfig {
@@ -7,13 +8,13 @@ class ApiConfig {
   static const String prodUrl = 'https://api.aroggyapath.com';
 
   /// Development URLs
-  static const String localhostUrl = 'http://localhost:5005';
-  static const String androidEmulatorUrl = 'http://10.0.2.2:5005';
+  static const String localhostUrl = 'http://localhost:5000';
+  static const String androidEmulatorUrl = 'http://10.0.2.2:5000';
 
   /// Your computer's local IP (for physical device testing on same WiFi)
   /// Find using: ipconfig (Windows) or ifconfig (Mac/Linux)
-  /// Example: 'http://192.168.0.105:5005'
-  static const String localNetworkUrl = 'http://192.168.0.XXX:5005';
+  /// Example: 'http://192.168.0.105:5000'
+  static const String localNetworkUrl = 'http://192.168.0.XXX:5000';
 
   static const DevMode _currentMode = DevMode.localhost;
 
