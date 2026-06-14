@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow cleartext traffic for local development server -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">192.168.0.0/16</domain>
+    </domain-config>
+    <!-- Allow cleartext for staging/dev Render/Railway URLs -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">onrender.com</domain>
+        <domain includeSubdomains="true">railway.app</domain>
+    </domain-config>
+    <!-- Production HTTPS-only -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
