@@ -1,8 +1,8 @@
 import 'package:intl/intl.dart';
-import 'doctor.dart';
+import 'emergency_contacts.dart';
 
 class Schedule {
-  final Doctor doctor;
+  final EmergencyContact doctor;
   final String status;
   final DateTime time;
 
@@ -15,43 +15,42 @@ class Schedule {
 
 List<Schedule> schedules = [
   Schedule(
-      doctor: doctors[4],
+      doctor: emergencyContacts[4],
       status: 'Confirmed',
       time: DateTime.parse('2024-11-03')),
   Schedule(
-      doctor: doctors[0],
+      doctor: emergencyContacts[0],
       status: 'Confirmed',
       time: DateTime.parse('2024-11-04')),
   Schedule(
-      doctor: doctors[1],
+      doctor: emergencyContacts[1],
       status: 'Confirmed',
       time: DateTime.parse('2024-11-05 09:30')),
   Schedule(
-      doctor: doctors[2],
+      doctor: emergencyContacts[2],
       status: 'Confirmed',
       time: DateTime.parse('2024-11-01 06:00')),
   Schedule(
-    doctor: doctors[3],
+    doctor: emergencyContacts[3],
     status: 'Confirmed',
     time: DateTime.parse('2024-11-06 15:45'),
   ),
 ];
+
 List<String> tabs = ['Upcoming', 'Completed', 'Canceled'];
+
 List<Schedule> nearest = schedules
     .where(
       (element) =>
           DateFormat('d/MM/y').format(element.time) ==
-          DateFormat('d/MM/y').format(
-            DateTime.now(),
-          ),
+          DateFormat('d/MM/y').format(DateTime.now()),
     )
     .toList();
+
 List<Schedule> futures = schedules
     .where(
       (element) =>
           DateFormat('d/MM/y').format(element.time) !=
-          DateFormat('d/MM/y').format(
-            DateTime.now(),
-          ),
+          DateFormat('d/MM/y').format(DateTime.now()),
     )
     .toList();

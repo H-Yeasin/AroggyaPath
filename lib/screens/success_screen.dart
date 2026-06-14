@@ -1,7 +1,5 @@
-import '/screens/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
+import 'login_screen.dart';
 import '../components/custom_button.dart';
 
 class SuccessScreen extends StatelessWidget {
@@ -15,33 +13,34 @@ class SuccessScreen extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              // Add space at the top
               const SizedBox(height: 50),
-              // Headline text with padding and bold style
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2.0),
                 child: Text(
-                  "Email Verification Successful!",
+                  "Password Reset Successful!",
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
               ),
-              //image
               Image.asset('assets/images/Verified.gif'),
-              const SizedBox(
-                height: 35,
-              ),
+              const SizedBox(height: 35),
               const Text(
-                "Congratulations! Your Account Has Been Created",
+                "Your password has been reset successfully.",
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: CustomButton2(
-                    buttonText: "Proceed to Login",
-                    onPressed: () => {Get.to(const LoginScreen())}),
+                  buttonText: "Proceed to Login",
+                  onPressed: () => Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (_) => false,
+                  ),
+                ),
               ),
             ],
           ),

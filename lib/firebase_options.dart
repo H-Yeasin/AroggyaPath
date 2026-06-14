@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: '##USE API KEY HERElike(AIzaSyBolnY69HOXIT1eRKavgjNPnGA9vdwgmw4)',
-    appId: '1:623822829803:android:837eeab7d4496f89e6e6ae',
-    messagingSenderId: '623822829803',
-    projectId: 'arogyapath3',
-    storageBucket: 'arogyapath3.firebasestorage.app',
+    apiKey: 'AIzaSyCBJ6uyyr5WkoafAwyo9XT_-skwB7mqLgM',
+    appId: '1:776466142235:android:a7e4c9aaacf09186a614be',
+    messagingSenderId: '776466142235',
+    projectId: 'aroggyapath-55ccf',
+    storageBucket: 'aroggyapath-55ccf.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: '##USE API KEY HERElike(AIzaSyDP0MrobJ1Aq1qluqhne22KczHhaxBdnkM)',
-    appId: '1:623822829803:ios:1d5a12289677fb0ee6e6ae',
-    messagingSenderId: '623822829803',
-    projectId: 'arogyapath3',
-    storageBucket: 'arogyapath3.firebasestorage.app',
-    iosBundleId: 'com.example.arogyaPath3',
+    apiKey: 'TODO-ADD-IOS-API-KEY',
+    appId: 'TODO-ADD-IOS-APP-ID',
+    messagingSenderId: '776466142235',
+    projectId: 'aroggyapath-55ccf',
+    storageBucket: 'aroggyapath-55ccf.firebasestorage.app',
+    iosBundleId: 'com.aroggyapath.app',
   );
 }

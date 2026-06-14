@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '/Model/doctor.dart';
+import '../../models/emergency_contacts.dart';
 import '../const.dart';
 
 class ListOfDoctor extends StatelessWidget {
-  final Doctor doctor;
+  final EmergencyContact doctor;
   const ListOfDoctor({super.key, required this.doctor});
 
   @override

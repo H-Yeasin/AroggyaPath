@@ -1,195 +1,215 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '/screens/verify_email.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import 'login_screen.dart';
 import '../components/custom_button.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
-   
+
   @override
-  State<SignupScreen> createState()=> _SignupScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen>{
-  final TextEditingController _firstNameController =TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
+class _SignupScreenState extends State<SignupScreen> {
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  String _selectedRole = 'patient';
   bool _agreeToTerms = false;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Future<void> _signUp() async {
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You must agree to the terms of use.')),
+      );
+      return;
+    }
 
-  //signUp function
-  Future<void> _signUp() async{
-    try {
-      if(_agreeToTerms){
-        //create a new user with email and password
-        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: _emailController.text.trim(),
-         password: _passwordController.text.trim()
-         );
+    final fullName = _fullNameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
 
-         //Store user additional details in Firestore
-         await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'firstName': _firstNameController.text.trim(),
-          'lastName': _lastNameController.text.trim(),
-          'username': _usernameController.text.trim(),
-          'email': _emailController.text.trim(),
-          'phone': _phoneController.text.trim(),
-          'createdAt': Timestamp.now(),
-         });
+    if (fullName.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields')),
+      );
+      return;
+    }
 
-         //Navigate to the VerifyEmailScreen
-         Get.to(() => const VerifyEmailScreen());
-      } else{
-        // Handle case where terms aren't agreed upon
-        Get.snackbar("Error", "You must agree to the terms of use.");
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
 
-      }
-    } catch (e) {
-      Get.snackbar("Error", e.toString());
+    final auth = context.read<AuthProvider>();
+    final success = await auth.register(
+      fullName: fullName,
+      email: email,
+      password: password,
+      role: _selectedRole,
+    );
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration successful! Please log in.')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    } else if (mounted && auth.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.error!)),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: const Text('Create Account')),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(30),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //title
-              Text(
-                "Let's Create an Account",
-                style: Theme.of(context).textTheme.headlineMedium,
+        padding: const EdgeInsets.all(30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Let's Create an Account",
+                style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 30),
+            // Full Name
+            TextFormField(
+              controller: _fullNameController,
+              decoration: const InputDecoration(
+                hintText: "Full Name",
+                prefixIcon: Icon(Icons.person),
               ),
-              const SizedBox(
-                height: 55,
+            ),
+            const SizedBox(height: 20),
+            // Email
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                hintText: "Email",
+                prefixIcon: Icon(Icons.mail),
               ),
-
-              //form
-              Form(
-                  child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _firstNameController,
-                          expands: false,
-                          decoration: const InputDecoration(
-                              hintText: "First Name",
-                              prefixIcon: Icon(Icons.person)),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 25,
-                      ),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _lastNameController,
-                          expands: false,
-                          decoration: const InputDecoration(
-                              hintText: "Last Name",
-                              prefixIcon: Icon(Icons.person)),
-                        ),
-                      )
-                    ],
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 20),
+            // Phone
+            TextFormField(
+              controller: _phoneController,
+              decoration: const InputDecoration(
+                hintText: "Phone (optional)",
+                prefixIcon: Icon(Icons.call),
+              ),
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 20),
+            // Role selection
+            const Text("I want to register as:", style: TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: RadioListTile<String>(
+                    title: const Text('Patient'),
+                    value: 'patient',
+                    groupValue: _selectedRole,
+                    onChanged: (v) => setState(() => _selectedRole = v!),
                   ),
-                  //username
-                  const SizedBox(
-                    height: 25,
+                ),
+                Expanded(
+                  child: RadioListTile<String>(
+                    title: const Text('Doctor'),
+                    value: 'doctor',
+                    groupValue: _selectedRole,
+                    onChanged: (v) => setState(() => _selectedRole = v!),
                   ),
-                  TextFormField(
-                    controller: _usernameController,
-                    expands: false,
-                    decoration: const InputDecoration(
-                        hintText: "Username",
-                        prefixIcon: Icon(Icons.account_circle_rounded)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // Password
+            TextFormField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                hintText: "Password",
+                prefixIcon: Icon(Icons.lock),
+                suffixIcon: Icon(Icons.visibility_off),
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 20),
+            // Confirm Password
+            TextFormField(
+              controller: _confirmPasswordController,
+              decoration: const InputDecoration(
+                hintText: "Confirm Password",
+                prefixIcon: Icon(Icons.lock),
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 15),
+            // Terms checkbox
+            Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Checkbox(
+                    value: _agreeToTerms,
+                    onChanged: (value) =>
+                        setState(() => _agreeToTerms = value!),
                   ),
-
-                  //Email
-                  const SizedBox(
-                    height: 25,
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text("I agree to Privacy Policy and Terms of use"),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30),
+            Consumer<AuthProvider>(
+              builder: (context, auth, _) {
+                if (auth.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return SizedBox(
+                  width: double.infinity,
+                  child: CustomButton2(
+                    buttonText: "Create Account",
+                    onPressed: _signUp,
                   ),
-                  TextFormField(
-                    controller: _emailController,
-                    expands: false,
-                    decoration: const InputDecoration(
-                        hintText: "Email", 
-                        prefixIcon: Icon(Icons.mail)
-                        ),
-                  ),
-                  //Phone Number
-                  const SizedBox(
-                    height: 25,
-                  ),
-                  TextFormField(
-                    controller: _phoneController,
-                    expands: false,
-                    decoration: const InputDecoration(
-                        hintText: "Phone", prefixIcon: Icon(Icons.call)),
-                  ),
-                  //Password
-                  const SizedBox(
-                    height: 25,
-                  ),
-                  TextFormField(
-                    controller: _passwordController,
-                    expands: false,
-                    decoration: const InputDecoration(
-                        hintText: "Password",
-                        prefixIcon: Icon(Icons.lock),
-                        suffixIcon: Icon(Icons.visibility_off)),
-                  ),
-                  //checkbox
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: Checkbox(
-                            value: _agreeToTerms, 
-                            onChanged: (value) {
-                              setState(() {
-                                _agreeToTerms = value!;
-                              });
-                            },
-                          ),
-                        ),
-                      const Text("I agree to Privacy Policy and Terms of use"),
-                    ],
-                  ),
-                  //signUp Button
-                  const SizedBox(
-                    height: 35,
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomButton2(
-                      buttonText: "Create Account",
-                      onPressed: _signUp,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                ],
-              ))
-            ],
-          ),
+                );
+              },
+            ),
+            const SizedBox(height: 15),
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Already have an account? Log in"),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 }

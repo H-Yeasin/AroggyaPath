@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "623822829803",
-    "project_id": "arogyapath3",
-    "storage_bucket": "arogyapath3.firebasestorage.app"
+    "project_number": "776466142235",
+    "project_id": "aroggyapath-55ccf",
+    "storage_bucket": "aroggyapath-55ccf.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:623822829803:android:837eeab7d4496f89e6e6ae",
+        "mobilesdk_app_id": "1:776466142235:android:a7e4c9aaacf09186a614be",
         "android_client_info": {
-          "package_name": "com.example.arogya_path3"
+          "package_name": "com.aroggyapath.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBolnY69HOXIT1eRKavgjNPnGA9vdwgmw4"
+          "current_key": "AIzaSyCBJ6uyyr5WkoafAwyo9XT_-skwB7mqLgM"
         }
       ],
       "services": {

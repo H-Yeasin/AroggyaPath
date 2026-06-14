@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '/Model/doctor.dart';
+import '../models/emergency_contacts.dart';
 import '../components/const.dart';
 
 class DoctorDetailScreen extends StatelessWidget {
-  final Doctor doctor;
+  final EmergencyContact doctor;
   const DoctorDetailScreen({
     super.key,
     required this.doctor,

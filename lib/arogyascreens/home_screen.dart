@@ -1,9 +1,8 @@
-import 'package:arogya_path3/hospital/appoinment.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '/Model/doctor.dart';
-import '/Model/symptom.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:arogya_path3/hospital/appoinment.dart';
+import '../models/emergency_contacts.dart';
+import '../models/symptom.dart';
 import '../components/widgets/list_of_doctor.dart';
 import 'doctor_details_screen.dart';
 import '../components/const.dart';
@@ -106,7 +105,7 @@ class _DoctorAppoinmentHomeScreenState
                 mainAxisSpacing: 14, // Spacing between rows
                 childAspectRatio: 3 / 4, // Adjust the aspect ratio as needed
               ),
-              itemCount: doctors.length,
+              itemCount: emergencyContacts.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
@@ -114,13 +113,13 @@ class _DoctorAppoinmentHomeScreenState
                       context,
                       MaterialPageRoute(
                         builder: (_) => DoctorDetailScreen(
-                          doctor: doctors[index],
+                          doctor: emergencyContacts[index],
                         ),
                       ),
                     );
                   },
                   child: ListOfDoctor(
-                    doctor: doctors[index],
+                    doctor: emergencyContacts[index],
                   ),
                 );
               },
@@ -306,19 +305,11 @@ class _DoctorAppoinmentHomeScreenState
     );
   }
 
-// Fetch username from Firestore
+// Fetch username from SharedPreferences (saved on JWT login)
   Future<String?> fetchUsername() async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return null;
-
-      // Assuming user data is stored in a Firestore collection named 'users'
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      return userDoc.data()?['username'] as String?;
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('user_full_name');
     } catch (e) {
       debugPrint("Error fetching username: $e");
       return null;

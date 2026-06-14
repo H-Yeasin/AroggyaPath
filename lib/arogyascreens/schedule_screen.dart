@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/Model/schedule.dart';
+import '../models/schedule.dart';
 import '../components/widgets/schedule_items.dart';
 import '../components/const.dart';
 

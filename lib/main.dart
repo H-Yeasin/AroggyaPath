@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-import 'package:get/get.dart';
-import '/screens/login_screen.dart';
-
+import 'services/api_service.dart';
+import 'providers/auth_provider.dart';
+import 'screens/login_screen.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensures bindings are initialized before Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase only for push notifications (FCM)
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
+  // Initialize API service for JWT auth
+  await ApiService.init();
+
   runApp(const MyApp());
 }
 
@@ -19,9 +27,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp(
+        title: 'AroggyaPath',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF4CAF50),
+            brightness: Brightness.light,
+          ),
+          useMaterial3: true,
+        ),
+        home: const LoginScreen(),
+      ),
     );
   }
 }

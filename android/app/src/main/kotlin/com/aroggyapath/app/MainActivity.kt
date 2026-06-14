@@ -1,4 +1,4 @@
-package com.example.arogya_path3
+package com.aroggyapath.app
 
 import io.flutter.embedding.android.FlutterActivity
 

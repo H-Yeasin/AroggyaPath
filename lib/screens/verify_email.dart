@@ -1,8 +1,6 @@
-import '/components/custom_button.dart';
-import '/screens/login_screen.dart';
-import '/screens/success_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'login_screen.dart';
+import '../components/custom_button.dart';
 
 class VerifyEmailScreen extends StatelessWidget {
   const VerifyEmailScreen({super.key});
@@ -14,7 +12,11 @@ class VerifyEmailScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            onPressed: () => Get.offAll(() => const LoginScreen()),
+            onPressed: () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginScreen()),
+              (_) => false,
+            ),
             icon: const Icon(Icons.clear),
           )
         ],
@@ -24,27 +26,26 @@ class VerifyEmailScreen extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              Text("Verify Email address!",
+              Text("Registration Successful!",
                   style: Theme.of(context).textTheme.headlineMedium),
-              //image
               Image.asset('assets/images/emailVerify.png'),
-              const SizedBox(
-                height: 35,
-              ),
-              
+              const SizedBox(height: 35),
               const Text(
-                  "Congratulations! Your Account Awaits; Verify your Email to Confirm",
-                  textAlign: TextAlign.center,),
+                "Your account has been created. Please log in.",
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: CustomButton2(buttonText: "Continue", onPressed: () => {Get.to(const SuccessScreen())}),
+                child: CustomButton2(
+                  buttonText: "Go to Login",
+                  onPressed: () => Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (_) => false,
+                  ),
+                ),
               ),
-              const SizedBox(height:5,),
-              SizedBox(width: double.infinity, child: TextButton(onPressed: (){}, child: const Text("Resend Email")),)
-
-              //title & SubTitle
-
-              //Button
             ],
           ),
         ),
