@@ -47,5 +47,13 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>AroggyaPath needs your location to find nearby doctors and health services.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>AroggyaPath needs your location to find nearby doctors and health services.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>AroggyaPath needs camera access for video consultations and profile photos.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>AroggyaPath needs microphone access for video consultations.</string>
 	</dict>
 </plist>

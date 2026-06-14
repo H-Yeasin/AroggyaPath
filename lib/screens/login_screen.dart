@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/auth_provider.dart';
 import 'signup_screen.dart';
 import 'forgatepass_screen.dart';
 import '../arogyascreens/main_page.dart';
+import 'patient/navigation/patient_main_navigation.dart';
 import '../components/custom_button.dart';
 import '../components/custom_textfield.dart';
 
@@ -34,10 +36,22 @@ class _LoginScreenState extends State<LoginScreen> {
     final success = await auth.login(email, password);
 
     if (success && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainPage()),
-      );
+      // Check user role for role-based navigation
+      final prefs = await SharedPreferences.getInstance();
+      final role = prefs.getString('user_role')?.toLowerCase();
+      if (role == 'patient') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (_) => const PatientMainNavigation()),
+        );
+      } else {
+        // Doctor or other roles → existing main page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainPage()),
+        );
+      }
     } else if (mounted && auth.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(auth.error!)),

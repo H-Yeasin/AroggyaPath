@@ -231,4 +231,14 @@ class TimeSlot {
       if (isBooked != null) 'isBooked': isBooked,
     };
   }
+
+  /// Formatted display string for UI (e.g. "09:00 - 10:00")
+  String get displayTime {
+    final startParts = start.split(':');
+    final endParts = end.split(':');
+    if (startParts.length >= 2 && endParts.length >= 2) {
+      return '${startParts[0]}:${startParts[1]} - ${endParts[0]}:${endParts[1]}';
+    }
+    return '$start - $end';
+  }
 }

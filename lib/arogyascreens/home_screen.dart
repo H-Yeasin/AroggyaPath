@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:arogya_path3/hospital/appoinment.dart';
+// Hospital booking temporarily disabled during migration
+// import 'package:arogya_path3/hospital/appoinment.dart';
 import '../models/emergency_contacts.dart';
 import '../models/symptom.dart';
 import '../components/widgets/list_of_doctor.dart';
@@ -138,13 +139,23 @@ class _DoctorAppoinmentHomeScreenState
           Expanded(
             child: GestureDetector(
               onTap: () {
-                // Navigate to the desired page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AppointmentPage(),
+                // Hospital booking temporarily disabled during migration to
+                // location-based doctor finding
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Hospital booking is being upgraded to doctor appointments. Coming soon!',
+                    ),
+                    duration: Duration(seconds: 3),
                   ),
                 );
+                // Old hospital booking code preserved for future re-enable:
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => const AppointmentPage(),
+                //   ),
+                // );
               },
               child: Container(
                 padding: const EdgeInsets.all(15),

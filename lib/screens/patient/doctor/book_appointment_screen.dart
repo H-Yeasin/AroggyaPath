@@ -1,0 +1,554 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
+import 'package:provider/provider.dart';
+import '../../../models/doctor_model.dart';
+import '../../../models/dependent_model.dart';
+import '../../../models/appointment_model.dart';
+import '../../../providers/appointment_provider.dart';
+import '../../../providers/dependent_provider.dart';
+import '../../../utils/api_config.dart';
+
+class BookAppointmentScreen extends StatefulWidget {
+  final Doctor doctor;
+  final bool isReschedule;
+  final AppointmentModel? existingAppointment;
+
+  const BookAppointmentScreen({
+    super.key,
+    required this.doctor,
+    this.isReschedule = false,
+    this.existingAppointment,
+  });
+
+  @override
+  State<BookAppointmentScreen> createState() => _BookAppointmentScreenState();
+}
+
+class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
+  String selectedType = 'Physical Visit';
+  DateTime? selectedDate;
+  TimeSlot? selectedTimeSlot;
+  DependentModel? selectedDependent;
+  final TextEditingController _symptomsController = TextEditingController();
+
+  final List<XFile> _medicalDocuments = [];
+  XFile? _paymentScreenshot;
+
+  bool _isLoading = false;
+  bool _isLoadingSlots = false;
+  List<TimeSlot> availableSlots = [];
+  final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.isReschedule && widget.existingAppointment != null) {
+      final appt = widget.existingAppointment!;
+      if (appt.appointmentType?.toLowerCase() == 'video') {
+        selectedType = 'Video Call';
+      } else {
+        selectedType = 'Physical Visit';
+      }
+      if (appt.symptoms != null && appt.symptoms!.isNotEmpty) {
+        _symptomsController.text = appt.symptoms!;
+      }
+      selectedDate = appt.appointmentDate;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DependentProvider>().fetchDependents();
+    });
+  }
+
+  @override
+  void dispose() {
+    _symptomsController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 90)),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.light(primary: Color(0xFF0D53C1)),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked != null && mounted) {
+      setState(() {
+        selectedDate = picked;
+        selectedTimeSlot = null;
+        availableSlots = [];
+      });
+      await _fetchAvailableSlots(picked);
+    }
+  }
+
+  Future<void> _fetchAvailableSlots(DateTime date) async {
+    setState(() => _isLoadingSlots = true);
+    try {
+      final response = await _fetchFromBackend(date);
+      if (response != null && response['success'] == true) {
+        final slotsData = response['data']['slots'] as List;
+        final unbookedSlots = slotsData
+            .map((slot) => TimeSlot.fromJson(slot))
+            .where((slot) => slot.isBooked != true)
+            .toList();
+        if (unbookedSlots.isEmpty) {
+          _loadFromWeeklySchedule(date);
+        } else {
+          setState(() => availableSlots = unbookedSlots);
+        }
+      } else {
+        _loadFromWeeklySchedule(date);
+      }
+    } catch (e) {
+      _loadFromWeeklySchedule(date);
+    } finally {
+      setState(() => _isLoadingSlots = false);
+    }
+  }
+
+  Future<Map<String, dynamic>?> _fetchFromBackend(DateTime date) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      final response = await http
+          .post(
+            Uri.parse('${ApiConfig.baseUrl}${ApiConfig.appointments}/available'),
+            headers: {
+              'Content-Type': 'application/json',
+              if (token != null) 'Authorization': 'Bearer $token',
+            },
+            body: json.encode({
+              'doctorId': widget.doctor.id,
+              'date': DateFormat('yyyy-MM-dd').format(date),
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      }
+    } catch (e) {
+      debugPrint('Backend slot error: $e');
+    }
+    return null;
+  }
+
+  void _loadFromWeeklySchedule(DateTime date) {
+    final doctor = widget.doctor;
+    if (doctor.weeklySchedule == null || doctor.weeklySchedule!.isEmpty) {
+      setState(() => availableSlots = []);
+      return;
+    }
+    final dayName = _getDayName(date);
+    WeeklySchedule? daySchedule;
+    for (var schedule in doctor.weeklySchedule!) {
+      if (schedule.day.toLowerCase() == dayName.toLowerCase() &&
+          schedule.isActive) {
+        daySchedule = schedule;
+        break;
+      }
+    }
+    if (daySchedule == null) {
+      setState(() => availableSlots = []);
+      return;
+    }
+    setState(() => availableSlots = daySchedule!.slots);
+  }
+
+  String _getDayName(DateTime date) {
+    const dayNames = [
+      'monday', 'tuesday', 'wednesday', 'thursday',
+      'friday', 'saturday', 'sunday',
+    ];
+    return dayNames[date.weekday - 1];
+  }
+
+  Future<void> _pickMedicalDocuments() async {
+    final List<XFile> picked = await _picker.pickMultiImage();
+    if (picked.isNotEmpty && mounted) {
+      setState(() => _medicalDocuments.addAll(picked));
+    }
+  }
+
+  Future<void> _submitAppointment() async {
+    if (selectedDate == null || selectedTimeSlot == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select date and time')),
+      );
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      final success = await _createAppointmentInternal();
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Appointment booked successfully!'),
+              backgroundColor: Colors.green),
+        );
+        Navigator.pop(context);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<bool> _createAppointmentInternal() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      final String backendType =
+          selectedType == 'Physical Visit' ? 'physical' : 'video';
+
+      Map<String, dynamic> bookedForPayload;
+      if (selectedDependent == null) {
+        bookedForPayload = {'type': 'self'};
+      } else {
+        bookedForPayload = {
+          'type': 'dependent',
+          'dependentId': selectedDependent!.id,
+          'dependentName': selectedDependent!.fullName,
+          'relationship': selectedDependent!.relationship,
+        };
+      }
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${ApiConfig.baseUrl}${ApiConfig.appointments}'),
+      );
+
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      request.fields.addAll({
+        'doctorId': widget.doctor.id,
+        'appointmentType': backendType,
+        'date': DateFormat('yyyy-MM-dd').format(selectedDate!),
+        'time': selectedTimeSlot!.start,
+        'symptoms': _symptomsController.text.trim(),
+        'bookedFor': json.encode(bookedForPayload),
+      });
+
+      final streamedResponse = await request.send().timeout(
+            const Duration(seconds: 60),
+          );
+      final response = await http.Response.fromStream(streamedResponse);
+
+      final jsonResponse =
+          response.body.isNotEmpty ? json.decode(response.body) : {};
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        if (mounted) {
+          context.read<AppointmentProvider>().fetchAppointments();
+        }
+        return true;
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    jsonResponse['message'] ?? 'Booking failed'),
+                backgroundColor: Colors.red),
+          );
+        }
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Booking error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+      return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F8FF),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          widget.isReschedule
+              ? 'Reschedule Appointment'
+              : 'Book Appointment',
+          style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 20),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Column(
+          children: [
+            // Appointment Type Selector
+            _buildTypeSelector(),
+            const SizedBox(height: 16),
+
+            // Dependent Selector
+            Consumer<DependentProvider>(
+              builder: (context, provider, child) {
+                return _buildDependentSelector(provider);
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Date Selector
+            _buildDateSelector(),
+            const SizedBox(height: 16),
+
+            // Time Slots
+            if (selectedDate != null) _buildTimeSlotGrid(),
+            const SizedBox(height: 16),
+
+            // Symptoms
+            _buildSymptomsInput(),
+            const SizedBox(height: 16),
+
+            // Submit Button
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: _isLoading ? () {} : _submitAppointment,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0D53C1),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2.5),
+                      )
+                    : const Text('Submit Appointment',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold)),
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypeSelector() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Appointment Type',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(
+              child: _buildTypeOption(
+                  'Physical Visit', Icons.person, selectedType == 'Physical Visit'),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildTypeOption(
+                  'Video Call', Icons.videocam, selectedType == 'Video Call'),
+            ),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTypeOption(String label, IconData icon, bool isSelected) {
+    return GestureDetector(
+      onTap: () => setState(() => selectedType = label),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFE3F2FD) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF0D47A1) : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: Column(children: [
+          Icon(icon, color: isSelected ? const Color(0xFF0D47A1) : Colors.grey),
+          const SizedBox(height: 4),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? const Color(0xFF0D47A1) : Colors.grey)),
+        ]),
+      ),
+    );
+  }
+
+  Widget _buildDependentSelector(DependentProvider provider) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Book For',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              ChoiceChip(
+                label: const Text('Myself'),
+                selected: selectedDependent == null,
+                selectedColor: const Color(0xFFE3F2FD),
+                onSelected: (_) => setState(() => selectedDependent = null),
+              ),
+              ...provider.activeDependents.map((dep) => ChoiceChip(
+                    label: Text(dep.displayName),
+                    selected: selectedDependent?.id == dep.id,
+                    selectedColor: const Color(0xFFE3F2FD),
+                    onSelected: (_) =>
+                        setState(() => selectedDependent = dep),
+                  )),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateSelector() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+      ),
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.calendar_today, color: Color(0xFF0D47A1)),
+        title: Text(
+          selectedDate != null
+              ? DateFormat('EEE, MMM d, yyyy').format(selectedDate!)
+              : 'Select Date',
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: _selectDate,
+      ),
+    );
+  }
+
+  Widget _buildTimeSlotGrid() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Available Time Slots',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          if (_isLoadingSlots)
+            const Center(child: CircularProgressIndicator(strokeWidth: 2))
+          else if (availableSlots.isEmpty)
+            const Text('No slots available for this date',
+                style: TextStyle(color: Colors.grey))
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: availableSlots.map((slot) {
+                final isSelected = selectedTimeSlot?.start == slot.start;
+                return ChoiceChip(
+                  label: Text(slot.displayTime, style: const TextStyle(fontSize: 13)),
+                  selected: isSelected,
+                  selectedColor: const Color(0xFFE3F2FD),
+                  onSelected: (_) => setState(() => selectedTimeSlot = slot),
+                );
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSymptomsInput() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Symptoms / Notes',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _symptomsController,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Describe your symptoms or reason for visit...',
+              hintStyle: TextStyle(color: Colors.grey[400]),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.grey[300]!)),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.grey[300]!)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFF0D47A1))),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

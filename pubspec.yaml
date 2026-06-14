@@ -34,6 +34,7 @@ dependencies:
   # Location & Maps
   geolocator: ^13.0.2
   geocoding: ^2.1.1
+  google_maps_flutter: ^2.5.0
 
   # UI & Media
   font_awesome_flutter: ^10.8.0
@@ -56,6 +57,17 @@ dependencies:
   share_plus: ^7.2.1
   json_annotation: ^4.8.1
   uuid: ^4.5.1
+
+  # Image handling
+  flutter_image_compress: ^2.4.0
+  # Enhanced UX
+  top_snackbar_flutter: ^3.3.0
+
+  # Agora — Real-time chat & video/audio calls
+  agora_rtc_engine: ^6.5.3
+  agora_chat_sdk: ^1.2.0
+  socket_io_client: ^2.0.3+1
+  wakelock_plus: ^1.2.8
 
   # Notifications
   flutter_local_notifications: ^19.5.0
@@ -82,6 +94,7 @@ flutter:
     - assets/logos/darkArp.png
     - assets/logos/logoArogya.png
     - assets/images/
+    - assets/icons/
     - assets/doctor-appoinment/
     - assets/hospital_data.json
 
