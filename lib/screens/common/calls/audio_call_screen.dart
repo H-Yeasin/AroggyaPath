@@ -8,8 +8,8 @@ import '../../../services/active_call_state.dart';
 import '../../../services/agora_chat_service.dart';
 import '../../../services/agora_service.dart';
 import '../../../services/api_service.dart';
-import '../../../services/socket_service.dart';
 import '../../../services/callkit_service.dart';
+import '../../../services/socket_service.dart';
 
 class AudioCallScreen extends StatefulWidget {
   final String chatId;
@@ -100,7 +100,10 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
       await _agoraService.initialize();
       _agoraService.onUserJoined = (uid, elapsed) {
         if (mounted) {
-          setState(() { _callConnected = true; _callStatus = 'Connected'; });
+          setState(() {
+            _callConnected = true;
+            _callStatus = 'Connected';
+          });
           _startTimer();
         }
       };
@@ -136,16 +139,21 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
             final result = await ApiService.getAgoraToken(
               channelName: widget.chatId,
             ).timeout(const Duration(seconds: 8));
-            token = (result['success'] == true) ? result['data']['token'] : null;
+            token =
+                (result['success'] == true) ? result['data']['token'] : null;
             if (token != null) break;
           } catch (e) {
             debugPrint('Token fetch attempt ${attempt + 1} failed: $e');
-            if (attempt == 0) await Future.delayed(const Duration(milliseconds: 500));
+            if (attempt == 0)
+              await Future.delayed(const Duration(milliseconds: 500));
           }
         }
       }
 
-      if (token == null) { _showError('Connection security failed'); return; }
+      if (token == null) {
+        _showError('Connection security failed');
+        return;
+      }
 
       if (_currentUserId != null) {
         await _agoraService.joinChannelWithUserAccount(
@@ -155,10 +163,17 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
           token: token,
         );
       } else {
-        await _agoraService.joinChannel(channelName: widget.chatId, uid: 0, isVideo: false, token: token);
+        await _agoraService.joinChannel(
+            channelName: widget.chatId, uid: 0, isVideo: false, token: token);
       }
 
-      if (mounted) { setState(() { _callStatus = 'Connected'; _callConnected = true; }); _startTimer(); }
+      if (mounted) {
+        setState(() {
+          _callStatus = 'Connected';
+          _callConnected = true;
+        });
+        _startTimer();
+      }
     } catch (e) {
       if (mounted) _showError('Failed to connect: $e');
     }
@@ -181,13 +196,18 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
         await _joinAgoraChannel();
       }
     }
+
     socket.on('call:accepted', handleCallAccepted);
     socket.on('call:accept', handleCallAccepted);
-    socket.on('call:ended', (data) { if (data['chatId'] == widget.chatId) _endCall(); });
+    socket.on('call:ended', (data) {
+      if (data['chatId'] == widget.chatId) _endCall();
+    });
     socket.on('call:rejected', (data) {
       if (data['chatId'] == widget.chatId && mounted) {
         _showError('Call declined');
-        Future.delayed(const Duration(seconds: 1), () { if (mounted) _endCall(); });
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) _endCall();
+        });
       }
     });
   }
@@ -195,11 +215,18 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   void _startTimer() {
     if (_timer != null && _timer!.isActive) return;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) setState(() => _callDuration++); else timer.cancel();
+      if (mounted)
+        setState(() => _callDuration++);
+      else
+        timer.cancel();
     });
   }
 
-  void _toggleMute() { setState(() => _isMuted = !_isMuted); _agoraService.toggleAudio(_isMuted); }
+  void _toggleMute() {
+    setState(() => _isMuted = !_isMuted);
+    _agoraService.toggleAudio(_isMuted);
+  }
+
   void _toggleSpeaker() async {
     setState(() => _isSpeakerOn = !_isSpeakerOn);
     await _agoraService.engine?.setEnableSpeakerphone(_isSpeakerOn);
@@ -216,17 +243,30 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
       if (widget.otherUserId.isNotEmpty && widget.isInitiator) {
         String status = _callConnected ? 'ended' : 'cancelled';
         await AgoraChatService.instance.sendCallLog(
-          conversationId: widget.otherUserId, callType: 'audio', status: status,
+          conversationId: widget.otherUserId,
+          callType: 'audio',
+          status: status,
           duration: _callConnected ? _formatDuration(_callDuration) : '',
-          backendChatId: widget.chatId, uuid: widget.uuid,
+          backendChatId: widget.chatId,
+          uuid: widget.uuid,
         );
       }
-    } catch (e) { debugPrint('Failed to send call log: $e'); }
+    } catch (e) {
+      debugPrint('Failed to send call log: $e');
+    }
 
     try {
-      await ApiService.endCall(chatId: widget.chatId, toUserId: widget.otherUserId, uuid: widget.uuid);
+      await ApiService.endCall(
+          chatId: widget.chatId,
+          toUserId: widget.otherUserId,
+          uuid: widget.uuid);
     } catch (e) {
-      SocketService.instance.emit('call:end', {'chatId': widget.chatId, 'toUserId': widget.otherUserId, 'fromUserId': _currentUserId, 'uuid': widget.uuid});
+      SocketService.instance.emit('call:end', {
+        'chatId': widget.chatId,
+        'toUserId': widget.otherUserId,
+        'fromUserId': _currentUserId,
+        'uuid': widget.uuid
+      });
     }
 
     await _agoraService.leaveChannel();
@@ -235,26 +275,37 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
-    Future.delayed(const Duration(seconds: 2), () { if (mounted && Navigator.canPop(context)) Navigator.pop(context); });
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red));
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted && Navigator.canPop(context)) Navigator.pop(context);
+    });
   }
 
   String _formatDuration(int seconds) {
-    final m = (seconds / 60).floor(); final s = seconds % 60;
+    final m = (seconds / 60).floor();
+    final s = seconds % 60;
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
   @override
   void dispose() {
     WakelockPlus.disable();
-    _unansweredTimer?.cancel(); _timer?.cancel();
+    _unansweredTimer?.cancel();
+    _timer?.cancel();
     if (!_isDisposed) {
       _isDisposed = true;
       ActiveCallState.clearActiveCall();
       _agoraService.leaveChannel();
-      SocketService.instance.emit('call:end', {'chatId': widget.chatId, 'toUserId': widget.otherUserId, 'fromUserId': _currentUserId, 'uuid': widget.uuid});
+      SocketService.instance.emit('call:end', {
+        'chatId': widget.chatId,
+        'toUserId': widget.otherUserId,
+        'fromUserId': _currentUserId,
+        'uuid': widget.uuid
+      });
     }
-    _agoraService.onUserJoined = null; _agoraService.onUserOffline = null;
+    _agoraService.onUserJoined = null;
+    _agoraService.onUserOffline = null;
     super.dispose();
   }
 
@@ -262,36 +313,72 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) { if (!didPop) _endCall(); },
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _endCall();
+      },
       child: Scaffold(
         body: Container(
-          decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF1E3C72), Color(0xFF2A5298)])),
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF1E3C72), Color(0xFF2A5298)])),
           child: SafeArea(
             child: Column(children: [
               const SizedBox(height: 60),
               CircleAvatar(
                 radius: 80,
                 backgroundColor: Colors.white24,
-                backgroundImage: widget.userAvatar != null ? NetworkImage(widget.userAvatar!) : null,
-                child: widget.userAvatar == null ? const Icon(Icons.person, color: Colors.white70, size: 80) : null,
+                backgroundImage: widget.userAvatar != null
+                    ? NetworkImage(widget.userAvatar!)
+                    : null,
+                child: widget.userAvatar == null
+                    ? const Icon(Icons.person, color: Colors.white70, size: 80)
+                    : null,
               ),
               const SizedBox(height: 30),
-              Text(widget.userName, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+              Text(widget.userName,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              Text(_callConnected ? _formatDuration(_callDuration) : _callStatus,
-                  style: TextStyle(color: _callConnected ? Colors.greenAccent : Colors.white70, fontSize: 18)),
+              Text(
+                  _callConnected ? _formatDuration(_callDuration) : _callStatus,
+                  style: TextStyle(
+                      color:
+                          _callConnected ? Colors.greenAccent : Colors.white70,
+                      fontSize: 18)),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                  _buildBtn(_isMuted ? Icons.mic_off : Icons.mic, _isMuted ? 'Unmute' : 'Mute', _toggleMute, _isMuted ? Colors.red : Colors.white.withOpacity(0.3)),
-                  _buildBtn(_isSpeakerOn ? Icons.volume_up : Icons.volume_down, 'Speaker', _toggleSpeaker, _isSpeakerOn ? Colors.blue : Colors.white.withOpacity(0.3)),
-                ]),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildBtn(
+                          _isMuted ? Icons.mic_off : Icons.mic,
+                          _isMuted ? 'Unmute' : 'Mute',
+                          _toggleMute,
+                          _isMuted
+                              ? Colors.red
+                              : Colors.white.withValues(alpha: 0.3)),
+                      _buildBtn(
+                          _isSpeakerOn ? Icons.volume_up : Icons.volume_down,
+                          'Speaker',
+                          _toggleSpeaker,
+                          _isSpeakerOn
+                              ? Colors.blue
+                              : Colors.white.withValues(alpha: 0.3)),
+                    ]),
               ),
               const SizedBox(height: 40),
               IconButton(
                 iconSize: 60,
-                icon: Container(padding: const EdgeInsets.all(15), decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.red), child: const Icon(Icons.call_end, color: Colors.white)),
+                icon: Container(
+                    padding: const EdgeInsets.all(15),
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle, color: Colors.red),
+                    child: const Icon(Icons.call_end, color: Colors.white)),
                 onPressed: _endCall,
               ),
               const SizedBox(height: 60),
@@ -304,8 +391,14 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
 
   Widget _buildBtn(IconData icon, String label, VoidCallback onTap, Color bg) {
     return Column(children: [
-      GestureDetector(onTap: onTap, child: Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: bg, shape: BoxShape.circle), child: Icon(icon, color: Colors.white, size: 28))),
-      const SizedBox(height: 8), Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+      GestureDetector(
+          onTap: onTap,
+          child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+              child: Icon(icon, color: Colors.white, size: 28))),
+      const SizedBox(height: 8),
+      Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
     ]);
   }
 }

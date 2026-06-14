@@ -1,215 +1,483 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/auth_provider.dart';
-import 'login_screen.dart';
-import '../components/custom_button.dart';
+import '../services/api_service.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key});
+  final String initialRole;
+  const SignupScreen({super.key, this.initialRole = 'patient'});
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
-  String _selectedRole = 'patient';
-  bool _agreeToTerms = false;
+  final _formKey = GlobalKey<FormState>();
 
-  Future<void> _signUp() async {
-    if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must agree to the terms of use.')),
-      );
-      return;
-    }
+  // Common
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
 
-    final fullName = _fullNameController.text.trim();
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
+  // Doctor-specific
+  final _licenseCtrl = TextEditingController();
+  final _referralCtrl = TextEditingController();
+  final _experienceCtrl = TextEditingController();
+  String? _specialty;
 
-    if (fullName.isEmpty || email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields')),
-      );
-      return;
-    }
+  String _role = 'patient';
+  bool _obscure = true;
+  bool _obscureConfirm = true;
+  bool _agreed = false;
+  bool _isLoading = false;
 
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
-      );
-      return;
-    }
+  List<String> _specialties = [];
+  bool _loadingCategories = true;
+  bool _referralEnabled = false;
+  bool _loadingReferral = true;
 
-    final auth = context.read<AuthProvider>();
-    final success = await auth.register(
-      fullName: fullName,
-      email: email,
-      password: password,
-      role: _selectedRole,
-    );
-
-    if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration successful! Please log in.')),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-    } else if (mounted && auth.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.error!)),
-      );
+  @override
+  void initState() {
+    super.initState();
+    _role = widget.initialRole;
+    if (_role == 'doctor') {
+      _fetchCategories();
+      _fetchReferralSetting();
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Create Account')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(30),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Let's Create an Account",
-                style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 30),
-            // Full Name
-            TextFormField(
-              controller: _fullNameController,
-              decoration: const InputDecoration(
-                hintText: "Full Name",
-                prefixIcon: Icon(Icons.person),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Email
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                hintText: "Email",
-                prefixIcon: Icon(Icons.mail),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 20),
-            // Phone
-            TextFormField(
-              controller: _phoneController,
-              decoration: const InputDecoration(
-                hintText: "Phone (optional)",
-                prefixIcon: Icon(Icons.call),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 20),
-            // Role selection
-            const Text("I want to register as:", style: TextStyle(fontWeight: FontWeight.w500)),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: const Text('Patient'),
-                    value: 'patient',
-                    groupValue: _selectedRole,
-                    onChanged: (v) => setState(() => _selectedRole = v!),
-                  ),
-                ),
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: const Text('Doctor'),
-                    value: 'doctor',
-                    groupValue: _selectedRole,
-                    onChanged: (v) => setState(() => _selectedRole = v!),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            // Password
-            TextFormField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                hintText: "Password",
-                prefixIcon: Icon(Icons.lock),
-                suffixIcon: Icon(Icons.visibility_off),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            // Confirm Password
-            TextFormField(
-              controller: _confirmPasswordController,
-              decoration: const InputDecoration(
-                hintText: "Confirm Password",
-                prefixIcon: Icon(Icons.lock),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 15),
-            // Terms checkbox
-            Row(
-              children: [
-                SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: Checkbox(
-                    value: _agreeToTerms,
-                    onChanged: (value) =>
-                        setState(() => _agreeToTerms = value!),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text("I agree to Privacy Policy and Terms of use"),
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
-            Consumer<AuthProvider>(
-              builder: (context, auth, _) {
-                if (auth.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return SizedBox(
-                  width: double.infinity,
-                  child: CustomButton2(
-                    buttonText: "Create Account",
-                    onPressed: _signUp,
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            Center(
-              child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Already have an account? Log in"),
-              ),
-            ),
-          ],
+  Future<void> _fetchCategories() async {
+    try {
+      final res = await ApiService.getAllCategories();
+      if (res['success'] == true && res['data'] != null) {
+        final list = res['data'] as List;
+        setState(() {
+          _specialties = list.map((c) => c['speciality_name']?.toString() ?? '').where((s) => s.isNotEmpty).toList();
+          _loadingCategories = false;
+        });
+      } else {
+        setState(() => _loadingCategories = false);
+      }
+    } catch (_) {
+      setState(() => _loadingCategories = false);
+    }
+  }
+
+  Future<void> _fetchReferralSetting() async {
+    try {
+      final res = await ApiService.getReferralSetting();
+      if (res['success'] == true) {
+        setState(() {
+          _referralEnabled = res['data']?['referralSystemEnabled'] ?? false;
+          _loadingReferral = false;
+        });
+      } else {
+        setState(() => _loadingReferral = false);
+      }
+    } catch (_) {
+      setState(() => _loadingReferral = false);
+    }
+  }
+
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (!_agreed) {
+      _snack('You must agree to the Terms of Service', true);
+      return;
+    }
+    if (_passwordCtrl.text != _confirmCtrl.text) {
+      _snack('Passwords do not match', true);
+      return;
+    }
+
+    if (_role == 'doctor') {
+      if (_licenseCtrl.text.trim().isEmpty) { _snack('Medical license is required', true); return; }
+      if (_specialty == null || _specialty!.isEmpty) { _snack('Please select a specialty', true); return; }
+      if (_experienceCtrl.text.trim().isEmpty) { _snack('Years of experience is required', true); return; }
+      if (_referralEnabled && _referralCtrl.text.trim().isEmpty) { _snack('Referral code is required', true); return; }
+    }
+
+    setState(() => _isLoading = true);
+    final auth = context.read<AuthProvider>();
+    final ok = await auth.register(
+      fullName: _nameCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),
+      password: _passwordCtrl.text,
+      role: _role,
+      medicalLicenseNumber: _role == 'doctor' ? _licenseCtrl.text.trim() : null,
+      specialty: _role == 'doctor' ? _specialty : null,
+      experienceYears: _role == 'doctor' ? _experienceCtrl.text.trim() : null,
+      referralCode: _role == 'doctor' ? _referralCtrl.text.trim() : null,
+    );
+    setState(() => _isLoading = false);
+
+    if (ok && mounted) {
+      _snack('Registration successful! Please log in.', false);
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) Navigator.pop(context);
+    } else if (mounted && auth.error != null) {
+      _snack(auth.error!, true);
+    }
+  }
+
+  void _snack(String msg, bool err) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      backgroundColor: err ? Colors.red : Colors.green,
+      behavior: SnackBarBehavior.floating,
+    ));
+  }
+
+  void _showEula() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(children: [
+          Icon(Icons.gavel, color: Color(0xFF1664CD)), SizedBox(width: 10),
+          Text('Terms of Service', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ]),
+        content: const SingleChildScrollView(
+          child: Text(
+            'By accepting, you agree to our Terms of Service and EULA.\n\n'
+            'Safety Policy:\n'
+            '• Zero tolerance for objectionable content\n'
+            '• No defamatory, obscene, or illegal content\n'
+            '• Violators ejected within 24 hours\n\n'
+            'You can report or block users at any time.',
+          ),
         ),
+        actions: [
+          TextButton(onPressed: () { Navigator.pop(ctx); setState(() => _agreed = false); },
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
+          ElevatedButton(
+            onPressed: () { Navigator.pop(ctx); setState(() => _agreed = true); },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1664CD)),
+            child: const Text('Accept', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }
 
   @override
   void dispose() {
-    _fullNameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    _nameCtrl.dispose(); _emailCtrl.dispose(); _phoneCtrl.dispose();
+    _passwordCtrl.dispose(); _confirmCtrl.dispose();
+    _licenseCtrl.dispose(); _referralCtrl.dispose(); _experienceCtrl.dispose();
     super.dispose();
+  }
+
+  // ────────── BUILD ──────────
+
+  @override
+  Widget build(BuildContext context) {
+    final isDoctor = _role == 'doctor';
+    final accent = isDoctor ? const Color(0xFF4CAF50) : const Color(0xFF1664CD);
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1B2C49)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          isDoctor ? 'Register as Doctor' : 'Register as Patient',
+          style: const TextStyle(color: Color(0xFF1B2C49), fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Form(
+          key: _formKey,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            // Role Toggle
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _role = 'patient'),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: !isDoctor ? const Color(0xFF1664CD) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: !isDoctor ? [BoxShadow(color: const Color(0xFF1664CD).withOpacity(0.25), blurRadius: 8, offset: const Offset(0, 2))] : [],
+                      ),
+                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Icon(Icons.person, size: 18, color: !isDoctor ? Colors.white : Colors.grey),
+                        const SizedBox(width: 6),
+                        Text('Patient', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: !isDoctor ? Colors.white : Colors.grey)),
+                      ]),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() => _role = 'doctor');
+                      if (_specialties.isEmpty) _fetchCategories();
+                      if (_loadingReferral && !_referralEnabled) _fetchReferralSetting();
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isDoctor ? const Color(0xFF4CAF50) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: isDoctor ? [BoxShadow(color: const Color(0xFF4CAF50).withOpacity(0.25), blurRadius: 8, offset: const Offset(0, 2))] : [],
+                      ),
+                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Icon(Icons.medical_services, size: 18, color: isDoctor ? Colors.white : Colors.grey),
+                        const SizedBox(width: 6),
+                        Text('Doctor', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isDoctor ? Colors.white : Colors.grey)),
+                      ]),
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+
+            // ── Common fields ──
+            _label('Full Name *'),
+            const SizedBox(height: 6),
+            _field(_nameCtrl, 'Enter your full name', Icons.person_outline,
+                v: (v) => (v == null || v.isEmpty) ? 'Required' : null),
+            const SizedBox(height: 16),
+
+            _label('Email *'),
+            const SizedBox(height: 6),
+            _field(_emailCtrl, 'you@example.com', Icons.email_outlined,
+                keyboard: TextInputType.emailAddress,
+                v: (v) => (v == null || !v.contains('@')) ? 'Valid email required' : null),
+            const SizedBox(height: 16),
+
+            _label('Phone (optional)'),
+            const SizedBox(height: 6),
+            _field(_phoneCtrl, 'Phone number', Icons.call, keyboard: TextInputType.phone),
+            const SizedBox(height: 16),
+
+            // ── Doctor-specific fields ──
+            if (isDoctor) ...[
+              const SizedBox(height: 4),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.2)),
+                ),
+                child: const Row(children: [
+                  Icon(Icons.info_outline, color: Color(0xFF4CAF50), size: 18),
+                  SizedBox(width: 8),
+                  Expanded(child: Text('Doctor verification details', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2E7D32), fontSize: 13))),
+                ]),
+              ),
+              const SizedBox(height: 16),
+
+              // Medical License
+              _label('Medical License Number *'),
+              const SizedBox(height: 6),
+              _field(_licenseCtrl, 'Enter license number', Icons.badge_outlined,
+                  v: (v) => (v == null || v.isEmpty) ? 'Required' : null),
+              const SizedBox(height: 16),
+
+              // Specialty dropdown
+              _label('Medical Specialty *'),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.withOpacity(0.4)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: _loadingCategories
+                    ? const Padding(padding: EdgeInsets.all(14), child: Center(child: CircularProgressIndicator(strokeWidth: 2)))
+                    : DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          value: _specialty,
+                          hint: const Text('Select specialty', style: TextStyle(color: Colors.grey)),
+                          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF4CAF50)),
+                          items: _specialties.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                          onChanged: (v) => setState(() => _specialty = v),
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 16),
+
+              // Experience
+              _label('Years of Experience *'),
+              const SizedBox(height: 6),
+              _field(_experienceCtrl, 'e.g. 5', Icons.work_outline,
+                  keyboard: TextInputType.number,
+                  v: (v) => (v == null || v.isEmpty) ? 'Required' : null),
+              const SizedBox(height: 16),
+
+              // Referral code (if enabled)
+              if (_loadingReferral)
+                const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 8), child: CircularProgressIndicator(strokeWidth: 2)))
+              else if (_referralEnabled) ...[
+                _label('Referral Code *'),
+                const SizedBox(height: 6),
+                _field(_referralCtrl, 'Enter referral code', Icons.discount_outlined,
+                    v: (v) => (v == null || v.isEmpty) ? 'Required' : null),
+                const SizedBox(height: 16),
+              ],
+            ],
+
+            // ── Password ──
+            _label('Password *'),
+            const SizedBox(height: 6),
+            _field(_passwordCtrl, 'Min. 6 characters', Icons.lock_outlined,
+                obscure: _obscure,
+                suffix: IconButton(
+                  icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility, size: 20, color: Colors.grey),
+                  onPressed: () => setState(() => _obscure = !_obscure),
+                ),
+                v: (v) {
+                  if (v == null || v.isEmpty) return 'Required';
+                  if (v.length < 6) return 'At least 6 characters';
+                  return null;
+                }),
+            const SizedBox(height: 16),
+
+            _label('Confirm Password *'),
+            const SizedBox(height: 6),
+            _field(_confirmCtrl, 'Re-enter password', Icons.lock_outlined,
+                obscure: _obscureConfirm,
+                suffix: IconButton(
+                  icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility, size: 20, color: Colors.grey),
+                  onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                ),
+                v: (v) {
+                  if (v == null || v.isEmpty) return 'Required';
+                  if (v != _passwordCtrl.text) return 'Passwords do not match';
+                  return null;
+                }),
+            const SizedBox(height: 20),
+
+            // EULA
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              SizedBox(
+                width: 24, height: 24,
+                child: Checkbox(
+                  value: _agreed,
+                  activeColor: accent,
+                  onChanged: (v) {
+                    if (v == true) _showEula(); else setState(() => _agreed = false);
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _agreed ? setState(() => _agreed = false) : _showEula(),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: RichText(
+                      text: const TextSpan(
+                        style: TextStyle(fontSize: 13, color: Colors.black87),
+                        children: [
+                          TextSpan(text: 'I agree to the '),
+                          TextSpan(text: 'Terms of Service', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1664CD))),
+                          TextSpan(text: ' and confirm '),
+                          TextSpan(text: 'zero tolerance', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                          TextSpan(text: ' for objectionable content.'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 24),
+
+            // Register button
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: _register,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: accent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 2,
+                  ),
+                  child: Text('Create ${isDoctor ? "Doctor" : "Patient"} Account',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            const SizedBox(height: 16),
+
+            // Login link
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Already have an account? Log in',
+                    style: TextStyle(color: Color(0xFF4B5563))),
+              ),
+            ),
+            const SizedBox(height: 40),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  // ── Helpers ──
+  Widget _label(String text) {
+    return Text(text, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF1B2C49)));
+  }
+
+  Widget _field(TextEditingController ctrl, String hint, IconData icon, {
+    TextInputType? keyboard,
+    bool obscure = false,
+    Widget? suffix,
+    String? Function(String?)? v,
+  }) {
+    return TextFormField(
+      controller: ctrl,
+      obscureText: obscure,
+      keyboardType: keyboard,
+      validator: v,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.grey.withOpacity(0.6), fontSize: 14),
+        prefixIcon: Icon(icon, color: const Color(0xFF1664CD), size: 20),
+        suffixIcon: suffix,
+        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.withOpacity(0.3))),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.withOpacity(0.3))),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF1664CD))),
+        errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red)),
+      ),
+    );
   }
 }

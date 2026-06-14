@@ -483,6 +483,14 @@ class ApiService {
     return await get('/api/v1/category', requiresAuth: false);
   }
 
+  /// Get referral system setting
+  static Future<Map<String, dynamic>> getReferralSetting() async {
+    return await get(
+      '/api/v1/app-setting/get-referral-setting',
+      requiresAuth: false,
+    );
+  }
+
   // ========================================
   // APPOINTMENT APIs
   // ========================================

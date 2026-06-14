@@ -8,7 +8,8 @@ class DoctorAppointmentsScreen extends StatefulWidget {
   const DoctorAppointmentsScreen({super.key});
 
   @override
-  State<DoctorAppointmentsScreen> createState() => _DoctorAppointmentsScreenState();
+  State<DoctorAppointmentsScreen> createState() =>
+      _DoctorAppointmentsScreenState();
 }
 
 class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
@@ -29,7 +30,10 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text('Appointment Management',
-            style: TextStyle(color: Color(0xFF1B2C49), fontSize: 20, fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                color: Color(0xFF1B2C49),
+                fontSize: 20,
+                fontWeight: FontWeight.bold)),
       ),
       body: Consumer<AppointmentProvider>(
         builder: (context, provider, child) {
@@ -56,7 +60,8 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
             // Tab bar
             Container(
               padding: const EdgeInsets.all(16),
-              child: Row(children: ['Pending', 'Accepted', 'Completed'].map((tab) {
+              child: Row(
+                  children: ['Pending', 'Accepted', 'Completed'].map((tab) {
                 final isSelected = _selectedTab == tab;
                 return Expanded(
                   child: GestureDetector(
@@ -65,13 +70,16 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF1664CD) : Colors.white,
+                        color:
+                            isSelected ? const Color(0xFF1664CD) : Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       alignment: Alignment.center,
                       child: Text(tab,
-                          style: TextStyle(color: isSelected ? Colors.white : Colors.grey,
-                              fontWeight: FontWeight.bold, fontSize: 13)),
+                          style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.grey,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13)),
                     ),
                   ),
                 );
@@ -82,20 +90,24 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
             Expanded(
               child: appointments.isEmpty
                   ? Center(
-                      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Icon(Icons.event_busy, size: 64, color: Colors.grey[300]),
-                        const SizedBox(height: 16),
-                        Text('No $_selectedTab appointments',
-                            style: const TextStyle(fontSize: 16, color: Colors.grey)),
-                      ]),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.event_busy,
+                                size: 64, color: Colors.grey[300]),
+                            const SizedBox(height: 16),
+                            Text('No $_selectedTab appointments',
+                                style: const TextStyle(
+                                    fontSize: 16, color: Colors.grey)),
+                          ]),
                     )
                   : RefreshIndicator(
                       onRefresh: () => provider.fetchAppointments(),
                       child: ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: appointments.length,
-                        itemBuilder: (context, index) =>
-                            _buildAppointmentCard(appointments[index], provider),
+                        itemBuilder: (context, index) => _buildAppointmentCard(
+                            appointments[index], provider),
                       ),
                     ),
             ),
@@ -105,36 +117,57 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
     );
   }
 
-  Widget _buildAppointmentCard(AppointmentModel apt, AppointmentProvider provider) {
+  Widget _buildAppointmentCard(
+      AppointmentModel apt, AppointmentProvider provider) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)]),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+          ]),
       child: Column(children: [
         Row(children: [
-          CircleAvatar(radius: 24, backgroundColor: const Color(0xFFE3F2FD),
-              child: Text(apt.patientName?.isNotEmpty == true ? apt.patientName![0].toUpperCase() : 'P',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1664CD)))),
+          CircleAvatar(
+              radius: 24,
+              backgroundColor: const Color(0xFFE3F2FD),
+              child: Text(
+                  apt.patientName?.isNotEmpty == true
+                      ? apt.patientName![0].toUpperCase()
+                      : 'P',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Color(0xFF1664CD)))),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(apt.patientName ?? 'Patient', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(apt.patientName ?? 'Patient',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 4),
-              Text(apt.formattedDate, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+              Text(apt.formattedDate,
+                  style: const TextStyle(fontSize: 13, color: Colors.grey)),
               if (apt.symptoms != null && apt.symptoms!.isNotEmpty)
-                Text(apt.symptoms!, maxLines: 2, overflow: TextOverflow.ellipsis,
+                Text(apt.symptoms!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 12, color: Colors.grey)),
             ]),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: _statusColor(apt.status).withOpacity(0.15),
+              color: _statusColor(apt.status).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(apt.status.toUpperCase(),
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _statusColor(apt.status))),
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: _statusColor(apt.status))),
           ),
         ]),
         if (apt.status.toLowerCase() == 'pending') ...[
@@ -143,16 +176,23 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
             Expanded(
               child: ElevatedButton(
                 onPressed: () => provider.acceptAppointment(apt.id),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                child: const Text('Accept', style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10))),
+                child:
+                    const Text('Accept', style: TextStyle(color: Colors.white)),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: OutlinedButton(
                 onPressed: () => provider.cancelAppointment(apt.id),
-                style: OutlinedButton.styleFrom(foregroundColor: Colors.red, side: const BorderSide(color: Colors.red),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10))),
                 child: const Text('Reject'),
               ),
             ),
@@ -164,8 +204,12 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => _showCompleteDialog(apt, provider),
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1664CD), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-              child: const Text('Complete Appointment', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1664CD),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              child: const Text('Complete Appointment',
+                  style: TextStyle(color: Colors.white)),
             ),
           ),
         ],
@@ -173,7 +217,8 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
     );
   }
 
-  Future<void> _showCompleteDialog(AppointmentModel apt, AppointmentProvider provider) async {
+  Future<void> _showCompleteDialog(
+      AppointmentModel apt, AppointmentProvider provider) async {
     final priceCtrl = TextEditingController();
     final result = await showDialog<bool>(
       context: context,
@@ -185,12 +230,17 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
           TextField(
             controller: priceCtrl,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Consultation Fee', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+                labelText: 'Consultation Fee', border: OutlineInputBorder()),
           ),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Complete')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Complete')),
         ],
       ),
     );
@@ -206,11 +256,16 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
 
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'pending': return Colors.orange;
-      case 'accepted': return Colors.green;
-      case 'completed': return Colors.blue;
-      case 'cancelled': return Colors.red;
-      default: return Colors.grey;
+      case 'pending':
+        return Colors.orange;
+      case 'accepted':
+        return Colors.green;
+      case 'completed':
+        return Colors.blue;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 }

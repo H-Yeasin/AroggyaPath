@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../login_screen.dart';
 import '../../arogyascreens/main_page.dart';
+import '../onboarding/select_profile_screen.dart';
 import '../patient/navigation/patient_main_navigation.dart';
 import '../doctor/navigation/doctor_main_navigation.dart';
 
@@ -47,9 +47,11 @@ class _SplashScreenState extends State<SplashScreen> {
           );
         }
       } else {
+        // Not logged in → show role selection first
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(
+              builder: (context) => const SelectProfileScreen()),
         );
       }
     });
