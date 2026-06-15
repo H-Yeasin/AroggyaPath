@@ -1,10 +1,9 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/screens/auth/login_screen.dart';
+import 'package:arogya_path3/screens/auth/signup_screen.dart';
 import 'package:flutter/material.dart';
 
-import '../../config/app_theme.dart';
-import '../login_screen.dart';
-import '../signup_screen.dart';
-
-/// Shown before login/signup — user picks Patient or Doctor.
+/// Shown before login/signup â€” user picks Patient or Doctor.
 /// Choosing "Doctor" reveals doctor-specific registration fields later.
 class SelectProfileScreen extends StatefulWidget {
   const SelectProfileScreen({super.key});
@@ -177,7 +176,7 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
                 ]),
               ),
 
-            // Continue → Login
+            // Continue â†’ Login
             SizedBox(
               width: double.infinity,
               height: 54,
@@ -199,7 +198,7 @@ class _SelectProfileScreenState extends State<SelectProfileScreen> {
             ),
             const SizedBox(height: 12),
 
-            // Continue → Signup
+            // Continue â†’ Signup
             SizedBox(
               width: double.infinity,
               height: 54,

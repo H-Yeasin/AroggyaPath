@@ -1,13 +1,12 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/providers/auth_provider.dart';
+import 'package:arogya_path3/screens/doctor/navigation/doctor_main_navigation.dart';
+import 'package:arogya_path3/screens/patient/navigation/patient_main_navigation.dart';
+import 'package:arogya_path3/widgets/common/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../config/app_theme.dart';
-import '../components/custom_textfield.dart';
-import '../providers/auth_provider.dart';
-import 'doctor/navigation/doctor_main_navigation.dart';
 import 'forgatepass_screen.dart';
-import 'patient/navigation/patient_main_navigation.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {

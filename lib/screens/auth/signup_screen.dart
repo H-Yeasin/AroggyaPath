@@ -1,9 +1,8 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/providers/auth_provider.dart';
+import 'package:arogya_path3/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../../config/app_theme.dart';
-import '../providers/auth_provider.dart';
-import '../services/api_service.dart';
 
 class SignupScreen extends StatefulWidget {
   final String initialRole;
@@ -163,9 +162,9 @@ class _SignupScreenState extends State<SignupScreen> {
           child: Text(
             'By accepting, you agree to our Terms of Service and EULA.\n\n'
             'Safety Policy:\n'
-            '• Zero tolerance for objectionable content\n'
-            '• No defamatory, obscene, or illegal content\n'
-            '• Violators ejected within 24 hours\n\n'
+            'â€¢ Zero tolerance for objectionable content\n'
+            'â€¢ No defamatory, obscene, or illegal content\n'
+            'â€¢ Violators ejected within 24 hours\n\n'
             'You can report or block users at any time.',
           ),
         ),
@@ -206,7 +205,7 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  // ────────── BUILD ──────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ BUILD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   @override
   Widget build(BuildContext context) {
@@ -328,7 +327,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ]),
             ),
 
-            // ── Common fields ──
+            // â”€â”€ Common fields â”€â”€
             _label('Full Name *'),
             const SizedBox(height: 6),
             _field(_nameCtrl, 'Enter your full name', Icons.person_outline,
@@ -350,7 +349,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 keyboard: TextInputType.phone),
             const SizedBox(height: 16),
 
-            // ── Doctor-specific fields ──
+            // â”€â”€ Doctor-specific fields â”€â”€
             if (isDoctor) ...[
               const SizedBox(height: 4),
               Container(
@@ -439,7 +438,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ],
             ],
 
-            // ── Password ──
+            // â”€â”€ Password â”€â”€
             _label('Password *'),
             const SizedBox(height: 6),
             _field(_passwordCtrl, 'Min. 6 characters', Icons.lock_outlined,
@@ -561,7 +560,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // ── Helpers ──
+  // â”€â”€ Helpers â”€â”€
   Widget _label(String text) {
     return Text(text,
         style: const TextStyle(

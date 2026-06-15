@@ -1,15 +1,14 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-
-import '../../../config/app_theme.dart';
 import '../appointments/doctor_appointments_screen.dart';
 import '../home/doctor_home_screen.dart';
 import '../profile/doctor_profile_screen.dart';
 
-/// Doctor Main Navigation — 4-tab bottom nav:
-///   0: Home         → DoctorHomeScreen (appointment overview + stats)
-///   1: Appointments → DoctorAppointmentsScreen (pending/accepted/completed)
-///   2: Messages     → Placeholder (Agora Chat — reuse patient chat)
-///   3: Profile      → DoctorProfileScreen
+/// Doctor Main Navigation â€” 4-tab bottom nav:
+///   0: Home         â†’ DoctorHomeScreen (appointment overview + stats)
+///   1: Appointments â†’ DoctorAppointmentsScreen (pending/accepted/completed)
+///   2: Messages     â†’ Placeholder (Agora Chat â€” reuse patient chat)
+///   3: Profile      â†’ DoctorProfileScreen
 
 class DoctorMainNavigation extends StatefulWidget {
   const DoctorMainNavigation({super.key});

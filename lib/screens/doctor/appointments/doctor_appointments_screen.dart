@@ -1,7 +1,6 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
-
 import '../../../models/appointment_model.dart';
 import '../../../providers/appointment_provider.dart';
 
@@ -72,8 +71,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
-                        color:
-                            isSelected ? colors.primary : Colors.white,
+                        color: isSelected ? colors.primary : Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       alignment: Alignment.center,

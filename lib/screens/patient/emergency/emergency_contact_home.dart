@@ -1,11 +1,10 @@
+﻿import 'package:arogya_path3/core/constants/app_constants.dart';
+import 'package:arogya_path3/models/emergency_contacts.dart';
+import 'package:arogya_path3/models/symptom.dart';
+import 'package:arogya_path3/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../components/const.dart';
-import '../models/emergency_contacts.dart';
-import '../models/symptom.dart';
-import '../providers/user_provider.dart';
 import 'emergency_contact_details_screen.dart';
 
 class EmergencyHelpScreen extends StatefulWidget {
@@ -54,9 +53,8 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
             pinned: true,
             floating: false,
             expandedHeight: 130,
-            backgroundColor: _showElevatedAppBar
-                ? Colors.white
-                : const Color(0xFFF8F9FC),
+            backgroundColor:
+                _showElevatedAppBar ? Colors.white : const Color(0xFFF8F9FC),
             surfaceTintColor: Colors.transparent,
             elevation: _showElevatedAppBar ? 2 : 0,
             leading: IconButton(
@@ -111,7 +109,7 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'জরুরি সহায়তা',
+                            'à¦œà¦°à§à¦°à¦¿ à¦¸à¦¹à¦¾à§Ÿà¦¤à¦¾',
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -121,7 +119,7 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'জরুরি ফোন নম্বর ও স্বাস্থ্য পরামর্শ',
+                            'à¦œà¦°à§à¦°à¦¿ à¦«à§‹à¦¨ à¦¨à¦®à§à¦¬à¦° à¦“ à¦¸à§à¦¬à¦¾à¦¸à§à¦¥à§à¦¯ à¦ªà¦°à¦¾à¦®à¦°à§à¦¶',
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey[600],
@@ -141,23 +139,24 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Emergency Call Banner ──
+              // â”€â”€ Emergency Call Banner â”€â”€
               _buildEmergencyBanner(),
               const SizedBox(height: 28),
 
-              // ── Health Tips Section ──
+              // â”€â”€ Health Tips Section â”€â”€
               _buildSectionHeader(
                 icon: Icons.health_and_safety_outlined,
-                title: 'সুস্বাস্থ্যের জন্য',
+                title: 'à¦¸à§à¦¸à§à¦¬à¦¾à¦¸à§à¦¥à§à¦¯à§‡à¦° à¦œà¦¨à§à¦¯',
               ),
               const SizedBox(height: 14),
               _buildSymptomsRow(),
               const SizedBox(height: 28),
 
-              // ── Emergency Contacts Section ──
+              // â”€â”€ Emergency Contacts Section â”€â”€
               _buildSectionHeader(
                 icon: Icons.contact_emergency_outlined,
-                title: 'জরুরি ফোন নম্বর: মনে রাখুন, সহায়তা নিন',
+                title:
+                    'à¦œà¦°à§à¦°à¦¿ à¦«à§‹à¦¨ à¦¨à¦®à§à¦¬à¦°: à¦®à¦¨à§‡ à¦°à¦¾à¦–à§à¦¨, à¦¸à¦¹à¦¾à§Ÿà¦¤à¦¾ à¦¨à¦¿à¦¨',
               ),
               const SizedBox(height: 14),
               _buildEmergencyContactsGrid(),
@@ -168,9 +167,9 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
     );
   }
 
-  // ────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Emergency Call Banner
-  // ────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildEmergencyBanner() {
     return GestureDetector(
@@ -216,7 +215,7 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'জাতীয় জরুরি সেবা',
+                    'à¦œà¦¾à¦¤à§€à§Ÿ à¦œà¦°à§à¦°à¦¿ à¦¸à§‡à¦¬à¦¾',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -226,7 +225,7 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'যেকোনো জরুরি পরিস্থিতিতে — পুলিশ, ফায়ার সার্ভিস, অ্যাম্বুলেন্স',
+                    'à¦¯à§‡à¦•à§‹à¦¨à§‹ à¦œà¦°à§à¦°à¦¿ à¦ªà¦°à¦¿à¦¸à§à¦¥à¦¿à¦¤à¦¿à¦¤à§‡ â€” à¦ªà§à¦²à¦¿à¦¶, à¦«à¦¾à§Ÿà¦¾à¦° à¦¸à¦¾à¦°à§à¦­à¦¿à¦¸, à¦…à§à¦¯à¦¾à¦®à§à¦¬à§à¦²à§‡à¦¨à§à¦¸',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 12,
@@ -249,7 +248,7 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
                         Icon(Icons.call, color: Color(0xFFE53935), size: 18),
                         SizedBox(width: 6),
                         Text(
-                          'এখনই কল করুন — ৯৯৯',
+                          'à¦à¦–à¦¨à¦‡ à¦•à¦² à¦•à¦°à§à¦¨ â€” à§¯à§¯à§¯',
                           style: TextStyle(
                             color: Color(0xFFE53935),
                             fontWeight: FontWeight.bold,
@@ -275,15 +274,15 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('কল করতে ব্যর্থ: $e')),
+          SnackBar(content: Text('à¦•à¦² à¦•à¦°à¦¤à§‡ à¦¬à§à¦¯à¦°à§à¦¥: $e')),
         );
       }
     }
   }
 
-  // ────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Section Header
-  // ────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildSectionHeader({required IconData icon, required String title}) {
     return Row(
@@ -312,9 +311,9 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
     );
   }
 
-  // ────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Symptoms Row
-  // ────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildSymptomsRow() {
     return SizedBox(
@@ -361,9 +360,9 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
     );
   }
 
-  // ────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Emergency Contacts Grid
-  // ────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildEmergencyContactsGrid() {
     return GridView.builder(
@@ -420,7 +419,8 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
                   ),
                   child: CircleAvatar(
                     radius: 38,
-                    backgroundColor: Color(contact.color).withValues(alpha: 0.3),
+                    backgroundColor:
+                        Color(contact.color).withValues(alpha: 0.3),
                     backgroundImage: NetworkImage(contact.image),
                   ),
                 ),

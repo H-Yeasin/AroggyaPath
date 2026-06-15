@@ -1,7 +1,6 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
-
 import '../../../models/dependent_model.dart';
 import '../../../providers/dependent_provider.dart';
 import 'add_dependents_screen.dart';
@@ -30,8 +29,7 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text('Family Members',
-            style: TextStyle(color: colors.heading)),
+        title: Text('Family Members', style: TextStyle(color: colors.heading)),
         actions: [
           IconButton(
             icon: Icon(Icons.add, color: colors.primary),
@@ -98,14 +96,14 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
           backgroundColor: colors.primaryContainer,
           child: Text(
             dep.fullName.isNotEmpty ? dep.fullName[0].toUpperCase() : '?',
-            style: TextStyle(
-                color: colors.primary, fontWeight: FontWeight.bold),
+            style:
+                TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
           ),
         ),
         title: Text(dep.displayName,
-            style: TextStyle(
-                fontWeight: FontWeight.bold, color: colors.heading)),
-        subtitle: Text('${dep.relationship ?? 'Family'} • Age ${dep.age}',
+            style:
+                TextStyle(fontWeight: FontWeight.bold, color: colors.heading)),
+        subtitle: Text('${dep.relationship ?? 'Family'} â€¢ Age ${dep.age}',
             style: const TextStyle(color: Colors.grey)),
         trailing: PopupMenuButton<String>(
           onSelected: (value) async {

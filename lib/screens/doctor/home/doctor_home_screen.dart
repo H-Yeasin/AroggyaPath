@@ -1,5 +1,5 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/appointment_provider.dart';
@@ -56,9 +56,8 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                             width: 56,
                             height: 56,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Icon(
-                                Icons.person,
-                                color: colors.primary)))
+                            errorBuilder: (_, __, ___) =>
+                                Icon(Icons.person, color: colors.primary)))
                     : Icon(Icons.person, color: colors.primary),
               ),
               const SizedBox(width: 12),

@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
-import 'config/app_theme.dart';
+import 'core/config/app_theme.dart';
 import 'firebase_options.dart';
 import 'providers/appointment_provider.dart';
 import 'providers/auth_provider.dart';

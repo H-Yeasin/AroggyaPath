@@ -1,6 +1,5 @@
+﻿import 'package:arogya_path3/core/utils/api_config.dart';
 import 'package:flutter/material.dart';
-
-import '../utils/api_config.dart';
 import 'api_service.dart';
 
 class DoctorService {

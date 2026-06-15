@@ -1,5 +1,5 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -46,7 +46,9 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                   width: 40,
                   height: 40,
                   child: userAvatar != null && userAvatar!.isNotEmpty
-                      ? CachedNetworkImage(imageUrl: userAvatar!, fit: BoxFit.cover,
+                      ? CachedNetworkImage(
+                          imageUrl: userAvatar!,
+                          fit: BoxFit.cover,
                           errorWidget: (_, __, ___) =>
                               Image.asset(placeholderAsset, fit: BoxFit.cover))
                       : Image.asset(placeholderAsset, fit: BoxFit.cover),
@@ -55,9 +57,12 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(userName ?? 'User',
-                    style: const TextStyle(color: Colors.black, fontSize: 18,
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
                         fontWeight: FontWeight.w600),
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
               ),
             ]),
       actions: isSelectionMode

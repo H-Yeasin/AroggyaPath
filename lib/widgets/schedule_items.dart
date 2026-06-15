@@ -1,8 +1,7 @@
+﻿import 'package:arogya_path3/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../../models/schedule.dart';
-import '../const.dart';
 
 class ScheduleItems extends StatelessWidget {
   final Schedule schedule;

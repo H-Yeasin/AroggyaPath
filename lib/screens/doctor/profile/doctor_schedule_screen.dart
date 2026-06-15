@@ -1,8 +1,7 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
-import '../../../config/app_theme.dart';
 import '../../../models/appointment_model.dart';
 import '../../../models/user_model.dart';
 import '../../../providers/appointment_provider.dart';
@@ -192,9 +191,7 @@ class _DoctorScheduleScreenState extends State<DoctorScheduleScreen> {
       final hour = minutes ~/ 60;
       final min = minutes % 60;
       final period = hour >= 12 ? 'PM' : 'AM';
-      final displayHour = hour > 12
-          ? hour - 12
-          : (hour == 0 ? 12 : hour);
+      final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
       return '$displayHour:${min.toString().padLeft(2, '0')} $period';
     } catch (e) {
       return time;
@@ -273,7 +270,8 @@ class _DoctorScheduleScreenState extends State<DoctorScheduleScreen> {
                   : const Icon(Icons.save, size: 20),
               label: Text(
                 _isSaving ? 'Saving...' : 'Save',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ),
           ),
@@ -556,7 +554,9 @@ class _DoctorScheduleScreenState extends State<DoctorScheduleScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        ...appointments.take(5).map((apt) => _buildAppointmentCard(apt, colors)),
+        ...appointments
+            .take(5)
+            .map((apt) => _buildAppointmentCard(apt, colors)),
         if (appointments.length > 5)
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -642,8 +642,7 @@ class _DoctorScheduleScreenState extends State<DoctorScheduleScreen> {
               ),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: _statusColor(apt.status).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),

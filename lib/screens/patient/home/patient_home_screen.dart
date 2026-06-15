@@ -1,26 +1,25 @@
-import 'dart:async';
+﻿import 'dart:async';
 
+import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/core/utils/marker_factory.dart';
+import 'package:arogya_path3/screens/patient/emergency/emergency_contact_home.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-
-import '../../../config/app_theme.dart';
 import '../../../models/doctor_model.dart';
 import '../../../providers/appointment_provider.dart';
 import '../../../providers/doctor_provider.dart';
 import '../../../providers/user_provider.dart';
 import '../../../services/directions_service.dart';
 import '../../../services/location_service.dart';
-import '../../../utils/marker_factory.dart';
 import '../doctor/book_appointment_screen.dart';
 import '../doctor/doctor_detail_screen.dart';
 import 'full_map_screen.dart';
 import 'search_doctor_screen.dart';
 import 'see_all_doctors_screen.dart';
-import '../../../arogyascreens/home_screen.dart';
 
 class PatientHomeScreen extends StatefulWidget {
   const PatientHomeScreen({super.key});
@@ -190,7 +189,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               'Last known position: ${bestPosition.latitude}, ${bestPosition.longitude}');
         }
       } catch (_) {
-        // Best-effort optimization — ignore failures
+        // Best-effort optimization â€” ignore failures
       }
 
       // 2. Try live position (may take time, may fail on emulators)
@@ -205,11 +204,9 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             'Live position obtained: ${bestPosition.latitude}, ${bestPosition.longitude}');
       } catch (_) {
         if (bestPosition != null) {
-          debugPrint(
-              'Live position timed out, using last-known position');
+          debugPrint('Live position timed out, using last-known position');
         } else {
-          debugPrint(
-              'GPS unavailable on this device (emulator or no GPS). '
+          debugPrint('GPS unavailable on this device (emulator or no GPS). '
               'Using default location until GPS fix is obtained.');
         }
       }
@@ -432,7 +429,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               const Icon(Icons.directions_car, color: Colors.white, size: 20),
               const SizedBox(width: 8),
               Text(
-                '${directions['distance']} • ${directions['duration']}',
+                '${directions['distance']} â€¢ ${directions['duration']}',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
@@ -557,7 +554,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     return doctor.distance;
   }
 
-  // ─────────────────── BUILD ───────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ BUILD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   @override
   Widget build(BuildContext context) {
@@ -574,7 +571,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Header: user avatar, name, search ──
+                // â”€â”€ Header: user avatar, name, search â”€â”€
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Row(
@@ -694,7 +691,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                   ),
                 ),
 
-                // ── Google Map ──
+                // â”€â”€ Google Map â”€â”€
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -867,7 +864,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                     ],
                                   ),
                                 ),
-                                // Locate Me button — always visible
+                                // Locate Me button â€” always visible
                                 Positioned(
                                   bottom: 10,
                                   right: 10,
@@ -893,15 +890,15 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                       ),
                                       onPressed: () async {
                                         if (_locationPermissionGranted) {
-                                          // Already know where we are → recenter
-                                          _mapController
-                                              .move(_currentPosition, 14);
+                                          // Already know where we are â†’ recenter
+                                          _mapController.move(
+                                              _currentPosition, 14);
                                         } else {
-                                          // No location yet → try to get one
+                                          // No location yet â†’ try to get one
                                           await _getCurrentLocation();
                                           if (_locationPermissionGranted) {
-                                            _mapController
-                                                .move(_currentPosition, 14);
+                                            _mapController.move(
+                                                _currentPosition, 14);
                                           }
                                         }
                                       },
@@ -915,7 +912,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 ),
                 const SizedBox(height: 25),
 
-                // ── Emergency Help Button ──
+                // â”€â”€ Emergency Help Button â”€â”€
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: GestureDetector(
@@ -928,7 +925,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 20),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
                         borderRadius: BorderRadius.circular(15),
@@ -936,7 +934,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.emergency, color: Colors.red.shade700, size: 30),
+                          Icon(Icons.emergency,
+                              color: Colors.red.shade700, size: 30),
                           const SizedBox(width: 15),
                           Expanded(
                             child: Column(
@@ -960,7 +959,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                               ],
                             ),
                           ),
-                          Icon(Icons.arrow_forward_ios, color: Colors.red.shade400, size: 16),
+                          Icon(Icons.arrow_forward_ios,
+                              color: Colors.red.shade400, size: 16),
                         ],
                       ),
                     ),
@@ -968,7 +968,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 ),
                 const SizedBox(height: 25),
 
-                // ── Upcoming Appointment ──
+                // â”€â”€ Upcoming Appointment â”€â”€
                 Consumer<AppointmentProvider>(
                   builder: (context, aptProvider, child) {
                     final now = DateTime.now();
@@ -1013,7 +1013,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                   },
                 ),
 
-                // ── Nearby Doctors Header ──
+                // â”€â”€ Nearby Doctors Header â”€â”€
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
@@ -1046,7 +1046,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                // ── Doctors List ──
+                // â”€â”€ Doctors List â”€â”€
                 Consumer<DoctorProvider>(
                   builder: (context, doctorProvider, child) {
                     if (doctorProvider.isLoading) {
@@ -1133,7 +1133,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     );
   }
 
-  // ─── Map Legend Item ───
+  // â”€â”€â”€ Map Legend Item â”€â”€â”€
   Widget _buildLegendItem(Color color, String label) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -1157,7 +1157,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     );
   }
 
-  // ─── Upcoming Appointment Card ───
+  // â”€â”€â”€ Upcoming Appointment Card â”€â”€â”€
   Widget _buildUpcomingAppointmentCard(appointment) {
     final colors = AppTheme.of(context);
     return Container(
@@ -1278,7 +1278,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     );
   }
 
-  // ─── Doctor Availability ───
+  // â”€â”€â”€ Doctor Availability â”€â”€â”€
   bool _isDoctorAvailable(Doctor doctor) {
     if (doctor.weeklySchedule == null || doctor.weeklySchedule!.isEmpty) {
       return false;
@@ -1313,7 +1313,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     return '${activeDays.first}-${activeDays.last}';
   }
 
-  // ─── Custom Doctor Card ───
+  // â”€â”€â”€ Custom Doctor Card â”€â”€â”€
   Widget _buildCustomDoctorCard(Doctor doctor) {
     final colors = AppTheme.of(context);
     final bool isAvailable = _isDoctorAvailable(doctor);

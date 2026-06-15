@@ -1,10 +1,9 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../../config/app_theme.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_provider.dart';
 import '../../shared/location_picker_screen.dart';
@@ -116,19 +115,23 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                     onTap: () =>
                         Navigator.pushNamed(context, '/personal-info')),
                 _buildDivider(),
-                _buildMenuItem(Icons.location_on, 'Practice Location',
+                _buildMenuItem(
+                    Icons.location_on,
+                    'Practice Location',
                     user?.latitude != null && user?.longitude != null
-                        ? 'Location set — tap to update'
-                        : 'Set your clinic location on the map', onTap: () async {
+                        ? 'Location set â€” tap to update'
+                        : 'Set your clinic location on the map',
+                    onTap: () async {
                   final u = user;
                   final initial = (u?.latitude != null && u?.longitude != null)
-                      ? LatLng(u!.latitude!, u!.longitude!)
+                      ? LatLng(u!.latitude!, u.longitude!)
                       : null;
 
                   final result = await Navigator.push<Map<String, dynamic>>(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => LocationPickerScreen(initialPosition: initial),
+                      builder: (_) =>
+                          LocationPickerScreen(initialPosition: initial),
                     ),
                   );
 
@@ -221,8 +224,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
     return ListTile(
       leading: Icon(icon, color: colors.primary),
       title: Text(title,
-          style: TextStyle(
-              fontWeight: FontWeight.w600, color: colors.heading)),
+          style: TextStyle(fontWeight: FontWeight.w600, color: colors.heading)),
       subtitle: Text(subtitle,
           style: const TextStyle(fontSize: 12, color: Colors.grey)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),

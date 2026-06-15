@@ -1,5 +1,5 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/dependent_provider.dart';
@@ -23,7 +23,8 @@ class _EditDependentScreenState extends State<EditDependentScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.dependent.fullName);
-    _phoneController = TextEditingController(text: widget.dependent.phone ?? '');
+    _phoneController =
+        TextEditingController(text: widget.dependent.phone ?? '');
     _relationship = widget.dependent.relationship ?? 'Other';
     _gender = widget.dependent.gender ?? 'Other';
   }
@@ -77,8 +78,7 @@ class _EditDependentScreenState extends State<EditDependentScreen> {
             onPressed: _save,
             child: Text('Save',
                 style: TextStyle(
-                    color: colors.primary,
-                    fontWeight: FontWeight.bold)),
+                    color: colors.primary, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -90,8 +90,7 @@ class _EditDependentScreenState extends State<EditDependentScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12)),
+                color: Colors.white, borderRadius: BorderRadius.circular(12)),
             child: DropdownButtonFormField<String>(
               value: _relationship,
               decoration: const InputDecoration(
@@ -99,16 +98,14 @@ class _EditDependentScreenState extends State<EditDependentScreen> {
               items: relationships
                   .map((r) => DropdownMenuItem(value: r, child: Text(r)))
                   .toList(),
-              onChanged: (v) =>
-                  setState(() => _relationship = v!),
+              onChanged: (v) => setState(() => _relationship = v!),
             ),
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12)),
+                color: Colors.white, borderRadius: BorderRadius.circular(12)),
             child: DropdownButtonFormField<String>(
               value: _gender,
               decoration: const InputDecoration(
@@ -120,7 +117,8 @@ class _EditDependentScreenState extends State<EditDependentScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildTextField('Phone (optional)', _phoneController, TextInputType.phone),
+          _buildTextField(
+              'Phone (optional)', _phoneController, TextInputType.phone),
         ]),
       ),
     );
@@ -131,8 +129,7 @@ class _EditDependentScreenState extends State<EditDependentScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12)),
+          color: Colors.white, borderRadius: BorderRadius.circular(12)),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,

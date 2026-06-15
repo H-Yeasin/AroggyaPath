@@ -1,6 +1,6 @@
+﻿import 'package:arogya_path3/widgets/common/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
-import '../components/custom_button.dart';
 
 class SuccessScreen extends StatelessWidget {
   const SuccessScreen({super.key});

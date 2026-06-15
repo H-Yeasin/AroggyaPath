@@ -1,8 +1,8 @@
+﻿import 'package:arogya_path3/providers/auth_provider.dart';
+import 'package:arogya_path3/widgets/common/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
 import 'login_screen.dart';
-import '../components/custom_button.dart';
 
 class ResetpassScreen extends StatefulWidget {
   final String? email;
@@ -44,7 +44,8 @@ class _ResetpassScreenState extends State<ResetpassScreen> {
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password reset successful! Please log in.')),
+        const SnackBar(
+            content: Text('Password reset successful! Please log in.')),
       );
       Navigator.pushAndRemoveUntil(
         context,

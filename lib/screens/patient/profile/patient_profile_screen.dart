@@ -1,6 +1,6 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -175,8 +175,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     return ListTile(
       leading: Icon(icon, color: colors.primary),
       title: Text(title,
-          style: TextStyle(
-              fontWeight: FontWeight.w600, color: colors.heading)),
+          style: TextStyle(fontWeight: FontWeight.w600, color: colors.heading)),
       subtitle: Text(subtitle,
           style: const TextStyle(fontSize: 12, color: Colors.grey)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),

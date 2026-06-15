@@ -1,7 +1,7 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../../../config/app_theme.dart';
 
 class FullMapScreen extends StatefulWidget {
   final LatLng currentPosition;
@@ -36,21 +36,20 @@ class _FullMapScreenState extends State<FullMapScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Full Screen Map — free OpenStreetMap tiles via flutter_map
+            // Full Screen Map â€” free OpenStreetMap tiles via flutter_map
             FlutterMap(
               mapController: _mapController,
               options: MapOptions(
                 initialCenter: widget.currentPosition,
                 initialZoom: 13,
                 onMapReady: () {
-                  // Map is ready — no action needed.
+                  // Map is ready â€” no action needed.
                 },
               ),
               children: [
                 // OpenStreetMap tile layer (free, no API key)
                 TileLayer(
-                  urlTemplate:
-                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.aroggyapath.app',
                 ),
                 // Doctor + user markers

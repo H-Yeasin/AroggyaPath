@@ -1,8 +1,8 @@
-import 'dart:io';
+﻿import 'dart:io';
 
+import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 
 class ChatBubble extends StatelessWidget {
   final Map<String, dynamic> message;
@@ -62,7 +62,10 @@ class ChatBubble extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: isMe
                           ? LinearGradient(
-                              colors: [colors.chatPrimary, colors.chatSecondary],
+                              colors: [
+                                colors.chatPrimary,
+                                colors.chatSecondary
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             )
@@ -112,8 +115,7 @@ class ChatBubble extends StatelessWidget {
                           Text(
                             text,
                             style: TextStyle(
-                              color:
-                                  isMe ? Colors.white : colors.heading,
+                              color: isMe ? Colors.white : colors.heading,
                               fontSize: 15,
                               height: 1.4,
                             ),

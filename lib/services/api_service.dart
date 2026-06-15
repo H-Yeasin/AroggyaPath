@@ -1,11 +1,10 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:io' show File;
 
+import 'package:arogya_path3/core/utils/api_config.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../utils/api_config.dart';
 
 class ApiService {
   static String? _token;
@@ -24,7 +23,7 @@ class ApiService {
     }
   }
 
-  /// Sync user session — Call AFTER app launch to verify user_id
+  /// Sync user session â€” Call AFTER app launch to verify user_id
   static Future<void> syncUserSession() async {
     try {
       if (!isLoggedIn) {
@@ -644,7 +643,8 @@ class ApiService {
   }) async {
     final cleanUserId = userId.split('/').first;
     debugPrint('Creating/Getting chat with: $cleanUserId');
-    return await post('/api/v1/chat', {'userId': cleanUserId}, requiresAuth: true);
+    return await post('/api/v1/chat', {'userId': cleanUserId},
+        requiresAuth: true);
   }
 
   /// Mark Chat as Read
@@ -671,11 +671,14 @@ class ApiService {
     required String toUserId,
     String? uuid,
   }) async {
-    return await post('/api/v1/call/end', {
-      'chatId': chatId,
-      'userId': toUserId,
-      'uuid': uuid ?? '',
-    }, requiresAuth: true);
+    return await post(
+        '/api/v1/call/end',
+        {
+          'chatId': chatId,
+          'userId': toUserId,
+          'uuid': uuid ?? '',
+        },
+        requiresAuth: true);
   }
 
   /// Send message via multipart (supports files)
@@ -711,8 +714,8 @@ class ApiService {
       }
 
       final streamedResponse = await request.send().timeout(
-        const Duration(seconds: 30),
-      );
+            const Duration(seconds: 30),
+          );
       final response = await http.Response.fromStream(streamedResponse);
       return _handleResponse(response);
     } catch (e) {

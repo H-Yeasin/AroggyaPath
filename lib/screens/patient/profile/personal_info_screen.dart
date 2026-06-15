@@ -1,11 +1,10 @@
-import 'dart:io';
+﻿import 'dart:io';
 
+import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-
-import '../../../config/app_theme.dart';
 import '../../../providers/user_provider.dart';
 import '../../shared/location_picker_screen.dart';
 
@@ -115,8 +114,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title:
-            Text('Personal Info', style: TextStyle(color: colors.heading)),
+        title: Text('Personal Info', style: TextStyle(color: colors.heading)),
         actions: [
           TextButton(
               onPressed: _save,
@@ -168,7 +166,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               'Address', _addressController, TextInputType.streetAddress, 2),
           const SizedBox(height: 24),
 
-          // ── Practice Location Section ──
+          // â”€â”€ Practice Location Section â”€â”€
           Text(
             'Practice Location',
             style: TextStyle(
@@ -190,7 +188,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colors.success.withValues(alpha: 0.3)),
+                border:
+                    Border.all(color: colors.success.withValues(alpha: 0.3)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.04),
@@ -206,8 +205,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                       color: colors.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child:
-                        Icon(Icons.check_circle, color: colors.success, size: 20),
+                    child: Icon(Icons.check_circle,
+                        color: colors.success, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -242,7 +241,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 label: const Text('Set on Map'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: colors.primary,
-                  side: BorderSide(color: colors.primary.withValues(alpha: 0.3)),
+                  side:
+                      BorderSide(color: colors.primary.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -265,8 +265,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
         ],
       ),
       child: TextField(

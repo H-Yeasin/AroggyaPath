@@ -1,19 +1,17 @@
-import 'dart:convert';
-
+﻿import 'dart:convert';
+import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/core/utils/api_config.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../models/appointment_model.dart';
 import '../../../models/dependent_model.dart';
 import '../../../models/doctor_model.dart';
 import '../../../providers/appointment_provider.dart';
 import '../../../providers/dependent_provider.dart';
-import '../../../utils/api_config.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   final Doctor doctor;

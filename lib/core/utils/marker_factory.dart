@@ -1,7 +1,7 @@
+import 'package:arogya_path3/models/doctor_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../models/doctor_model.dart';
 
 class MarkerFactory {
   // Singleton pattern
@@ -36,9 +36,10 @@ class MarkerFactory {
     required double distanceKm,
     required VoidCallback onTap,
   }) {
-    final LatLng position = (doctor.latitude != null && doctor.longitude != null)
-        ? LatLng(doctor.latitude!, doctor.longitude!)
-        : const LatLng(0, 0);
+    final LatLng position =
+        (doctor.latitude != null && doctor.longitude != null)
+            ? LatLng(doctor.latitude!, doctor.longitude!)
+            : const LatLng(0, 0);
 
     return Marker(
       point: position,
@@ -67,8 +68,7 @@ class MarkerFactory {
             // Distance label
             Container(
               margin: const EdgeInsets.only(top: 2),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),

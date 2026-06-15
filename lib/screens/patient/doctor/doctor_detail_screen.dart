@@ -1,11 +1,11 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
-import '../../../models/doctor_model.dart';
-import '../../../services/api_service.dart';
-import '../../../services/doctor_service.dart';
-import 'book_appointment_screen.dart';
 import 'package:provider/provider.dart';
+
+import '../../../models/doctor_model.dart';
 import '../../../providers/user_provider.dart';
+import '../../../services/api_service.dart';
+import 'book_appointment_screen.dart';
 
 class DoctorDetailsScreen extends StatefulWidget {
   final Doctor doctor;
@@ -70,14 +70,12 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                       child: SizedBox(
                         width: 80,
                         height: 80,
-                        child: widget.doctor.image != null &&
-                                widget.doctor.image!.startsWith('http')
-                            ? Image.network(widget.doctor.image!,
+                        child: widget.doctor.image.startsWith('http')
+                            ? Image.network(widget.doctor.image,
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, __, ___) => Container(
                                     color: Colors.grey[200],
-                                    child: const Icon(
-                                        Icons.person, size: 40)))
+                                    child: const Icon(Icons.person, size: 40)))
                             : Container(
                                 color: Colors.grey[200],
                                 child: const Icon(Icons.person, size: 40)),
@@ -90,8 +88,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                         children: [
                           Text(widget.doctor.fullName,
                               style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold)),
+                                  fontSize: 26, fontWeight: FontWeight.bold)),
                           Text(widget.doctor.specialty,
                               style: const TextStyle(fontSize: 18)),
                           const SizedBox(height: 8),
@@ -102,9 +99,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                               decoration: BoxDecoration(
                                 color: colors.primaryContainer,
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color: colors.info,
-                                    width: 1.5),
+                                border:
+                                    Border.all(color: colors.info, width: 1.5),
                               ),
                               child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -146,8 +142,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
 
                 // Bio
                 const Text('About',
-                    style: TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Text(widget.doctor.bio ??
                     "${widget.doctor.fullName} is a ${widget.doctor.specialty} with ${widget.doctor.experience} years of experience."),
@@ -155,8 +151,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
 
                 // Specialty
                 const Text('Specialty',
-                    style: TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 _buildBulletItem(widget.doctor.specialty),
                 const SizedBox(height: 35),
@@ -177,9 +173,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                 // Reviews
                 if (_reviews.isNotEmpty) ...[
                   const Text('Reviews',
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   ..._reviews.take(5).map((review) => Container(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -206,8 +201,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     children: [
@@ -220,10 +214,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                                       const Spacer(),
                                       Row(children: [
                                         const Icon(Icons.star,
-                                            size: 14,
-                                            color: Colors.orange),
-                                        Text(
-                                            ' ${review['rating'] ?? 'N/A'}'),
+                                            size: 14, color: Colors.orange),
+                                        Text(' ${review['rating'] ?? 'N/A'}'),
                                       ]),
                                     ],
                                   ),
@@ -288,7 +280,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        const Text("• ",
+        const Text("â€¢ ",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         Text(text, style: const TextStyle(fontSize: 17)),
       ]),
@@ -307,7 +299,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
       }
     }
     if (activeDays.isEmpty) return 'Visiting Hours: Not set';
-    if (activeDays.length <= 3) return 'Visiting Hours: ${activeDays.join(', ')}';
+    if (activeDays.length <= 3)
+      return 'Visiting Hours: ${activeDays.join(', ')}';
     return 'Visiting Hours: ${activeDays.first}-${activeDays.last}';
   }
 }

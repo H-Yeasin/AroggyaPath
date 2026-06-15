@@ -1,8 +1,7 @@
+﻿import 'package:arogya_path3/core/constants/app_constants.dart';
+import 'package:arogya_path3/models/emergency_contacts.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../components/const.dart';
-import '../models/emergency_contacts.dart';
 
 class EmergencyContactDetailsScreen extends StatelessWidget {
   final EmergencyContact doctor;
@@ -201,14 +200,14 @@ class EmergencyContactDetailsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "কল রেট",
+                  "à¦•à¦² à¦°à§‡à¦Ÿ",
                   style: TextStyle(
                     letterSpacing: 0,
                     color: grey,
                   ),
                 ),
                 Text(
-                  "৳${doctor.price}",
+                  "à§³${doctor.price}",
                   style: const TextStyle(
                     fontSize: 14,
                     color: black,
@@ -238,7 +237,7 @@ class EmergencyContactDetailsScreen extends StatelessWidget {
                       SizedBox(
                           width: 8), // Adds spacing between the icon and text
                       Text(
-                        "এখনই কল করুন",
+                        "à¦à¦–à¦¨à¦‡ à¦•à¦² à¦•à¦°à§à¦¨",
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.white,

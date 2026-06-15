@@ -1,10 +1,9 @@
-import 'dart:async';
+﻿import 'dart:async';
 
+import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../../config/app_theme.dart';
 import '../../services/location_service.dart';
 
 class LocationPickerScreen extends StatefulWidget {
@@ -22,7 +21,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   final LocationService _locationService = LocationService();
 
   LatLng _selectedPosition = const LatLng(23.8103, 90.4125); // Dhaka default
-  String _address = 'Fetching address…';
+  String _address = 'Fetching addressâ€¦';
   bool _isLoadingAddress = true;
   bool _isLoadingInitial = true;
   Timer? _debounceTimer;
@@ -67,7 +66,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     // Update the selected position
     _selectedPosition = center;
 
-    // Debounce — wait 500ms after user stops panning before reverse geocoding
+    // Debounce â€” wait 500ms after user stops panning before reverse geocoding
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 500), () {
       if (mounted) {
@@ -126,7 +125,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                // ── Map ──
+                // â”€â”€ Map â”€â”€
                 FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
@@ -148,7 +147,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   ],
                 ),
 
-                // ── Fixed crosshair in center ──
+                // â”€â”€ Fixed crosshair in center â”€â”€
                 Center(
                   child: IgnorePointer(
                     child: Container(
@@ -167,7 +166,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   ),
                 ),
 
-                // ── Hint text at top ──
+                // â”€â”€ Hint text at top â”€â”€
                 Positioned(
                   top: 12,
                   left: 20,
@@ -187,7 +186,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   ),
                 ),
 
-                // ── Bottom panel ──
+                // â”€â”€ Bottom panel â”€â”€
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -196,8 +195,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(20)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(20)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.1),
@@ -221,7 +220,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: _isLoadingAddress
-                                    ? const Text('Looking up address…',
+                                    ? const Text('Looking up addressâ€¦',
                                         style: TextStyle(
                                             color: Colors.grey, fontSize: 14))
                                     : Text(
@@ -260,7 +259,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                                 elevation: 0,
                               ),
                               child: const Text(
-                                '✓  Confirm Location',
+                                'âœ“  Confirm Location',
                                 style: TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.w600),
                               ),

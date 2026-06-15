@@ -1,10 +1,9 @@
 import 'dart:io';
 
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+import 'package:arogya_path3/core/config/agora_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:arogya_path3/config/agora_config.dart';
 import 'package:arogya_path3/services/api_service.dart';
 import 'package:arogya_path3/services/push_notification_service.dart';
 
@@ -141,10 +140,8 @@ class AgoraChatService {
       debugPrint('🔄 [Agora] Syncing conversations from server...');
 
       // First, try to get conversation list from local
-      List<ChatConversation> conversations = await ChatClient
-          .getInstance
-          .chatManager
-          .loadAllConversations();
+      List<ChatConversation> conversations =
+          await ChatClient.getInstance.chatManager.loadAllConversations();
 
       // If no local conversations (e.g., after reinstall), try to get chat list from backend
       if (conversations.isEmpty) {
@@ -168,11 +165,11 @@ class AgoraChatService {
                   try {
                     await ChatClient.getInstance.chatManager
                         .fetchHistoryMessagesByOption(
-                          participantId,
-                          ChatConversationType.Chat,
-                          cursor: '',
-                          pageSize: 20,
-                        );
+                      participantId,
+                      ChatConversationType.Chat,
+                      cursor: '',
+                      pageSize: 20,
+                    );
                     debugPrint('  ✅ Synced messages for $participantId');
                   } catch (e) {
                     debugPrint(
@@ -196,11 +193,11 @@ class AgoraChatService {
           try {
             final messages = await ChatClient.getInstance.chatManager
                 .fetchHistoryMessagesByOption(
-                  conv.id,
-                  ChatConversationType.Chat,
-                  cursor: '',
-                  pageSize: 20,
-                );
+              conv.id,
+              ChatConversationType.Chat,
+              cursor: '',
+              pageSize: 20,
+            );
             debugPrint(
               '  ✅ Synced ${messages.data.length} messages for ${conv.id}',
             );
@@ -345,21 +342,19 @@ class AgoraChatService {
         // We do NOT await this to avoid blocking UI (Fire and Forget)
         // But we catch errors to ensure app stability
         ApiService.sendMessage(
-              chatId: backendChatId,
-              content: notifContent,
-              contentType: notifType,
-              // We do NOT pass 'files' here to avoid double-upload. Backend creates a "ghost" message for notification.
-            )
-            .then((res) {
-              if (res['success'] == true) {
-                debugPrint('✅ Backend notified successfully');
-              } else {
-                debugPrint('⚠️ Backend notification failed: ${res['message']}');
-              }
-            })
-            .catchError((e) {
-              debugPrint('❌ Backend notification error: $e');
-            });
+          chatId: backendChatId,
+          content: notifContent,
+          contentType: notifType,
+          // We do NOT pass 'files' here to avoid double-upload. Backend creates a "ghost" message for notification.
+        ).then((res) {
+          if (res['success'] == true) {
+            debugPrint('✅ Backend notified successfully');
+          } else {
+            debugPrint('⚠️ Backend notification failed: ${res['message']}');
+          }
+        }).catchError((e) {
+          debugPrint('❌ Backend notification error: $e');
+        });
       }
 
       return lastMessage;
@@ -387,13 +382,13 @@ class AgoraChatService {
     int pageSize = 20,
   }) async {
     try {
-      final result = await ChatClient.getInstance.chatManager
-          .fetchHistoryMessagesByOption(
-            conversationId,
-            type,
-            cursor: startMsgId ?? '',
-            pageSize: pageSize,
-          );
+      final result =
+          await ChatClient.getInstance.chatManager.fetchHistoryMessagesByOption(
+        conversationId,
+        type,
+        cursor: startMsgId ?? '',
+        pageSize: pageSize,
+      );
       return result.data;
     } on ChatError catch (e) {
       debugPrint('❌ Fetch History Failed: ${e.description}');
@@ -420,10 +415,8 @@ class AgoraChatService {
 
   Future<List<ChatConversation>> fetchConversations() async {
     try {
-      final List<ChatConversation> list = await ChatClient
-          .getInstance
-          .chatManager
-          .loadAllConversations();
+      final List<ChatConversation> list =
+          await ChatClient.getInstance.chatManager.loadAllConversations();
       return list;
     } on ChatError catch (e) {
       debugPrint('❌ Fetch Conversations Failed: ${e.description}');
@@ -565,8 +558,11 @@ class AgoraChatService {
             // ✅ SMART SIGNALING: Intercept call_log messages to stop ringing
             if (msg.attributes?['type'] == 'call_log') {
               final status = msg.attributes?['status'];
-              if (status == 'cancelled' || status == 'ended' || status == 'declined') {
-                debugPrint(' 📴 [AGORA LOG] Call cancel signal matched via chat log');
+              if (status == 'cancelled' ||
+                  status == 'ended' ||
+                  status == 'declined') {
+                debugPrint(
+                    ' 📴 [AGORA LOG] Call cancel signal matched via chat log');
                 final uuid = msg.attributes?['uuid'];
                 // CallKit stub — requires flutter_callkit_incoming package
                 // if (uuid != null && uuid.toString().isNotEmpty) {
@@ -604,8 +600,7 @@ class AgoraChatService {
       final String senderName =
           msg.attributes?['senderName']?.toString() ?? msg.from ?? 'User';
       final String? avatar = msg.attributes?['senderAvatar']?.toString();
-      final String? backendChatId =
-          msg.attributes?['chatId']?.toString() ??
+      final String? backendChatId = msg.attributes?['chatId']?.toString() ??
           msg.conversationId; // Fallback to conversation ID (Agora ID)
 
       if (backendChatId != null) {

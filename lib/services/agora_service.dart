@@ -1,7 +1,7 @@
-import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+﻿import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:arogya_path3/core/config/agora_config.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../config/agora_config.dart';
 
 class AgoraService {
   static final AgoraService _instance = AgoraService._internal();
@@ -25,11 +25,13 @@ class AgoraService {
 
   Future<void> initialize({bool skipPermissions = false}) async {
     if (_isInitialized && _engine != null) {
-      debugPrint("Agora Engine already initialized — reusing");
+      debugPrint("Agora Engine already initialized â€” reusing");
       return;
     }
     if (_engine != null) {
-      try { await _engine!.release(); } catch (_) {}
+      try {
+        await _engine!.release();
+      } catch (_) {}
       _engine = null;
       await Future.delayed(const Duration(milliseconds: 500));
     }
@@ -68,7 +70,8 @@ class AgoraService {
           _remoteUids.add(remoteUid);
           onUserJoined?.call(remoteUid, elapsed);
         },
-        onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
+        onUserOffline: (RtcConnection connection, int remoteUid,
+            UserOfflineReasonType reason) {
           debugPrint("Remote user $remoteUid left: $reason");
           _remoteUids.remove(remoteUid);
           onUserOffline?.call(remoteUid, reason);
@@ -104,7 +107,9 @@ class AgoraService {
   }) async {
     if (!_isInitialized) await initialize();
     try {
-      try { await _engine!.leaveChannel(); } catch (_) {}
+      try {
+        await _engine!.leaveChannel();
+      } catch (_) {}
       if (isVideo) {
         await _engine!.enableVideo();
       } else {
@@ -134,7 +139,7 @@ class AgoraService {
     }
   }
 
-  /// Join channel with user account (string ID — for MongoDB interop)
+  /// Join channel with user account (string ID â€” for MongoDB interop)
   Future<void> joinChannelWithUserAccount({
     required String channelName,
     required String userAccount,
@@ -144,7 +149,9 @@ class AgoraService {
     if (!_isInitialized) await initialize(skipPermissions: !isVideo);
     try {
       if (_currentChannel != null && _currentChannel != channelName) {
-        try { await _engine!.leaveChannel(); } catch (_) {}
+        try {
+          await _engine!.leaveChannel();
+        } catch (_) {}
       }
       if (isVideo) {
         await _engine!.enableVideo();
@@ -166,14 +173,19 @@ class AgoraService {
     }
   }
 
-  Future<void> toggleAudio(bool muted) => _engine?.muteLocalAudioStream(muted) ?? Future.value();
-  Future<void> toggleVideo(bool muted) => _engine?.muteLocalVideoStream(muted) ?? Future.value();
+  Future<void> toggleAudio(bool muted) =>
+      _engine?.muteLocalAudioStream(muted) ?? Future.value();
+  Future<void> toggleVideo(bool muted) =>
+      _engine?.muteLocalVideoStream(muted) ?? Future.value();
   Future<void> switchCamera() => _engine?.switchCamera() ?? Future.value();
-  Future<void> setSpeakerphone(bool enabled) => _engine?.setEnableSpeakerphone(enabled) ?? Future.value();
+  Future<void> setSpeakerphone(bool enabled) =>
+      _engine?.setEnableSpeakerphone(enabled) ?? Future.value();
 
   Future<void> dispose() async {
     if (_engine != null) {
-      try { await _engine!.leaveChannel(); } catch (_) {}
+      try {
+        await _engine!.leaveChannel();
+      } catch (_) {}
       await _engine!.release();
       _engine = null;
       _isInitialized = false;

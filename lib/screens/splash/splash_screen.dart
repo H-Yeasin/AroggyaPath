@@ -1,5 +1,5 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../config/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../onboarding/select_profile_screen.dart';
 import '../patient/navigation/patient_main_navigation.dart';
@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 builder: (context) => const PatientMainNavigation()),
           );
         } else if (role == 'doctor') {
-          // Doctor → new doctor dashboard
+          // Doctor â†’ new doctor dashboard
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -41,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
           );
         }
       } else {
-        // Not logged in → show role selection first
+        // Not logged in â†’ show role selection first
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const SelectProfileScreen()),

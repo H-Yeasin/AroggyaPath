@@ -1,15 +1,17 @@
+﻿import 'package:arogya_path3/core/utils/api_config.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'dart:async';
-import '../utils/api_config.dart';
 
 class SocketService {
   static SocketService? _instance;
   io.Socket? _socket;
   String? _currentUserId;
   bool _isConnecting = false;
-  final StreamController<bool> _connectionController = StreamController<bool>.broadcast();
-  final StreamController<void> _reconnectController = StreamController<void>.broadcast();
+  final StreamController<bool> _connectionController =
+      StreamController<bool>.broadcast();
+  final StreamController<void> _reconnectController =
+      StreamController<void>.broadcast();
 
   static SocketService get instance {
     _instance ??= SocketService._();
@@ -45,7 +47,7 @@ class SocketService {
     final completer = Completer<bool>();
     final String serverUrl = ApiConfig.baseUrl;
 
-    debugPrint('Connecting socket — User: $userId, Server: $serverUrl');
+    debugPrint('Connecting socket â€” User: $userId, Server: $serverUrl');
 
     if (_socket != null) {
       _socket!.dispose();
@@ -81,7 +83,7 @@ class SocketService {
 
   void _setupListeners(String userId, Completer<bool> completer) {
     _socket!.onConnect((_) {
-      debugPrint('Socket connected — ID: ${_socket!.id}');
+      debugPrint('Socket connected â€” ID: ${_socket!.id}');
       _socket!.emit('joinUserRoom', userId);
       Future.delayed(const Duration(milliseconds: 800), () {
         _connectionController.add(true);

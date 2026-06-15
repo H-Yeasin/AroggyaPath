@@ -1,5 +1,5 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/appointment_model.dart';
@@ -131,8 +131,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color:
-                      !_showUpcoming ? colors.primary : Colors.white,
+                  color: !_showUpcoming ? colors.primary : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
@@ -183,9 +182,8 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
                         borderRadius: BorderRadius.circular(12),
                         child: Image.network(appointment.doctorImage!,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Icon(
-                                Icons.person,
-                                color: colors.primary)))
+                            errorBuilder: (_, __, ___) =>
+                                Icon(Icons.person, color: colors.primary)))
                     : Icon(Icons.person, color: colors.primary),
               ),
             ),

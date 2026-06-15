@@ -1,5 +1,5 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/appointment_model.dart';
@@ -25,8 +25,8 @@ class AppointmentDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('Appointment Details',
-            style: TextStyle(
-                color: colors.heading, fontWeight: FontWeight.bold)),
+            style:
+                TextStyle(color: colors.heading, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -53,9 +53,8 @@ class AppointmentDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           child: Image.network(appointment.doctorImage!,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Icon(
-                                  Icons.person,
-                                  color: colors.primary)))
+                              errorBuilder: (_, __, ___) =>
+                                  Icon(Icons.person, color: colors.primary)))
                       : Icon(Icons.person, color: colors.primary),
                 ),
                 const SizedBox(width: 15),
@@ -93,8 +92,8 @@ class AppointmentDetailScreen extends StatelessWidget {
                   _buildDetailRow(
                       Icons.calendar_today, 'Date', appointment.formattedDate),
                   const Divider(height: 24),
-                  _buildDetailRow(Icons.access_time, 'Time',
-                      appointment.appointmentTime ?? 'N/A'),
+                  _buildDetailRow(
+                      Icons.access_time, 'Time', appointment.appointmentTime),
                   const Divider(height: 24),
                   _buildDetailRow(Icons.medical_services, 'Type',
                       appointment.appointmentType ?? 'Physical Visit'),

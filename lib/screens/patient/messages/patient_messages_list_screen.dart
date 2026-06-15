@@ -1,6 +1,5 @@
-
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import '../../../../screens/patient/messages/patient_chat_screen.dart';
 import 'package:arogya_path3/screens/patient/navigation/patient_main_navigation.dart';
 import 'package:arogya_path3/services/api_service.dart';
@@ -56,7 +55,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
       'patient_chat_list_refresher',
       ChatEventHandler(
         onMessagesReceived: (messages) {
-          debugPrint('📨 Agora message received in list - refreshing');
+          debugPrint('ðŸ“¨ Agora message received in list - refreshing');
           _loadChatsQuietly(); // Reload chats when new message arrives
         },
       ),
@@ -95,19 +94,18 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
     }
 
     try {
-      debugPrint('🔍 Loading patient chats from Agora SDK...');
+      debugPrint('ðŸ” Loading patient chats from Agora SDK...');
       // 1. Fetch conversations from Agora
-      final List<ChatConversation> conversations = await AgoraChatService
-          .instance
-          .fetchConversations();
+      final List<ChatConversation> conversations =
+          await AgoraChatService.instance.fetchConversations();
 
       // 2. Pre-fetch details for sorting
       List<Map<String, dynamic>> tempChats = [];
 
       for (var conv in conversations) {
-        if (conv.id.isEmpty) continue; 
+        if (conv.id.isEmpty) continue;
 
-        final lastMsg = await conv.latestMessage(); 
+        final lastMsg = await conv.latestMessage();
         if (lastMsg == null) continue;
 
         tempChats.add({
@@ -119,7 +117,6 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
 
       // Sort by time descending
       tempChats.sort((a, b) => (b['time'] as int).compareTo(a['time'] as int));
-
 
       if (!mounted) return;
       final List<Map<String, dynamic>> formattedChats = await Future.wait(
@@ -133,17 +130,18 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
             String? avatarUrl;
 
             // Resolve backend chatId and doctor profile
-            final result = await ApiService.createOrGetChat(userId: conversationId);
+            final result =
+                await ApiService.createOrGetChat(userId: conversationId);
             if (result['success'] == true) {
               final chatData = result['data'];
               final backendChatId = chatData['_id']?.toString();
-              
+
               final participants = chatData['participants'] as List;
               final otherUser = participants.firstWhere(
                 (p) => p['_id'] != _currentUserId,
                 orElse: () => participants[0],
               );
-              
+
               fullName = otherUser['fullName'] ?? 'Doctor';
               avatarUrl = otherUser['avatar']?['url'];
 
@@ -151,9 +149,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
               String content = '';
               if (lastMsg.attributes?['type'] == 'call_log') {
                 final isVideo = lastMsg.attributes?['call_type'] == 'video';
-                content = isVideo
-                    ? ('Video Call')
-                    : ('Voice Call');
+                content = isVideo ? ('Video Call') : ('Voice Call');
               } else if (lastMsg.body.type == MessageType.TXT) {
                 content = (lastMsg.body as ChatTextMessageBody).content;
               } else if (lastMsg.body.type == MessageType.IMAGE) {
@@ -176,10 +172,12 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
                   if (messagesResult['success'] == true) {
                     final messages = messagesResult['data']['items'] as List;
                     // Count messages where isRead is false
-                    unreadCount = messages.where((msg) => msg['isRead'] == false).length;
+                    unreadCount =
+                        messages.where((msg) => msg['isRead'] == false).length;
                   }
                 } catch (e) {
-                  debugPrint(' Could not fetch unread count for $backendChatId: $e');
+                  debugPrint(
+                      ' Could not fetch unread count for $backendChatId: $e');
                   // Fallback to Agora count
                   unreadCount = await conv.unreadCount();
                 }
@@ -198,7 +196,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
                     lastMsg.serverTime,
                   ).toIso8601String(),
                 },
-                'unreadCount': unreadCount, 
+                'unreadCount': unreadCount,
                 'updatedAt': DateTime.fromMillisecondsSinceEpoch(
                   lastMsg.serverTime,
                 ).toIso8601String(),
@@ -284,9 +282,8 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Delete Chats'),
-        content: Text(
-              'Delete ${_selectedConversationIds.length} conversation(s)?'),
-
+        content:
+            Text('Delete ${_selectedConversationIds.length} conversation(s)?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -328,7 +325,6 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to delete'),
-
             ),
           );
         }
@@ -393,39 +389,40 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _chats.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.chat_bubble_outline,
-                        size: 64,
-                        color: Colors.grey[400],
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No conversations yet',
+                            style: TextStyle(
+                                color: Colors.grey[600], fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton.icon(
+                            onPressed: _loadChats,
+                            icon: const Icon(Icons.refresh),
+                            label: Text('Retry'),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No conversations yet',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
                       ),
-                      const SizedBox(height: 8),
-                      TextButton.icon(
-                        onPressed: _loadChats,
-                        icon: const Icon(Icons.refresh),
-                        label: Text('Retry'),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  itemCount: _chats.length,
-                  itemBuilder: (context, index) {
-                    return _buildChatItem(_chats[index]);
-                  },
-                ),
+                      itemCount: _chats.length,
+                      itemBuilder: (context, index) {
+                        return _buildChatItem(_chats[index]);
+                      },
+                    ),
         ),
       ),
     );
@@ -452,14 +449,13 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
     final String doctorName = doctor['fullName']?.toString() ??
         chat['fullName']?.toString() ??
         'Doctor';
-    final String? doctorAvatar = doctor['avatar']?['url']?.toString() ??
-        chat['avatarUrl']?.toString();
+    final String? doctorAvatar =
+        doctor['avatar']?['url']?.toString() ?? chat['avatarUrl']?.toString();
     final String doctorId = doctor['_id']?.toString() ?? '';
 
     final lastMessage = chat['lastMessage'];
     final String messageText = lastMessage != null
-        ? (lastMessage['content']?.toString() ??
-              'Start Conversation')
+        ? (lastMessage['content']?.toString() ?? 'Start Conversation')
         : 'Start Conversation';
 
     //  Get unread count
@@ -486,23 +482,25 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
           final String actualUserId =
               chat['actualUserId']?.toString() ?? backendId;
 
-          debugPrint(' [PATIENT] Opening chat: $backendId (User: $actualUserId)');
-          debugPrint('   • Current unread count: $unreadCount');
+          debugPrint(
+              ' [PATIENT] Opening chat: $backendId (User: $actualUserId)');
+          debugPrint('   â€¢ Current unread count: $unreadCount');
 
           //  Mark as read immediately (optimistic UI update)
           if (unreadCount > 0) {
             setState(() {
               chat['unreadCount'] = 0;
             });
-            debugPrint('   • Optimistically set unread count to 0');
+            debugPrint('   â€¢ Optimistically set unread count to 0');
 
             // Mark all messages as read in both Agora and backend
             bool agoraSuccess = false;
             bool backendSuccess = false;
-            
+
             try {
               // Agora SDK - MUST use UserID
-              await AgoraChatService.instance.markAllMessagesAsRead(actualUserId);
+              await AgoraChatService.instance
+                  .markAllMessagesAsRead(actualUserId);
               agoraSuccess = true;
               debugPrint(' Marked conversation $actualUserId as read in Agora');
             } catch (e) {
@@ -514,9 +512,11 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
               final result = await ApiService.markChatAsRead(chatId: backendId);
               backendSuccess = result['success'] == true;
               if (backendSuccess) {
-                debugPrint(' Marked conversation $backendId as read in backend');
+                debugPrint(
+                    ' Marked conversation $backendId as read in backend');
               } else {
-                debugPrint(' Backend mark as read failed: ${result['message']}');
+                debugPrint(
+                    ' Backend mark as read failed: ${result['message']}');
               }
             } catch (e) {
               debugPrint('Failed to mark as read in backend: $e');
@@ -536,7 +536,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
 
           // Navigate to chat screen
           if (!mounted) return;
-          debugPrint('   • Navigating to chat screen...');
+          debugPrint('   â€¢ Navigating to chat screen...');
           await Navigator.push(
             context,
             MaterialPageRoute(
@@ -548,7 +548,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
               ),
             ),
           ).then((_) {
-            debugPrint('   • Returned from chat screen, refreshing list...');
+            debugPrint('   â€¢ Returned from chat screen, refreshing list...');
             //  Reload chats when returning to update unread counts
             if (mounted) _loadChatsQuietly();
           });
@@ -575,8 +575,7 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child:
-                    doctorAvatar != null &&
+                child: doctorAvatar != null &&
                         doctorAvatar.isNotEmpty &&
                         doctorAvatar != 'file:///' &&
                         (doctorAvatar.startsWith('http://') ||
@@ -588,11 +587,11 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
                             Image.asset(
-                              "assets/images/doctor1.png",
-                              height: 56,
-                              width: 56,
-                              fit: BoxFit.cover,
-                            ),
+                          "assets/images/doctor1.png",
+                          height: 56,
+                          width: 56,
+                          fit: BoxFit.cover,
+                        ),
                       )
                     : Image.asset(
                         "assets/images/doctor1.png",

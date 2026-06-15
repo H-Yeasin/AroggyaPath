@@ -1,7 +1,6 @@
-import 'dart:math' show cos, sqrt;
-
+﻿import 'dart:math' show cos, sqrt;
+import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -391,9 +390,8 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
                                   DoctorDetailsScreen(doctor: doctor)))
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isAvailable
-                        ? colors.primaryDark
-                        : Colors.grey[300],
+                    backgroundColor:
+                        isAvailable ? colors.primaryDark : Colors.grey[300],
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
@@ -412,8 +410,7 @@ class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
                 decoration: BoxDecoration(
                     color: colors.primaryContainer, shape: BoxShape.circle),
                 child: IconButton(
-                  icon:
-                      Icon(Icons.info_outline, color: colors.primaryDark),
+                  icon: Icon(Icons.info_outline, color: colors.primaryDark),
                   onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(

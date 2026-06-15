@@ -1,7 +1,6 @@
+﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:provider/provider.dart';
-
 import '../../../providers/dependent_provider.dart';
 
 class AddDependentScreen extends StatefulWidget {
@@ -71,8 +70,8 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text('Add Family Member',
-            style: TextStyle(color: colors.heading)),
+        title:
+            Text('Add Family Member', style: TextStyle(color: colors.heading)),
         actions: [
           TextButton(
             onPressed: _save,
@@ -151,8 +150,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
               title: Text(_dob != null
                   ? '${_dob!.day}/${_dob!.month}/${_dob!.year}'
                   : 'Select Date of Birth'),
-              leading:
-                  Icon(Icons.calendar_today, color: colors.primary),
+              leading: Icon(Icons.calendar_today, color: colors.primary),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () async {
                 final picked = await showDatePicker(

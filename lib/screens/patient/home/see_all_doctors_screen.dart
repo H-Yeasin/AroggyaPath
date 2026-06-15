@@ -1,7 +1,7 @@
-import 'dart:math' show cos, sqrt;
+﻿import 'dart:math' show cos, sqrt;
 
+import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -163,8 +163,7 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
             icon: const Icon(Icons.refresh),
             label: const Text('Retry'),
             style: ElevatedButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: Colors.white),
+                backgroundColor: colors.primary, foregroundColor: Colors.white),
           ),
         ]),
       );
