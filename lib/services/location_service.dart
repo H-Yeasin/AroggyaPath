@@ -25,12 +25,31 @@ class LocationService {
     return await Geolocator.requestPermission();
   }
 
-  /// Get current position with high accuracy
+  /// Get current position with high accuracy, with last-known fallback
   Future<Position> getCurrentPosition() async {
-    return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      timeLimit: const Duration(seconds: 10),
-    );
+    // Try last known position first for instant response
+    Position? lastKnown;
+    try {
+      lastKnown = await Geolocator.getLastKnownPosition();
+    } catch (_) {
+      // Best-effort optimization
+    }
+
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 15),
+        ),
+      );
+    } catch (e) {
+      if (lastKnown != null) {
+        debugPrint(
+            'Live position timed out, falling back to last-known position');
+        return lastKnown;
+      }
+      rethrow;
+    }
   }
 
   /// Get address from LatLng

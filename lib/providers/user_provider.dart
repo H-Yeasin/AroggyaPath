@@ -293,6 +293,52 @@ class UserProvider with ChangeNotifier {
     }
   }
 
+  /// Save weekly schedule (for doctors)
+  Future<bool> saveWeeklySchedule(List<Map<String, dynamic>> weeklySchedule) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final scheduleService = DoctorScheduleService();
+
+      final currentFees = _user?.fees ?? {'amount': 0, 'currency': 'USD'};
+
+      final response = await scheduleService.saveWeeklySchedule(
+        weeklySchedule: weeklySchedule,
+        fees: currentFees,
+        isVideoCallAvailable: _user?.isVideoCallAvailable ?? true,
+        isOnlineAppointmentAvailable: _user?.isOnlineAppointmentAvailable,
+      );
+
+      if (response['success'] == true) {
+        if (_user != null) {
+          final parsed = weeklySchedule
+              .map((d) => DaySchedule.fromJson(d))
+              .toList();
+          _user = _user!.copyWith(weeklySchedule: parsed);
+          notifyListeners();
+        }
+
+        // Refresh from backend to ensure consistency
+        await fetchUserProfile();
+
+        _isLoading = false;
+        return true;
+      } else {
+        _error = response['message'] ?? 'Failed to save schedule';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _error = 'Error: $e';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Change password
   Future<bool> changePassword({
     required String currentPassword,

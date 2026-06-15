@@ -20,6 +20,7 @@ import '../doctor/doctor_detail_screen.dart';
 import 'full_map_screen.dart';
 import 'search_doctor_screen.dart';
 import 'see_all_doctors_screen.dart';
+import '../../../arogyascreens/home_screen.dart';
 
 class PatientHomeScreen extends StatefulWidget {
   const PatientHomeScreen({super.key});
@@ -95,31 +96,35 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
       _getCurrentLocation().then((_) {
         if (mounted) {
-          double? lat = _currentPosition.latitude;
-          double? lng = _currentPosition.longitude;
-
-          if (lat == 0 && lng == 0) {
-            lat = null;
-            lng = null;
-          }
-
-          doctorProvider
-              .fetchNearbyDoctors(lat: lat, lng: lng)
-              .then((_) => debugPrint('Doctors loaded'))
-              .catchError((e) => debugPrint('Error fetching doctors: $e'));
+          _fetchDoctorsForCurrentPosition();
         }
       }).catchError((e) {
         debugPrint('Error getting location: $e');
         if (mounted) {
-          setState(() => _isLoadingLocation = false);
+          _fetchDoctorsForCurrentPosition();
         }
       });
     } catch (e) {
       debugPrint('Error initializing screen: $e');
-      setState(() {
-        _isLoadingLocation = false;
-      });
+      if (mounted) {
+        setState(() => _isLoadingLocation = false);
+      }
     }
+  }
+
+  void _fetchDoctorsForCurrentPosition() {
+    double? lat = _currentPosition.latitude;
+    double? lng = _currentPosition.longitude;
+
+    if (lat == 0 && lng == 0) {
+      lat = null;
+      lng = null;
+    }
+
+    Provider.of<DoctorProvider>(context, listen: false)
+        .fetchNearbyDoctors(lat: lat, lng: lng)
+        .then((_) => debugPrint('Doctors loaded'))
+        .catchError((e) => debugPrint('Error fetching doctors: $e'));
   }
 
   @override
@@ -175,23 +180,52 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
         });
       }
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
-        timeLimit: const Duration(seconds: 5),
-      );
+      Position? bestPosition;
 
-      debugPrint(
-          'Location obtained: ${position.latitude}, ${position.longitude}');
+      // 1. Try last known position first (instant on real devices)
+      try {
+        bestPosition = await Geolocator.getLastKnownPosition();
+        if (bestPosition != null) {
+          debugPrint(
+              'Last known position: ${bestPosition.latitude}, ${bestPosition.longitude}');
+        }
+      } catch (_) {
+        // Best-effort optimization — ignore failures
+      }
+
+      // 2. Try live position (may take time, may fail on emulators)
+      try {
+        bestPosition = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 15),
+          ),
+        );
+        debugPrint(
+            'Live position obtained: ${bestPosition.latitude}, ${bestPosition.longitude}');
+      } catch (_) {
+        if (bestPosition != null) {
+          debugPrint(
+              'Live position timed out, using last-known position');
+        } else {
+          debugPrint(
+              'GPS unavailable on this device (emulator or no GPS). '
+              'Using default location until GPS fix is obtained.');
+        }
+      }
 
       if (mounted) {
+        if (bestPosition != null) {
+          _currentPosition =
+              LatLng(bestPosition.latitude, bestPosition.longitude);
+        }
+        // If bestPosition is null, keep the default _currentPosition (Dhaka)
+
         setState(() {
-          _currentPosition = LatLng(position.latitude, position.longitude);
           _isLoadingLocation = false;
         });
 
         _mapController.move(_currentPosition, 14);
-
-        _printCurrentLocation();
         _addDoctorMarkers();
       }
     } catch (e) {
@@ -199,12 +233,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
       if (mounted) {
         setState(() {
           _isLoadingLocation = false;
-          _locationPermissionGranted = false;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Location error: $e'),
+            content: const Text(
+                'Unable to get your location. Showing default area.'),
             action: SnackBarAction(
               label: 'Retry',
               onPressed: _getCurrentLocation,
@@ -270,22 +304,6 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
         );
       },
     );
-  }
-
-  Future<void> _printCurrentLocation() async {
-    if (!_locationPermissionGranted) return;
-
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 5),
-      );
-
-      debugPrint('Latitude: ${position.latitude}');
-      debugPrint('Longitude: ${position.longitude}');
-    } catch (e) {
-      debugPrint('Location error: $e');
-    }
   }
 
   Color _getRouteColor(double distanceKm) {
@@ -849,40 +867,102 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                     ],
                                   ),
                                 ),
-                                // Recenter Button
-                                if (_locationPermissionGranted)
-                                  Positioned(
-                                    bottom: 10,
-                                    right: 10,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(8),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black
-                                                .withValues(alpha: 0.1),
-                                            blurRadius: 4,
-                                          ),
-                                        ],
+                                // Locate Me button — always visible
+                                Positioned(
+                                  bottom: 10,
+                                  right: 10,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.1),
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                    ),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.my_location,
+                                        color: _locationPermissionGranted
+                                            ? colors.primaryDark
+                                            : Colors.grey,
+                                        size: 24,
                                       ),
-                                      child: IconButton(
-                                        icon: Icon(Icons.my_location,
-                                            color: colors.primaryDark,
-                                            size: 24),
-                                        onPressed: () async {
-                                          if (!_locationPermissionGranted) {
-                                            await _getCurrentLocation();
-                                          } else {
-                                            _mapController.move(
-                                                _currentPosition, 14);
+                                      onPressed: () async {
+                                        if (_locationPermissionGranted) {
+                                          // Already know where we are → recenter
+                                          _mapController
+                                              .move(_currentPosition, 14);
+                                        } else {
+                                          // No location yet → try to get one
+                                          await _getCurrentLocation();
+                                          if (_locationPermissionGranted) {
+                                            _mapController
+                                                .move(_currentPosition, 14);
                                           }
-                                        },
-                                      ),
+                                        }
+                                      },
                                     ),
                                   ),
+                                ),
                               ],
                             ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+
+                // ── Emergency Help Button ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EmergencyHelpScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.red.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.emergency, color: Colors.red.shade700, size: 30),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Emergency Help & Health Tips',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red.shade800,
+                                  ),
+                                ),
+                                Text(
+                                  'National Helplines, Ambulance & Symptoms',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios, color: Colors.red.shade400, size: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -1,330 +1,467 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../components/const.dart';
-import '../components/widgets/list_of_doctor.dart';
-// Hospital booking temporarily disabled during migration
-// import 'package:arogya_path3/hospital/appoinment.dart';
 import '../models/emergency_contacts.dart';
 import '../models/symptom.dart';
-import 'doctor_details_screen.dart';
+import '../providers/user_provider.dart';
+import 'emergency_contact_details_screen.dart';
 
-class DoctorAppoinmentHomeScreen extends StatefulWidget {
-  const DoctorAppoinmentHomeScreen({super.key});
+class EmergencyHelpScreen extends StatefulWidget {
+  const EmergencyHelpScreen({super.key});
 
   @override
-  State<DoctorAppoinmentHomeScreen> createState() =>
-      _DoctorAppoinmentHomeScreenState();
+  State<EmergencyHelpScreen> createState() => _EmergencyHelpScreenState();
 }
 
-class _DoctorAppoinmentHomeScreenState
-    extends State<DoctorAppoinmentHomeScreen> {
+class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
+  final ScrollController _scrollController = ScrollController();
+  bool _showElevatedAppBar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final offset = _scrollController.offset;
+    if (offset > 60 && !_showElevatedAppBar) {
+      setState(() => _showElevatedAppBar = true);
+    } else if (offset <= 60 && _showElevatedAppBar) {
+      setState(() => _showElevatedAppBar = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          headerParts(),
-          const SizedBox(height: 20),
-          clinicAndHomeVisit(),
-          const SizedBox(height: 30),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            child: Text(
-              "সুস্বাস্থ্যের জন্য",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                letterSpacing: -.5,
+    final user = context.watch<UserProvider>().user;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FC),
+      body: NestedScrollView(
+        controller: _scrollController,
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverAppBar(
+            pinned: true,
+            floating: false,
+            expandedHeight: 130,
+            backgroundColor: _showElevatedAppBar
+                ? Colors.white
+                : const Color(0xFFF8F9FC),
+            surfaceTintColor: Colors.transparent,
+            elevation: _showElevatedAppBar ? 2 : 0,
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios_new,
                 color: black,
+                size: 20,
               ),
+              onPressed: () => Navigator.pop(context),
             ),
-          ),
-          const SizedBox(height: 15),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              children: [
-                ...List.generate(
-                  symptoms.length,
-                  (index) => Padding(
-                    padding: index == 0
-                        ? const EdgeInsets.only(left: 15, right: 15)
-                        : const EdgeInsets.only(right: 15),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 15),
+            title: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: _showElevatedAppBar ? black : Colors.transparent,
+              ),
+              child: const Text('Emergency Help'),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 56, 20, 0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Avatar
+                    Container(
                       decoration: BoxDecoration(
-                        color: grey.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: purple.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                          ),
+                        ],
                       ),
-                      child: Row(
+                      child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: purple.withValues(alpha: 0.1),
+                        backgroundImage: user?.profileImage != null
+                            ? NetworkImage(user!.profileImage!)
+                            : null,
+                        child: user?.profileImage == null
+                            ? const Icon(Icons.person, color: purple, size: 28)
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
-                            radius: 15,
-                            backgroundImage: AssetImage(
-                              symptoms[index].image,
+                          Text(
+                            'জরুরি সহায়তা',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: black,
+                              letterSpacing: -0.5,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(height: 2),
                           Text(
-                            symptoms[index].label,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: black,
+                            'জরুরি ফোন নম্বর ও স্বাস্থ্য পরামর্শ',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[600],
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Emergency Call Banner ──
+              _buildEmergencyBanner(),
+              const SizedBox(height: 28),
+
+              // ── Health Tips Section ──
+              _buildSectionHeader(
+                icon: Icons.health_and_safety_outlined,
+                title: 'সুস্বাস্থ্যের জন্য',
+              ),
+              const SizedBox(height: 14),
+              _buildSymptomsRow(),
+              const SizedBox(height: 28),
+
+              // ── Emergency Contacts Section ──
+              _buildSectionHeader(
+                icon: Icons.contact_emergency_outlined,
+                title: 'জরুরি ফোন নম্বর: মনে রাখুন, সহায়তা নিন',
+              ),
+              const SizedBox(height: 14),
+              _buildEmergencyContactsGrid(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // Emergency Call Banner
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildEmergencyBanner() {
+    return GestureDetector(
+      onTap: () => _callEmergency('999'),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFFFF3B3B),
+              const Color(0xFFE53935),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFFF3B3B).withValues(alpha: 0.35),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Pulse icon
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.emergency,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'জাতীয় জরুরি সেবা',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'যেকোনো জরুরি পরিস্থিতিতে — পুলিশ, ফায়ার সার্ভিস, অ্যাম্বুলেন্স',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 12,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.call, color: Color(0xFFE53935), size: 18),
+                        SizedBox(width: 6),
+                        Text(
+                          'এখনই কল করুন — ৯৯৯',
+                          style: TextStyle(
+                            color: Color(0xFFE53935),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _callEmergency(String number) async {
+    final Uri uri = Uri(scheme: 'tel', path: number);
+    try {
+      await launchUrl(uri);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('কল করতে ব্যর্থ: $e')),
+        );
+      }
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // Section Header
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildSectionHeader({required IconData icon, required String title}) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: purple.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 20, color: purple),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: black,
+              letterSpacing: -0.3,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // Symptoms Row
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildSymptomsRow() {
+    return SizedBox(
+      height: 62,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: symptoms.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundImage: AssetImage(symptoms[index].image),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  symptoms[index].label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: black,
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 35),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            child: Text(
-              "জরুরি ফোন নম্বর: মনে রাখুন, সহায়তা নিন",
-              style: TextStyle(
-                fontSize: 18,
-                color: black,
-                letterSpacing: -.5,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(15),
-              physics: const BouncingScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Number of items per row
-                crossAxisSpacing: 16, // Spacing between columns
-                mainAxisSpacing: 14, // Spacing between rows
-                childAspectRatio: 3 / 4, // Adjust the aspect ratio as needed
-              ),
-              itemCount: emergencyContacts.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DoctorDetailScreen(
-                          doctor: emergencyContacts[index],
-                        ),
-                      ),
-                    );
-                  },
-                  child: ListOfDoctor(
-                    doctor: emergencyContacts[index],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Padding clinicAndHomeVisit() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                // Hospital booking temporarily disabled during migration to
-                // location-based doctor finding
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Hospital booking is being upgraded to doctor appointments. Coming soon!',
-                    ),
-                    duration: Duration(seconds: 3),
-                  ),
-                );
-                // Old hospital booking code preserved for future re-enable:
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => const AppointmentPage(),
-                //   ),
-                // );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: purple.withValues(alpha: 0.2),
-                      blurRadius: 15,
-                      spreadRadius: 5,
-                      offset: const Offset(-0, 10),
-                    ),
-                  ],
-                  color: purple,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.add_circle,
-                      size: 60,
-                      color: Colors.white,
-                    ),
-                    SizedBox(height: 40),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Hospital visit",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -1,
-                          ),
-                        ),
-                        Text(
-                          "Make an appoinment",
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0,
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: grey.withValues(alpha: 0.2),
-                    blurRadius: 10,
-                  ),
-                ],
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                        color: purple.withValues(alpha: 0.15),
-                        shape: BoxShape.circle),
-                    padding: const EdgeInsets.all(12),
-                    child: const Icon(
-                      Icons.car_crash_outlined,
-                      size: 30,
-                      color: purple,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Emergency",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -1,
-                        ),
-                      ),
-                      Text(
-                        "Call an Ambulance",
-                        style: TextStyle(
-                          color: Colors.black38,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0,
-                        ),
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Padding headerParts() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: FutureBuilder(
-        future: fetchUsername(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text("Loading...", style: TextStyle(fontSize: 32));
-          } else if (snapshot.hasError) {
-            return const Text("Error", style: TextStyle(fontSize: 32));
-          } else if (!snapshot.hasData || snapshot.data == null) {
-            return const Text("Welcome, User", style: TextStyle(fontSize: 22));
-          }
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    "Welcome ${snapshot.data!}", // Username fetched from Firebase
-                    style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Image.asset(
-                    "assets/doctor-appoinment/hand.png",
-                    height: 40,
-                    width: 40,
-                  ),
-                ],
-              ),
-              const CircleAvatar(
-                radius: 27,
-                child: Icon(
-                  Icons.person,
-                  size: 30,
-                  color: purple,
-                ),
-              ),
-            ],
           );
         },
       ),
     );
   }
 
-// Fetch username from SharedPreferences (saved on JWT login)
-  Future<String?> fetchUsername() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString('user_full_name');
-    } catch (e) {
-      debugPrint("Error fetching username: $e");
-      return null;
-    }
+  // ────────────────────────────────────────────────────────────
+  // Emergency Contacts Grid
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildEmergencyContactsGrid() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.78,
+      ),
+      itemCount: emergencyContacts.length,
+      itemBuilder: (context, index) {
+        final contact = emergencyContacts[index];
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => EmergencyContactDetailsScreen(doctor: contact),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Avatar with colored ring
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(contact.color),
+                        Color(contact.color).withValues(alpha: 0.5),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 38,
+                    backgroundColor: Color(contact.color).withValues(alpha: 0.3),
+                    backgroundImage: NetworkImage(contact.image),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  contact.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: black,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: purple.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    contact.specialist,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: purple,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

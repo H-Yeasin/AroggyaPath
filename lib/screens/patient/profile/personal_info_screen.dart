@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import '../../../config/app_theme.dart';
 import '../../../providers/user_provider.dart';
+import '../../shared/location_picker_screen.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   const PersonalInfoScreen({super.key});
@@ -22,6 +24,9 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   File? _profileImage;
   final _picker = ImagePicker();
 
+  double? _latitude;
+  double? _longitude;
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +36,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       _phoneController.text = user.phone ?? '';
       _addressController.text = user.address ?? '';
       _bioController.text = user.bio ?? '';
+      _latitude = user.latitude;
+      _longitude = user.longitude;
     }
   }
 
@@ -51,6 +58,27 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     }
   }
 
+  Future<void> _pickLocation() async {
+    final initialPos = (_latitude != null && _longitude != null)
+        ? LatLng(_latitude!, _longitude!)
+        : null;
+
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LocationPickerScreen(initialPosition: initialPos),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _latitude = result['latitude'] as double;
+        _longitude = result['longitude'] as double;
+        _addressController.text = result['address'] as String? ?? '';
+      });
+    }
+  }
+
   Future<void> _save() async {
     final provider = context.read<UserProvider>();
     final success = await provider.updateUserProfile(
@@ -59,6 +87,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       address: _addressController.text.trim(),
       bio: _bioController.text.trim(),
       profileImage: _profileImage,
+      latitude: _latitude,
+      longitude: _longitude,
     );
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -73,6 +103,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     }
   }
 
+  bool get _hasLocation => _latitude != null && _longitude != null;
+
   @override
   Widget build(BuildContext context) {
     final colors = AppTheme.of(context);
@@ -83,8 +115,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text('Personal Info',
-            style: TextStyle(color: colors.heading)),
+        title:
+            Text('Personal Info', style: TextStyle(color: colors.heading)),
         actions: [
           TextButton(
               onPressed: _save,
@@ -110,8 +142,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                           ? NetworkImage(user!.profileImage!)
                           : null) as ImageProvider?,
                   child: (_profileImage == null && user?.profileImage == null)
-                      ? Icon(Icons.person,
-                          size: 50, color: colors.primary)
+                      ? Icon(Icons.person, size: 50, color: colors.primary)
                       : null,
                 ),
                 Positioned(
@@ -135,6 +166,90 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
           const SizedBox(height: 16),
           _buildTextField(
               'Address', _addressController, TextInputType.streetAddress, 2),
+          const SizedBox(height: 24),
+
+          // ── Practice Location Section ──
+          Text(
+            'Practice Location',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: colors.heading,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Set your exact practice location on the map so patients can find you nearby.',
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 12),
+          if (_hasLocation)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: colors.success.withValues(alpha: 0.3)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colors.success.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child:
+                        Icon(Icons.check_circle, color: colors.success, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Location set',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 14)),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${_latitude!.toStringAsFixed(6)}, ${_longitude!.toStringAsFixed(6)}',
+                          style:
+                              const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _pickLocation,
+                    child: const Text('Change'),
+                  ),
+                ],
+              ),
+            )
+          else
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _pickLocation,
+                icon: const Icon(Icons.map_outlined),
+                label: const Text('Set on Map'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colors.primary,
+                  side: BorderSide(color: colors.primary.withValues(alpha: 0.3)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
           const SizedBox(height: 16),
           _buildTextField('Bio', _bioController, TextInputType.multiline, 3),
         ]),
@@ -150,7 +265,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
         ],
       ),
       child: TextField(

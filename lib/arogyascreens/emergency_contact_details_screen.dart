@@ -4,9 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../components/const.dart';
 import '../models/emergency_contacts.dart';
 
-class DoctorDetailScreen extends StatelessWidget {
+class EmergencyContactDetailsScreen extends StatelessWidget {
   final EmergencyContact doctor;
-  const DoctorDetailScreen({
+  const EmergencyContactDetailsScreen({
     super.key,
     required this.doctor,
   });

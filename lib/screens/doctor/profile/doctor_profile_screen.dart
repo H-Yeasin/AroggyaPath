@@ -1,11 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../../config/app_theme.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../config/app_theme.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_provider.dart';
+import '../../shared/location_picker_screen.dart';
+import 'doctor_schedule_screen.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
   const DoctorProfileScreen({super.key});
@@ -113,11 +116,46 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                     onTap: () =>
                         Navigator.pushNamed(context, '/personal-info')),
                 _buildDivider(),
+                _buildMenuItem(Icons.location_on, 'Practice Location',
+                    user?.latitude != null && user?.longitude != null
+                        ? 'Location set — tap to update'
+                        : 'Set your clinic location on the map', onTap: () async {
+                  final u = user;
+                  final initial = (u?.latitude != null && u?.longitude != null)
+                      ? LatLng(u!.latitude!, u!.longitude!)
+                      : null;
+
+                  final result = await Navigator.push<Map<String, dynamic>>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LocationPickerScreen(initialPosition: initial),
+                    ),
+                  );
+
+                  if (result != null && mounted) {
+                    final provider = context.read<UserProvider>();
+                    await provider.updateUserProfile(
+                      latitude: result['latitude'] as double,
+                      longitude: result['longitude'] as double,
+                      address: result['address'] as String?,
+                    );
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Practice location updated!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  }
+                }),
+                _buildDivider(),
                 _buildMenuItem(Icons.schedule, 'My Schedule',
                     'Set your weekly availability', onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Schedule editor coming soon')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const DoctorScheduleScreen()),
                   );
                 }),
                 _buildDivider(),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../config/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../arogyascreens/main_page.dart';
 import '../onboarding/select_profile_screen.dart';
 import '../patient/navigation/patient_main_navigation.dart';
 import '../doctor/navigation/doctor_main_navigation.dart';
@@ -40,19 +39,12 @@ class _SplashScreenState extends State<SplashScreen> {
             MaterialPageRoute(
                 builder: (context) => const DoctorMainNavigation()),
           );
-        } else {
-          // Other roles → old main page (fallback)
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainPage()),
-          );
         }
       } else {
         // Not logged in → show role selection first
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => const SelectProfileScreen()),
+          MaterialPageRoute(builder: (context) => const SelectProfileScreen()),
         );
       }
     });
