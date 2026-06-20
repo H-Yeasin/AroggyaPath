@@ -1,4 +1,5 @@
 import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/core/location/utils/cached_map_tile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -82,6 +83,7 @@ class PatientHomeMapPreview extends StatelessWidget {
                           urlTemplate:
                               'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                           userAgentPackageName: 'com.aroggyapath.app',
+                          tileProvider: CachedMapTileProvider(),
                         ),
                         MarkerLayer(markers: markers),
                         PolylineLayer(

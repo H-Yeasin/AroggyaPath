@@ -18,6 +18,8 @@ class DoctorProfileScreen extends StatefulWidget {
 }
 
 class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
+  bool _isUpdatingVideoCall = false;
+
   @override
   void initState() {
     super.initState();
@@ -168,21 +170,9 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                     onTap: () =>
                         Navigator.pushNamed(context, '/change-password')),
                 _buildDivider(),
-                _buildMenuItem(Icons.videocam, 'Video Call',
-                    user?.isVideoCallAvailable == true ? 'Enable' : 'Disable',
-                    onTap: () async {
-                  final provider = context.read<UserProvider>();
-                  await provider.updateVideoCallAvailability(
-                      !(user?.isVideoCallAvailable ?? false));
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text(user?.isVideoCallAvailable == true
-                              ? 'Video calls enabled'
-                              : 'Video calls disabled')),
-                    );
-                  }
-                }),
+                _buildVideoCallToggleItem(
+                  user?.isVideoCallAvailable ?? false,
+                ),
                 _buildDivider(),
                 _buildMenuItem(Icons.help_outline, 'Help & Support', 'FAQ',
                     onTap: () {
@@ -219,6 +209,32 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
     );
   }
 
+  Future<void> _updateVideoCallAvailability(bool isAvailable) async {
+    if (_isUpdatingVideoCall) return;
+
+    setState(() => _isUpdatingVideoCall = true);
+
+    final provider = context.read<UserProvider>();
+    final success = await provider.updateVideoCallAvailability(isAvailable);
+
+    if (!mounted) return;
+
+    setState(() => _isUpdatingVideoCall = false);
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(success
+              ? isAvailable
+                  ? 'Video calls enabled'
+                  : 'Video calls disabled'
+              : provider.error ?? 'Failed to update video call availability'),
+          backgroundColor: success ? null : Colors.red,
+        ),
+      );
+  }
+
   Widget _buildMenuItem(IconData icon, String title, String subtitle,
       {required VoidCallback onTap}) {
     final colors = AppTheme.of(context);
@@ -230,6 +246,28 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
           style: const TextStyle(fontSize: 12, color: Colors.grey)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
       onTap: onTap,
+    );
+  }
+
+  Widget _buildVideoCallToggleItem(bool isAvailable) {
+    final colors = AppTheme.of(context);
+    return ListTile(
+      leading: Icon(Icons.videocam, color: colors.primary),
+      title: Text('Video Call',
+          style: TextStyle(fontWeight: FontWeight.w600, color: colors.heading)),
+      subtitle: Text(
+          isAvailable
+              ? 'Available for video consultations'
+              : 'Unavailable for video consultations',
+          style: const TextStyle(fontSize: 12, color: Colors.grey)),
+      trailing: Switch(
+        value: isAvailable,
+        activeColor: colors.primary,
+        onChanged: _isUpdatingVideoCall ? null : _updateVideoCallAvailability,
+      ),
+      onTap: _isUpdatingVideoCall
+          ? null
+          : () => _updateVideoCallAvailability(!isAvailable),
     );
   }
 

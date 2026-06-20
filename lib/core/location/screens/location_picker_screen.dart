@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../services/location_service.dart';
+import '../utils/cached_map_tile_provider.dart';
 
 class LocationPickerScreen extends StatefulWidget {
   /// Pre-existing location to center the map on. Falls back to GPS or Dhaka.
@@ -228,6 +229,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.aroggyapath.app',
+                      tileProvider: CachedMapTileProvider(),
                     ),
                   ],
                 ),

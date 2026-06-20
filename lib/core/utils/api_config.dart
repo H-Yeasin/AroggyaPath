@@ -69,6 +69,9 @@ class ApiConfig {
   static const String upcomingAppointments = '/api/v1/appointment/upcoming';
   static const String pastAppointments = '/api/v1/appointment/past';
 
+  // Medical Record Endpoints
+  static const String medicalRecords = '/api/v1/medical-records';
+
   // Doctor Endpoints
   static const String doctors = '/api/v1/user/role/doctor';
   static const String doctorById = '/api/v1/user';

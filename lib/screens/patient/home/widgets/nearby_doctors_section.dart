@@ -9,14 +9,99 @@ import '../models/patient_home_doctor_card_model.dart';
 import 'patient_doctor_card.dart';
 
 class NearbyDoctorsSection extends StatelessWidget {
+  static const double _nearbyRadiusKm = 10;
+
   final LatLng userPosition;
-  final VoidCallback onSeeAll;
+  final VoidCallback onSeeAllNearby;
+  final VoidCallback onSeeAllOnline;
   final ValueChanged<Doctor> onBookDoctor;
   final ValueChanged<Doctor> onViewDoctor;
 
   const NearbyDoctorsSection({
     super.key,
     required this.userPosition,
+    required this.onSeeAllNearby,
+    required this.onSeeAllOnline,
+    required this.onBookDoctor,
+    required this.onViewDoctor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<DoctorProvider>(
+      builder: (context, doctorProvider, child) {
+        if (doctorProvider.isLoading) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (doctorProvider.error != null) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text('Error: ${doctorProvider.error}'),
+            ),
+          );
+        }
+
+        final nearbyDoctors = PatientHomeDoctorCardModel.nearbyDoctors(
+          doctors: doctorProvider.nearbyDoctors,
+          userPosition: userPosition,
+          maxDistanceKm: _nearbyRadiusKm,
+        );
+        final onlineDoctors = doctorProvider.onlineDoctors
+            .map(
+              (doctor) => PatientHomeDoctorCardModel.fromDoctor(
+                doctor: doctor,
+                userPosition: userPosition,
+              ),
+            )
+            .take(5)
+            .toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _DoctorPreviewSection(
+              title: 'Nearby Doctors',
+              emptyText: 'No doctors found within 10 km',
+              doctors: nearbyDoctors.take(5).toList(),
+              onSeeAll: onSeeAllNearby,
+              onBookDoctor: onBookDoctor,
+              onViewDoctor: onViewDoctor,
+            ),
+            const SizedBox(height: 24),
+            _DoctorPreviewSection(
+              title: 'Online Doctors',
+              emptyText: 'No online doctors available',
+              doctors: onlineDoctors,
+              onSeeAll: onSeeAllOnline,
+              onBookDoctor: onBookDoctor,
+              onViewDoctor: onViewDoctor,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _DoctorPreviewSection extends StatelessWidget {
+  final String title;
+  final String emptyText;
+  final List<PatientHomeDoctorCardModel> doctors;
+  final VoidCallback onSeeAll;
+  final ValueChanged<Doctor> onBookDoctor;
+  final ValueChanged<Doctor> onViewDoctor;
+
+  const _DoctorPreviewSection({
+    required this.title,
+    required this.emptyText,
+    required this.doctors,
     required this.onSeeAll,
     required this.onBookDoctor,
     required this.onViewDoctor,
@@ -35,7 +120,7 @@ class NearbyDoctorsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Nearby Doctors',
+                title,
                 style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
@@ -53,53 +138,26 @@ class NearbyDoctorsSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 15),
-        Consumer<DoctorProvider>(
-          builder: (context, doctorProvider, child) {
-            if (doctorProvider.isLoading) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-
-            if (doctorProvider.error != null) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text('Error: ${doctorProvider.error}'),
-                ),
-              );
-            }
-
-            final doctors = PatientHomeDoctorCardModel.nearbyDoctors(
-              doctors: doctorProvider.nearbyDoctors,
-              userPosition: userPosition,
-            );
-
-            if (doctors.isEmpty) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text('No doctors found nearby'),
-                ),
-              );
-            }
-
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+        if (doctors.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(emptyText),
+            ),
+          )
+        else
+          SizedBox(
+            height: 220,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              scrollDirection: Axis.horizontal,
               itemCount: doctors.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 14),
               itemBuilder: (context, index) {
                 final item = doctors[index];
 
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
-                  ),
+                return SizedBox(
+                  width: 320,
                   child: PatientDoctorCard(
                     item: item,
                     onBook: () => onBookDoctor(item.doctor),
@@ -107,9 +165,8 @@ class NearbyDoctorsSection extends StatelessWidget {
                   ),
                 );
               },
-            );
-          },
-        ),
+            ),
+          ),
       ],
     );
   }

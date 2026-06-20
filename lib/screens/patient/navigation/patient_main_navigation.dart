@@ -2,14 +2,16 @@
 import 'package:flutter/material.dart';
 import '../home/patient_home_screen.dart';
 import '../appointments/patient_appointments_screen.dart';
+import '../medical_records/medical_records_screen.dart';
 import '../profile/patient_profile_screen.dart';
 import '../messages/patient_messages_list_screen.dart';
 
-/// Patient Main Navigation â€” 4-tab bottom nav:
+/// Patient Main Navigation - 5-tab bottom nav:
 ///   0: Home         â†’ PatientHomeScreen (Google Map + nearby doctors)
 ///   1: Appointments â†’ PatientAppointmentsScreen
-///   2: Messages     â†’ PatientMessagesListScreen (Agora Chat)
-///   3: Profile      â†’ PatientProfileScreen
+///   2: Records      â†’ MedicalRecordsScreen
+///   3: Messages     â†’ PatientMessagesListScreen (Agora Chat)
+///   4: Profile      â†’ PatientProfileScreen
 
 class PatientMainNavigation extends StatefulWidget {
   const PatientMainNavigation({super.key});
@@ -20,19 +22,28 @@ class PatientMainNavigation extends StatefulWidget {
 
 class _PatientMainNavigationState extends State<PatientMainNavigation> {
   int _currentIndex = 0;
-  final List<Widget?> _initializedScreens = List.filled(4, null);
+  final List<Widget?> _initializedScreens = List.filled(5, null);
 
   Widget _getScreen(int index) {
     if (_initializedScreens[index] == null) {
       switch (index) {
         case 0:
           _initializedScreens[index] = const PatientHomeScreen();
+          break;
         case 1:
           _initializedScreens[index] = const PatientAppointmentsScreen();
+          break;
         case 2:
-          _initializedScreens[index] = const PatientMessagesListScreen();
+          _initializedScreens[index] = const MedicalRecordsScreen();
+          break;
         case 3:
+          _initializedScreens[index] = const PatientMessagesListScreen();
+          break;
+        case 4:
           _initializedScreens[index] = const PatientProfileScreen();
+          break;
+        default:
+          _initializedScreens[index] = const PatientHomeScreen();
       }
     }
     return _initializedScreens[index]!;
@@ -44,7 +55,7 @@ class _PatientMainNavigationState extends State<PatientMainNavigation> {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: List.generate(4, (index) {
+        children: List.generate(5, (index) {
           if (index == _currentIndex || _initializedScreens[index] != null) {
             return _getScreen(index);
           }
@@ -94,6 +105,15 @@ class _PatientMainNavigationState extends State<PatientMainNavigation> {
                   padding: EdgeInsets.only(bottom: 5),
                   child: Icon(Icons.calendar_today, size: 26)),
               label: 'Appointments',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                  padding: EdgeInsets.only(bottom: 5),
+                  child: Icon(Icons.folder_open_outlined, size: 26)),
+              activeIcon: Padding(
+                  padding: EdgeInsets.only(bottom: 5),
+                  child: Icon(Icons.folder, size: 26)),
+              label: 'Records',
             ),
             BottomNavigationBarItem(
               icon: Padding(

@@ -1,4 +1,5 @@
 ﻿import 'dart:convert';
+import 'package:arogya_path3/core/constants/app_constants.dart';
 import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:arogya_path3/core/utils/api_config.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +8,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../models/appointment_model.dart';
 import '../../../models/dependent_model.dart';
 import '../../../models/doctor_model.dart';
 import '../../../providers/appointment_provider.dart';
 import '../../../providers/dependent_provider.dart';
+import '../../../providers/user_provider.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   final Doctor doctor;
@@ -37,8 +40,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final TextEditingController _symptomsController = TextEditingController();
 
   final List<XFile> _medicalDocuments = [];
-  XFile? _paymentScreenshot;
-
   bool _isLoading = false;
   bool _isLoadingSlots = false;
   List<TimeSlot> availableSlots = [];
@@ -201,15 +202,61 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     try {
       final success = await _createAppointmentInternal();
       if (success && mounted) {
+        if (selectedType == 'Video Call') {
+          await _openVideoAppointmentSupportChat();
+        }
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Appointment booked successfully!'),
+          SnackBar(
+              content: Text(selectedType == 'Video Call'
+                  ? 'Video appointment request submitted!'
+                  : 'Appointment booked successfully!'),
               backgroundColor: Colors.green),
         );
         Navigator.pop(context);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _openVideoAppointmentSupportChat() async {
+    if (officialSupportWhatsAppNumber.trim().isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Support WhatsApp number is not configured yet.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final currentUser = context.read<UserProvider>().user;
+    final patientName =
+        selectedDependent?.fullName ?? currentUser?.fullName ?? 'Patient';
+    final doctorName = widget.doctor.fullName.isNotEmpty
+        ? widget.doctor.fullName
+        : widget.doctor.name;
+    final message = '''
+I would like to book a video call appointment.
+Doctor: $doctorName
+Date: ${DateFormat('yyyy-MM-dd').format(selectedDate!)}
+Time: ${selectedTimeSlot!.start}
+Patient: $patientName
+''';
+    final uri = Uri.parse(
+      'https://wa.me/$officialSupportWhatsAppNumber?text=${Uri.encodeComponent(message.trim())}',
+    );
+
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!launched && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open WhatsApp. Please contact support.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
     }
   }
 
@@ -349,8 +396,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         child: CircularProgressIndicator(
                             color: Colors.white, strokeWidth: 2.5),
                       )
-                    : const Text('Submit Appointment',
-                        style: TextStyle(
+                    : Text(
+                        selectedType == 'Video Call'
+                            ? 'Request Video Call Appointment'
+                            : 'Submit Appointment',
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold)),

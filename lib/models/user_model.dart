@@ -20,7 +20,7 @@ class UserModel {
   final String? visitingHoursText;
 
   final bool isVideoCallAvailable;
-  final bool isOnlineAppointmentAvailable;
+  final int points;
 
   final double? feesAmount;
   final String? feesCurrency;
@@ -55,7 +55,7 @@ class UserModel {
     this.medicalLicenseNumber,
     this.visitingHoursText,
     this.isVideoCallAvailable = false,
-    this.isOnlineAppointmentAvailable = true,
+    this.points = 0,
     this.feesAmount,
     this.feesCurrency,
     this.degrees,
@@ -90,7 +90,7 @@ class UserModel {
           json['isVideoAvailable'] ??
           json['isAvailable'] ??
           (json['video']?['isAvailable'] ?? false),
-      isOnlineAppointmentAvailable: json['isOnlineAppointmentAvailable'] ?? true,
+      points: int.tryParse((json['points'] ?? 0).toString()) ?? 0,
       feesAmount: json['fees']?['amount']?.toDouble() ?? 0.0,
       feesCurrency: json['fees']?['currency'] ?? 'BDT',
       degrees: json['degrees'] != null
@@ -136,7 +136,7 @@ class UserModel {
       'medicalLicenseNumber': medicalLicenseNumber,
       'visitingHoursText': visitingHoursText,
       'isVideoCallAvailable': isVideoCallAvailable,
-      'isOnlineAppointmentAvailable': isOnlineAppointmentAvailable,
+      'points': points,
       'fees': {'amount': feesAmount, 'currency': feesCurrency},
       'degrees': degrees?.map((d) => d.toJson()).toList(),
       'weeklySchedule': weeklySchedule?.map((d) => d.toJson()).toList(),
@@ -164,7 +164,7 @@ class UserModel {
     String? medicalLicenseNumber,
     String? visitingHoursText,
     bool? isVideoCallAvailable,
-    bool? isOnlineAppointmentAvailable,
+    int? points,
     double? feesAmount,
     String? feesCurrency,
     List<Degree>? degrees,
@@ -191,8 +191,7 @@ class UserModel {
       medicalLicenseNumber: medicalLicenseNumber ?? this.medicalLicenseNumber,
       visitingHoursText: visitingHoursText ?? this.visitingHoursText,
       isVideoCallAvailable: isVideoCallAvailable ?? this.isVideoCallAvailable,
-      isOnlineAppointmentAvailable:
-          isOnlineAppointmentAvailable ?? this.isOnlineAppointmentAvailable,
+      points: points ?? this.points,
       feesAmount: feesAmount ?? this.feesAmount,
       feesCurrency: feesCurrency ?? this.feesCurrency,
       degrees: degrees ?? this.degrees,

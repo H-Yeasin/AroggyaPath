@@ -22,6 +22,8 @@ class AppointmentModel {
   final BookedForInfo? bookedFor;
   final List<String>? medicalDocuments;
   final String? paymentScreenshot;
+  final bool paymentVerified;
+  final String? completionRecordId;
 
   AppointmentModel({
     required this.id,
@@ -43,6 +45,8 @@ class AppointmentModel {
     this.bookedFor,
     this.medicalDocuments,
     this.paymentScreenshot,
+    this.paymentVerified = false,
+    this.completionRecordId,
   });
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
@@ -143,6 +147,11 @@ class AppointmentModel {
       }
     }
 
+    final completionRecord = json['completionRecord'];
+    final completionRecordId = completionRecord is Map<String, dynamic>
+        ? completionRecord['_id']?.toString()
+        : completionRecord?.toString();
+
     return AppointmentModel(
       id: json['_id'] ?? json['id'] ?? '',
       doctorId: doctorId,
@@ -165,6 +174,8 @@ class AppointmentModel {
           : null,
       medicalDocuments: medicalDocuments,
       paymentScreenshot: paymentScreenshot,
+      paymentVerified: json['paymentVerified'] == true,
+      completionRecordId: completionRecordId,
     );
   }
 
@@ -194,6 +205,8 @@ class AppointmentModel {
       if (bookedFor != null) 'bookedFor': bookedFor!.toJson(),
       if (medicalDocuments != null) 'medicalDocuments': medicalDocuments,
       if (paymentScreenshot != null) 'paymentScreenshot': paymentScreenshot,
+      'paymentVerified': paymentVerified,
+      if (completionRecordId != null) 'completionRecord': completionRecordId,
     };
   }
 
@@ -221,6 +234,22 @@ class AppointmentModel {
     return '${appointmentDate.day} ${months[appointmentDate.month - 1]}, ${appointmentDate.year}';
   }
 
+  bool get isVideoCall => appointmentType?.toLowerCase() == 'video';
+
+  String get patientStatusLabel {
+    final normalizedStatus = status.toLowerCase();
+    if (isVideoCall && normalizedStatus == 'pending') {
+      return 'Payment Verification Pending';
+    }
+    if (isVideoCall && normalizedStatus == 'accepted') {
+      return 'Booking Successful';
+    }
+    if (normalizedStatus == 'accepted') return 'Confirmed';
+    return status.toUpperCase();
+  }
+
+  String get appointmentTypeLabel => isVideoCall ? 'Video Call' : 'Physical Visit';
+
   AppointmentModel copyWith({
     String? id,
     String? doctorId,
@@ -241,6 +270,8 @@ class AppointmentModel {
     BookedForInfo? bookedFor,
     List<String>? medicalDocuments,
     String? paymentScreenshot,
+    bool? paymentVerified,
+    String? completionRecordId,
   }) {
     return AppointmentModel(
       id: id ?? this.id,
@@ -262,6 +293,8 @@ class AppointmentModel {
       bookedFor: bookedFor ?? this.bookedFor,
       medicalDocuments: medicalDocuments ?? this.medicalDocuments,
       paymentScreenshot: paymentScreenshot ?? this.paymentScreenshot,
+      paymentVerified: paymentVerified ?? this.paymentVerified,
+      completionRecordId: completionRecordId ?? this.completionRecordId,
     );
   }
 }

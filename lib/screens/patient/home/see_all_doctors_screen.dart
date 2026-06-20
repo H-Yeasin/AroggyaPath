@@ -10,9 +10,19 @@ import '../../../providers/user_provider.dart';
 import '../../../services/api_service.dart';
 import '../doctor/doctor_detail_screen.dart';
 
+enum DoctorListFilter { all, nearby, online }
+
 class SeeAllDoctorsScreen extends StatefulWidget {
+  static const double nearbyRadiusKm = 10;
+
   final LatLng? userPosition;
-  const SeeAllDoctorsScreen({super.key, this.userPosition});
+  final DoctorListFilter filter;
+
+  const SeeAllDoctorsScreen({
+    super.key,
+    this.userPosition,
+    this.filter = DoctorListFilter.all,
+  });
 
   @override
   State<SeeAllDoctorsScreen> createState() => _SeeAllDoctorsScreenState();
@@ -45,7 +55,15 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
             .map((json) => Doctor.fromJson(json))
             .where((doctor) => doctor.id != currentUser?.id)
             .toList();
-        if (widget.userPosition != null) {
+        loadedDoctors = _filterDoctors(loadedDoctors);
+        if (widget.filter == DoctorListFilter.online) {
+          loadedDoctors.sort((a, b) {
+            final availability = (_isDoctorAvailable(b) ? 1 : 0)
+                .compareTo(_isDoctorAvailable(a) ? 1 : 0);
+            if (availability != 0) return availability;
+            return b.rating.compareTo(a.rating);
+          });
+        } else if (widget.userPosition != null) {
           loadedDoctors.sort((a, b) {
             if (a.latitude == null || a.longitude == null) return 1;
             if (b.latitude == null || b.longitude == null) return -1;
@@ -70,6 +88,28 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
         _errorMessage = 'Failed to load doctors: $e';
         _isLoading = false;
       });
+    }
+  }
+
+  List<Doctor> _filterDoctors(List<Doctor> doctors) {
+    switch (widget.filter) {
+      case DoctorListFilter.nearby:
+        if (widget.userPosition == null) return [];
+        return doctors.where((doctor) {
+          if (doctor.latitude == null || doctor.longitude == null) {
+            return false;
+          }
+
+          final distance = _calculateDistanceInKm(
+            widget.userPosition!,
+            LatLng(doctor.latitude!, doctor.longitude!),
+          );
+          return distance <= SeeAllDoctorsScreen.nearbyRadiusKm;
+        }).toList();
+      case DoctorListFilter.online:
+        return doctors.where((doctor) => doctor.isVideoCallAvailable).toList();
+      case DoctorListFilter.all:
+        return doctors;
     }
   }
 
@@ -135,7 +175,7 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
         leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.pop(context)),
-        title: Text("All Doctors",
+        title: Text(_screenTitle,
             style: TextStyle(
                 color: colors.heading,
                 fontSize: 20,
@@ -143,6 +183,28 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
       ),
       body: _buildBody(),
     );
+  }
+
+  String get _screenTitle {
+    switch (widget.filter) {
+      case DoctorListFilter.nearby:
+        return 'Nearby Doctors';
+      case DoctorListFilter.online:
+        return 'Online Doctors';
+      case DoctorListFilter.all:
+        return 'All Doctors';
+    }
+  }
+
+  String get _emptyText {
+    switch (widget.filter) {
+      case DoctorListFilter.nearby:
+        return 'No doctors found within 10 km';
+      case DoctorListFilter.online:
+        return 'No online doctors available';
+      case DoctorListFilter.all:
+        return 'No doctors available';
+    }
   }
 
   Widget _buildBody() {
@@ -169,12 +231,16 @@ class _SeeAllDoctorsScreenState extends State<SeeAllDoctorsScreen> {
       );
     }
     if (_doctors.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(Icons.medical_services_outlined, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text('No doctors available',
-              style: TextStyle(fontSize: 16, color: Colors.grey)),
+          const Icon(
+            Icons.medical_services_outlined,
+            size: 64,
+            color: Colors.grey,
+          ),
+          const SizedBox(height: 16),
+          Text(_emptyText,
+              style: const TextStyle(fontSize: 16, color: Colors.grey)),
         ]),
       );
     }

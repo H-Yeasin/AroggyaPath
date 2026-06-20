@@ -1,9 +1,12 @@
 ﻿import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../models/appointment_model.dart';
 import '../../../providers/appointment_provider.dart';
+import '../medical_records/medical_records_screen.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
   final AppointmentModel appointment;
@@ -96,7 +99,7 @@ class AppointmentDetailScreen extends StatelessWidget {
                       Icons.access_time, 'Time', appointment.appointmentTime),
                   const Divider(height: 24),
                   _buildDetailRow(Icons.medical_services, 'Type',
-                      appointment.appointmentType ?? 'Physical Visit'),
+                      appointment.appointmentTypeLabel),
                   if (appointment.symptoms != null &&
                       appointment.symptoms!.isNotEmpty) ...[
                     const Divider(height: 24),
@@ -117,16 +120,51 @@ class AppointmentDetailScreen extends StatelessWidget {
                             .withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(appointment.status.toUpperCase(),
+                      child: Text(appointment.patientStatusLabel,
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: _getStatusColor(appointment.status))),
                     ),
                   ]),
+                  if (appointment.reason != null &&
+                      appointment.reason!.isNotEmpty) ...[
+                    const Divider(height: 24),
+                    _buildDetailRow(
+                        Icons.report_problem, 'Reason', appointment.reason!),
+                  ],
                 ],
               ),
             ),
             const SizedBox(height: 24),
+
+            if (appointment.isVideoCall) ...[
+              _buildVideoSupportCard(context),
+              const SizedBox(height: 24),
+            ],
+
+            if (appointment.status.toLowerCase() == 'completed') ...[
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MedicalRecordsScreen(),
+                    ),
+                  ),
+                  icon: Icon(Icons.folder_open, color: colors.primary),
+                  label: const Text('View Medical Record'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: colors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
             // Actions
             if (appointment.status.toLowerCase() == 'pending' ||
@@ -174,6 +212,114 @@ class AppointmentDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildVideoSupportCard(BuildContext context) {
+    final colors = AppTheme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(Icons.support_agent, color: colors.primaryDark),
+            const SizedBox(width: 10),
+            Text(
+              'Contact Support',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: colors.heading,
+              ),
+            ),
+          ]),
+          const SizedBox(height: 14),
+          Row(children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _openWhatsAppSupport(context),
+                icon: const Icon(Icons.chat, color: Colors.white),
+                label: const Text('WhatsApp'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF25D366),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => _openMessengerSupport(context),
+                icon: const Icon(Icons.message),
+                label: const Text('Messenger'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF0084FF),
+                  side: const BorderSide(color: Color(0xFF0084FF)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  String _supportMessage() {
+    return '''
+I would like to book a video call appointment.
+Doctor: ${appointment.doctorName ?? 'Doctor'}
+Date: ${appointment.formattedDate}
+Time: ${appointment.appointmentTime}
+Patient: ${appointment.patientName ?? 'Patient'}
+''';
+  }
+
+  Future<void> _openWhatsAppSupport(BuildContext context) async {
+    if (officialSupportWhatsAppNumber.trim().isEmpty) {
+      _showLaunchError(context, 'Support WhatsApp number is not configured.');
+      return;
+    }
+
+    final uri = Uri.parse(
+      'https://wa.me/$officialSupportWhatsAppNumber?text=${Uri.encodeComponent(_supportMessage().trim())}',
+    );
+    await _launchSupportUri(context, uri);
+  }
+
+  Future<void> _openMessengerSupport(BuildContext context) async {
+    if (officialMessengerUrl.trim().isEmpty ||
+        officialMessengerUrl.contains('yourPageUsername')) {
+      _showLaunchError(context, 'Messenger page URL is not configured.');
+      return;
+    }
+
+    await _launchSupportUri(context, Uri.parse(officialMessengerUrl));
+  }
+
+  Future<void> _launchSupportUri(BuildContext context, Uri uri) async {
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!launched && context.mounted) {
+      _showLaunchError(context, 'Could not open support chat.');
+    }
+  }
+
+  void _showLaunchError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.orange),
     );
   }
 

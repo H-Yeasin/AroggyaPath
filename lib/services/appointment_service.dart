@@ -1,6 +1,7 @@
 ﻿import 'package:arogya_path3/core/utils/api_config.dart';
 import 'package:flutter/material.dart';
 import 'api_service.dart';
+import 'dart:io';
 
 class AppointmentService {
   /// Get current user's appointments (patient or doctor)
@@ -154,24 +155,26 @@ class AppointmentService {
     required String appointmentId,
     required String patientName,
     required double price,
-    String? prescription,
+    required List<File> files,
+    String recordType = 'prescription',
+    String? title,
     String? notes,
   }) async {
     try {
-      final body = {
-        'status': 'completed',
+      final fields = {
         'patient': patientName,
-        'price': price,
-        if (prescription != null && prescription.isNotEmpty)
-          'prescription': prescription,
+        'price': price.toString(),
+        'recordType': recordType,
+        if (title != null && title.isNotEmpty) 'title': title,
         if (notes != null && notes.isNotEmpty) 'notes': notes,
       };
 
       debugPrint('Completing appointment $appointmentId');
 
-      final response = await ApiService.patch(
-        '${ApiConfig.appointments}/$appointmentId/status',
-        body,
+      final response = await ApiService.patchMultipart(
+        '${ApiConfig.appointments}/$appointmentId/complete',
+        fields: fields,
+        files: {'files': files},
         requiresAuth: true,
       );
 

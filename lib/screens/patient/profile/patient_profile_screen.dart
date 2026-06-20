@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_provider.dart';
+import '../medical_records/medical_records_screen.dart';
 
 class PatientProfileScreen extends StatefulWidget {
   const PatientProfileScreen({super.key});
@@ -127,6 +128,15 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                     Icons.people_outline, 'Family Members', 'Manage dependents',
                     onTap: () =>
                         Navigator.pushNamed(context, '/dependents-list')),
+                _buildDivider(),
+                _buildMenuItem(Icons.folder_open_outlined, 'Medical Records',
+                    'Prescriptions and reports',
+                    onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const MedicalRecordsScreen(),
+                          ),
+                        )),
                 _buildDivider(),
                 _buildMenuItem(Icons.lock_outline, 'Change Password',
                     'Update your password',

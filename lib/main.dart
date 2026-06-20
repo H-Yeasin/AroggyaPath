@@ -8,6 +8,7 @@ import 'providers/appointment_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dependent_provider.dart';
 import 'providers/doctor_provider.dart';
+import 'providers/medical_record_provider.dart';
 import 'providers/user_provider.dart';
 import 'screens/doctor/navigation/doctor_main_navigation.dart';
 import 'screens/onboarding/select_profile_screen.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => DoctorProvider()),
         ChangeNotifierProvider(create: (_) => AppointmentProvider()),
+        ChangeNotifierProvider(create: (_) => MedicalRecordProvider()),
         ChangeNotifierProvider(create: (_) => DependentProvider()),
       ],
       child: Consumer<UserProvider>(

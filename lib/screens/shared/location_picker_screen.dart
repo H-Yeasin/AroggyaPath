@@ -2,6 +2,7 @@
 
 import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:arogya_path3/core/location/services/location_service.dart';
+import 'package:arogya_path3/core/location/utils/cached_map_tile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -227,6 +228,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.aroggyapath.app',
+                      tileProvider: CachedMapTileProvider(),
                     ),
                   ],
                 ),

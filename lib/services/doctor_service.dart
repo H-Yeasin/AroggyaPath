@@ -3,6 +3,16 @@ import 'package:flutter/material.dart';
 import 'api_service.dart';
 
 class DoctorService {
+  Future<Map<String, dynamic>> getAllDoctors() async {
+    try {
+      final response = await ApiService.get(ApiConfig.doctors, requiresAuth: true);
+      return response;
+    } catch (e) {
+      debugPrint('Get All Doctors Error: $e');
+      return {'success': false, 'message': 'Failed to fetch doctors: $e'};
+    }
+  }
+
   Future<Map<String, dynamic>> getNearbyDoctors({
     double? lat,
     double? lng,

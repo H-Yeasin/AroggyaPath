@@ -96,6 +96,16 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               const SizedBox(width: 12),
               _buildStatCard('Completed', '$completed', Colors.blue),
             ]),
+            const SizedBox(height: 12),
+            Row(children: [
+              _buildStatCard('Video Points', '${user?.points ?? 0}',
+                  Colors.deepPurple),
+              const SizedBox(width: 12),
+              _buildStatCard(
+                  'Video Calls',
+                  '${appointments.completedAppointments.where((a) => a.isVideoCall).length}',
+                  Colors.indigo),
+            ]),
             const SizedBox(height: 28),
 
             // Upcoming appointments
@@ -157,6 +167,14 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                                 Text(apt.formattedDate,
                                     style: const TextStyle(
                                         fontSize: 13, color: Colors.grey)),
+                                const SizedBox(height: 6),
+                                Text(apt.appointmentTypeLabel,
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: apt.isVideoCall
+                                            ? Colors.indigo
+                                            : Colors.teal)),
                               ]),
                         ),
                         Container(

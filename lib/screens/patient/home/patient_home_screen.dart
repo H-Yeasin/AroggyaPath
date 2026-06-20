@@ -100,6 +100,13 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             onError: (e) => debugPrint('Error fetching appointments: $e'),
           );
 
+      if (doctorProvider.allDoctors.isEmpty) {
+        doctorProvider.fetchAllDoctors().then(
+              (_) => debugPrint('All doctors loaded'),
+              onError: (e) => debugPrint('Error fetching all doctors: $e'),
+            );
+      }
+
       _getCurrentLocation().then((_) {
         if (mounted) {
           _fetchDoctorsForCurrentPosition();
@@ -121,10 +128,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   void _fetchDoctorsForCurrentPosition() {
     final (lat, lng) = _currentFetchCoordinates();
 
-    context
-        .read<DoctorProvider>()
-        .fetchNearbyDoctors(lat: lat, lng: lng)
-        .then((_) async {
+    final doctorProvider = context.read<DoctorProvider>();
+
+    Future.wait([
+      doctorProvider.fetchNearbyDoctors(lat: lat, lng: lng),
+      if (doctorProvider.allDoctors.isEmpty) doctorProvider.fetchAllDoctors(),
+    ]).then((_) async {
       debugPrint('Doctors loaded');
       if (mounted) {
         await _addDoctorMarkers();
@@ -594,7 +603,22 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => SeeAllDoctorsScreen(userPosition: _currentPosition),
+        builder: (_) => SeeAllDoctorsScreen(
+          userPosition: _currentPosition,
+          filter: DoctorListFilter.nearby,
+        ),
+      ),
+    );
+  }
+
+  void _openOnlineDoctors() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SeeAllDoctorsScreen(
+          userPosition: _currentPosition,
+          filter: DoctorListFilter.online,
+        ),
       ),
     );
   }
@@ -656,7 +680,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 const UpcomingAppointmentSection(),
                 NearbyDoctorsSection(
                   userPosition: _currentPosition,
-                  onSeeAll: _openAllDoctors,
+                  onSeeAllNearby: _openAllDoctors,
+                  onSeeAllOnline: _openOnlineDoctors,
                   onBookDoctor: _openBookAppointment,
                   onViewDoctor: _openDoctorDetails,
                 ),

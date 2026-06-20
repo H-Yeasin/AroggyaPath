@@ -101,7 +101,6 @@ class UserProvider with ChangeNotifier {
         weeklySchedule: currentSchedule,
         fees: currentFees,
         isVideoCallAvailable: isAvailable,
-        isAvailable: isAvailable,
       );
 
       if (response['success'] == true) {
@@ -121,55 +120,6 @@ class UserProvider with ChangeNotifier {
         return true;
       } else {
         _error = response['message'] ?? 'Failed to update availability';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-    } catch (e) {
-      _error = 'Error: $e';
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
-
-  /// Update online appointment availability
-  Future<bool> updateOnlineAppointmentAvailability(bool isAvailable) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      final scheduleService = DoctorScheduleService();
-
-      final currentFees = _user?.fees ?? {'amount': 0, 'currency': 'USD'};
-      final currentSchedule =
-          _user?.weeklySchedule?.map((d) => d.toJson()).toList() ?? [];
-
-      final response = await scheduleService.saveWeeklySchedule(
-        weeklySchedule: currentSchedule,
-        fees: currentFees,
-        isVideoCallAvailable: _user?.isVideoCallAvailable ?? true,
-        isOnlineAppointmentAvailable: isAvailable,
-      );
-
-      if (response['success'] == true) {
-        if (_user != null) {
-          _user = _user!.copyWith(isOnlineAppointmentAvailable: isAvailable);
-          notifyListeners();
-        }
-
-        await fetchUserProfile();
-
-        if (_user != null && _user!.isOnlineAppointmentAvailable != isAvailable) {
-          _user = _user!.copyWith(isOnlineAppointmentAvailable: isAvailable);
-          notifyListeners();
-        }
-
-        _isLoading = false;
-        return true;
-      } else {
-        _error = response['message'] ?? 'Failed to update appointment setting';
         _isLoading = false;
         notifyListeners();
         return false;
@@ -205,7 +155,6 @@ class UserProvider with ChangeNotifier {
     double? latitude,
     double? longitude,
     bool? isVideoCallAvailable,
-    bool? isOnlineAppointmentAvailable,
   }) async {
     _isLoading = true;
     _error = null;
@@ -253,7 +202,6 @@ class UserProvider with ChangeNotifier {
         latitude: currentLat,
         longitude: currentLng,
         isVideoCallAvailable: isVideoCallAvailable,
-        isOnlineAppointmentAvailable: isOnlineAppointmentAvailable,
       );
 
       if (response['success'] == true && response['data'] != null) {
@@ -263,14 +211,6 @@ class UserProvider with ChangeNotifier {
             updatedUser.isVideoCallAvailable != isVideoCallAvailable) {
           updatedUser = updatedUser.copyWith(
             isVideoCallAvailable: isVideoCallAvailable,
-          );
-        }
-
-        if (isOnlineAppointmentAvailable != null &&
-            updatedUser.isOnlineAppointmentAvailable !=
-                isOnlineAppointmentAvailable) {
-          updatedUser = updatedUser.copyWith(
-            isOnlineAppointmentAvailable: isOnlineAppointmentAvailable,
           );
         }
 
@@ -308,7 +248,6 @@ class UserProvider with ChangeNotifier {
         weeklySchedule: weeklySchedule,
         fees: currentFees,
         isVideoCallAvailable: _user?.isVideoCallAvailable ?? true,
-        isOnlineAppointmentAvailable: _user?.isOnlineAppointmentAvailable,
       );
 
       if (response['success'] == true) {

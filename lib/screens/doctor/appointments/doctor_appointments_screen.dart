@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../models/appointment_model.dart';
 import '../../../providers/appointment_provider.dart';
+import 'complete_appointment_screen.dart';
 
 class DoctorAppointmentsScreen extends StatefulWidget {
   const DoctorAppointmentsScreen({super.key});
@@ -156,6 +157,28 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              const SizedBox(height: 6),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: apt.isVideoCall
+                        ? Colors.indigo.withValues(alpha: 0.12)
+                        : Colors.teal.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    apt.appointmentTypeLabel,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: apt.isVideoCall ? Colors.indigo : Colors.teal,
+                    ),
+                  ),
+                ),
+              ),
             ]),
           ),
           Container(
@@ -171,7 +194,26 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                     color: _statusColor(apt.status))),
           ),
         ]),
-        if (apt.status.toLowerCase() == 'pending') ...[
+        if (apt.status.toLowerCase() == 'pending' && apt.isVideoCall) ...[
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Text(
+              'Awaiting admin payment verification',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.orange,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+        if (apt.status.toLowerCase() == 'pending' && !apt.isVideoCall) ...[
           const SizedBox(height: 12),
           Row(children: [
             Expanded(
@@ -204,7 +246,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => _showCompleteDialog(apt, provider),
+              onPressed: () => _openCompleteAppointment(apt, provider),
               style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   shape: RoundedRectangleBorder(
@@ -218,40 +260,16 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
     );
   }
 
-  Future<void> _showCompleteDialog(
+  Future<void> _openCompleteAppointment(
       AppointmentModel apt, AppointmentProvider provider) async {
-    final priceCtrl = TextEditingController();
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Complete Appointment'),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text('Patient: ${apt.patientName ?? "Unknown"}'),
-          const SizedBox(height: 16),
-          TextField(
-            controller: priceCtrl,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-                labelText: 'Consultation Fee', border: OutlineInputBorder()),
-          ),
-        ]),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Complete')),
-        ],
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CompleteAppointmentScreen(appointment: apt),
       ),
     );
-    if (result == true && mounted) {
-      final price = double.tryParse(priceCtrl.text) ?? 0;
-      await provider.completeAppointment(
-        appointmentId: apt.id,
-        patientName: apt.patientName ?? 'Patient',
-        price: price,
-      );
+    if (result == true) {
+      await provider.fetchAppointments();
     }
   }
 

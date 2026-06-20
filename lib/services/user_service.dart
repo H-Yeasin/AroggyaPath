@@ -61,7 +61,6 @@ class UserService {
     double? latitude,
     double? longitude,
     bool? isVideoCallAvailable,
-    bool? isOnlineAppointmentAvailable,
   }) async {
     try {
       debugPrint('Updating user profile...');
@@ -89,7 +88,6 @@ class UserService {
       if (visitingHoursText != null) body['visitingHoursText'] = visitingHoursText;
       if (medicalLicenseNumber != null) body['medicalLicenseNumber'] = medicalLicenseNumber;
       if (isVideoCallAvailable != null) body['isVideoCallAvailable'] = isVideoCallAvailable;
-      if (isOnlineAppointmentAvailable != null) body['isOnlineAppointmentAvailable'] = isOnlineAppointmentAvailable;
 
       // Location fields
       if (latitude != null && longitude != null) {

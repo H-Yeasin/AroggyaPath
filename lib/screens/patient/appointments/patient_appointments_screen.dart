@@ -217,7 +217,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        appointment.status.toUpperCase(),
+                        appointment.patientStatusLabel,
                         style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,

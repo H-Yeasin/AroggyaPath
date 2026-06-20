@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/appointment_model.dart';
@@ -232,13 +233,20 @@ class AppointmentProvider with ChangeNotifier {
     required String appointmentId,
     required String patientName,
     required double price,
+    required List<File> files,
+    String recordType = 'prescription',
+    String? title,
+    String? notes,
   }) async {
     try {
-      final response = await _appointmentService.updateAppointmentStatus(
+      final response = await _appointmentService.completeAppointment(
         appointmentId: appointmentId,
-        status: 'completed',
-        patient: patientName,
+        patientName: patientName,
         price: price,
+        files: files,
+        recordType: recordType,
+        title: title,
+        notes: notes,
       );
 
       if (response['success'] == true) {

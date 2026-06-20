@@ -172,6 +172,51 @@ class ApiService {
     }
   }
 
+  /// POST multipart form-data request.
+  static Future<Map<String, dynamic>> postMultipart(
+    String endpoint, {
+    Map<String, String> fields = const {},
+    Map<String, List<File>> files = const {},
+    bool requiresAuth = true,
+  }) async {
+    try {
+      if (requiresAuth && !isLoggedIn) {
+        return {
+          'success': false,
+          'message': 'Token not found. Please login again.',
+          'requiresLogin': true,
+        };
+      }
+
+      final url = '$_baseUrl$endpoint';
+      debugPrint('POST (Multipart): $url');
+
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+      if (requiresAuth && _token != null && _token!.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $_token';
+      }
+      request.headers['Accept'] = 'application/json';
+      request.fields.addAll(fields);
+
+      for (final entry in files.entries) {
+        for (final file in entry.value) {
+          request.files.add(
+            await http.MultipartFile.fromPath(entry.key, file.path),
+          );
+        }
+      }
+
+      final streamedResponse = await request.send().timeout(
+            const Duration(seconds: 45),
+          );
+      final response = await http.Response.fromStream(streamedResponse);
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('POST multipart error: $e');
+      return {'success': false, 'message': _getErrorMessage(e)};
+    }
+  }
+
   /// PUT Request
   static Future<Map<String, dynamic>> put(
     String endpoint,
@@ -226,6 +271,51 @@ class ApiService {
       return _handleResponse(response);
     } catch (e) {
       debugPrint('PATCH Error: $e');
+      return {'success': false, 'message': _getErrorMessage(e)};
+    }
+  }
+
+  /// PATCH multipart form-data request.
+  static Future<Map<String, dynamic>> patchMultipart(
+    String endpoint, {
+    Map<String, String> fields = const {},
+    Map<String, List<File>> files = const {},
+    bool requiresAuth = true,
+  }) async {
+    try {
+      if (requiresAuth && !isLoggedIn) {
+        return {
+          'success': false,
+          'message': 'Token not found. Please login again.',
+          'requiresLogin': true,
+        };
+      }
+
+      final url = '$_baseUrl$endpoint';
+      debugPrint('PATCH (Multipart): $url');
+
+      final request = http.MultipartRequest('PATCH', Uri.parse(url));
+      if (requiresAuth && _token != null && _token!.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $_token';
+      }
+      request.headers['Accept'] = 'application/json';
+      request.fields.addAll(fields);
+
+      for (final entry in files.entries) {
+        for (final file in entry.value) {
+          request.files.add(
+            await http.MultipartFile.fromPath(entry.key, file.path),
+          );
+        }
+      }
+
+      final streamedResponse = await request.send().timeout(
+            const Duration(seconds: 45),
+          );
+      final response = await http.Response.fromStream(streamedResponse);
+      return _handleResponse(response);
+    } catch (e) {
+      debugPrint('PATCH multipart error: $e');
       return {'success': false, 'message': _getErrorMessage(e)};
     }
   }
