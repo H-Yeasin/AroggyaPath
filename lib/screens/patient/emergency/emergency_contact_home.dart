@@ -176,5 +176,4 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
       }
     }
   }
-
 }

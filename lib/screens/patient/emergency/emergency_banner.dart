@@ -45,17 +45,16 @@ class EmergencyBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Emergency Contacts',
+                    'জাতীয় জরুরি সেবা',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '999',
+                    'বাংলাদেশে পুলিশ, ফায়ার সার্ভিস বা অ্যাম্বুলেন্সের জরুরি সহায়তার জন্য ২৪/৭ ফ্রি কল করুন।',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 12,
@@ -78,7 +77,7 @@ class EmergencyBanner extends StatelessWidget {
                         Icon(Icons.call, color: Color(0xFFE53935), size: 18),
                         SizedBox(width: 6),
                         Text(
-                          '999',
+                          '৯৯৯-এ কল করুন',
                           style: TextStyle(
                             color: Color(0xFFE53935),
                             fontWeight: FontWeight.bold,
