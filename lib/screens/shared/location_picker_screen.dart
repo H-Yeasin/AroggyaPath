@@ -333,7 +333,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: _isLoadingAddress
-                                    ? const Text('Looking up addressâ€¦',
+                                    ? const Text('Looking up address...',
                                         style: TextStyle(
                                             color: Colors.grey, fontSize: 14))
                                     : Text(
@@ -372,7 +372,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                                 elevation: 0,
                               ),
                               child: const Text(
-                                'âœ“  Confirm Location',
+                                'Confirm Location',
                                 style: TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.w600),
                               ),
