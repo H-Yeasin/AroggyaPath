@@ -1,10 +1,11 @@
 ﻿import 'package:arogya_path3/core/config/app_theme.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:arogya_path3/core/location/location.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_provider.dart';
 import 'doctor_schedule_screen.dart';
@@ -168,7 +169,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                         Navigator.pushNamed(context, '/change-password')),
                 _buildDivider(),
                 _buildMenuItem(Icons.videocam, 'Video Call',
-                    user?.isVideoCallAvailable == true ? 'Enabled' : 'Disabled',
+                    user?.isVideoCallAvailable == true ? 'Enable' : 'Disable',
                     onTap: () async {
                   final provider = context.read<UserProvider>();
                   await provider.updateVideoCallAvailability(

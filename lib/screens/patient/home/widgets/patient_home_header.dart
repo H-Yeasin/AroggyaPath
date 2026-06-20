@@ -81,7 +81,7 @@ class PatientHomeHeader extends StatelessWidget {
                                 user?.address ?? 'Location not set',
                                 style: const TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  color: Color.fromARGB(255, 112, 99, 99),
                                 ),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:arogya_path3/core/location/location.dart';
 import 'package:arogya_path3/screens/patient/emergency/emergency_contact_home.dart';
+import 'package:arogya_path3/screens/patient/profile/patient_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -556,12 +557,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   void _openProfilePlaceholder() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => Scaffold(
-          appBar: AppBar(title: const Text('Profile')),
-          body: const Center(child: Text('Profile - Phase 4')),
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => PatientProfileScreen()),
     );
   }
 

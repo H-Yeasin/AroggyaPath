@@ -318,13 +318,13 @@ class EmergencyContactDetailsScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.call, color: Colors.amber, size: 22),
+                    Icon(Icons.call, color: Colors.purple, size: 22),
                     SizedBox(width: 8),
                     Text(
                       'Call Now',
                       style: TextStyle(
                         fontSize: 15,
-                        color: Colors.amber,
+                        color: Colors.purple,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
