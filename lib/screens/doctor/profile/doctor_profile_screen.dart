@@ -262,7 +262,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
           style: const TextStyle(fontSize: 12, color: Colors.grey)),
       trailing: Switch(
         value: isAvailable,
-        activeColor: colors.primary,
+        activeThumbColor: colors.primary,
         onChanged: _isUpdatingVideoCall ? null : _updateVideoCallAvailability,
       ),
       onTap: _isUpdatingVideoCall
