@@ -1,12 +1,12 @@
 ﻿import 'dart:io';
 
 import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/core/location/location.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/user_provider.dart';
-import '../../shared/location_picker_screen.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   const PersonalInfoScreen({super.key});

@@ -54,7 +54,7 @@ class EmergencyContactDetailsScreen extends StatelessWidget {
                 CircleAvatar(
                   radius: 45,
                   backgroundColor: Color(doctor.color),
-                  backgroundImage: NetworkImage(
+                  backgroundImage: AssetImage(
                     doctor.image,
                   ),
                 ),
@@ -200,14 +200,14 @@ class EmergencyContactDetailsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "à¦•à¦² à¦°à§‡à¦Ÿ",
+                  "Call Fee",
                   style: TextStyle(
                     letterSpacing: 0,
                     color: grey,
                   ),
                 ),
                 Text(
-                  "à§³${doctor.price}",
+                  "${doctor.price}",
                   style: const TextStyle(
                     fontSize: 14,
                     color: black,
@@ -237,7 +237,7 @@ class EmergencyContactDetailsScreen extends StatelessWidget {
                       SizedBox(
                           width: 8), // Adds spacing between the icon and text
                       Text(
-                        "à¦à¦–à¦¨à¦‡ à¦•à¦² à¦•à¦°à§à¦¨",
+                        "Call Now",
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.white,

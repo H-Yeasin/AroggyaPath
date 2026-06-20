@@ -1,12 +1,12 @@
 ﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:arogya_path3/core/location/location.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_provider.dart';
-import '../../shared/location_picker_screen.dart';
 import 'doctor_schedule_screen.dart';
 
 class DoctorProfileScreen extends StatefulWidget {

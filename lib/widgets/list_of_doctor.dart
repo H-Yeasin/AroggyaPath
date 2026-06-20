@@ -27,7 +27,7 @@ class ListOfDoctor extends StatelessWidget {
           CircleAvatar(
             radius: 45,
             backgroundColor: Color(doctor.color),
-            backgroundImage: NetworkImage(
+            backgroundImage: AssetImage(
               doctor.image,
             ),
           ),
