@@ -7,6 +7,7 @@ import '../appointments/doctor_appointments_screen.dart';
 import '../home/doctor_home_screen.dart';
 import '../profile/doctor_profile_screen.dart';
 import '../../../services/call_manager_service.dart';
+import '../../../services/push_notification_service.dart';
 import '../../../services/socket_service.dart';
 
 /// Doctor Main Navigation â€” 4-tab bottom nav:
@@ -48,6 +49,8 @@ class _DoctorMainNavigationState extends State<DoctorMainNavigation> {
     await SocketService.instance.connect(userId);
     if (!mounted) return;
     CallManager.instance.initialize(context);
+    await PushNotificationService.instance.syncDeviceToken();
+    await PushNotificationService.instance.openPendingCallIfAny();
   }
 
   @override

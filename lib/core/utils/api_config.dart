@@ -93,6 +93,7 @@ class ApiConfig {
   static const String markAllAsRead = '/api/v1/notification/read-all';
   static const String deleteNotification = '/api/v1/notification';
   static const String unreadCount = '/api/v1/notification/unread-count';
+  static const String deviceToken = '/api/v1/device-token';
 
   // Doctor Review Endpoints
   static const String reviews = '/api/v1/doctor-review';

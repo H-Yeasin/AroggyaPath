@@ -74,7 +74,7 @@ class CallManager {
     socket.on('call:incoming', _incomingCallHandler!);
   }
 
-  void _handleIncomingCall(Map<String, dynamic> callData) async {
+  Future<void> _handleIncomingCall(Map<String, dynamic> callData) async {
     final isVideo = callData['isVideo'] == true;
     final chatId = callData['chatId']?.toString() ?? '';
     final fromUserId = callData['fromUserId']?.toString() ?? '';
@@ -182,6 +182,10 @@ class CallManager {
     _incomingTimeout?.cancel();
     _isIncomingDialogShowing = false;
     _activeIncomingCallKey = null;
+  }
+
+  Future<void> handleIncomingCallFromPush(Map<String, dynamic> callData) async {
+    await _handleIncomingCall(callData);
   }
 
   Future<void> _rejectIncomingCall({

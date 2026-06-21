@@ -319,5 +319,33 @@ class ApiService {
     );
   }
 
+  static Future<Map<String, dynamic>> registerDeviceToken({
+    required String token,
+    required String platform,
+    required String userId,
+    String? role,
+  }) {
+    return ApiClient.post(
+      '/api/v1/device-token',
+      {
+        'token': token,
+        'platform': platform,
+        'userId': userId,
+        if (role != null) 'role': role,
+      },
+      requiresAuth: true,
+    );
+  }
+
+  static Future<Map<String, dynamic>> unregisterDeviceToken({
+    required String token,
+  }) {
+    final encodedToken = Uri.encodeComponent(token);
+    return ApiClient.delete(
+      '/api/v1/device-token/$encodedToken',
+      requiresAuth: true,
+    );
+  }
+
   static int min(int a, int b) => a < b ? a : b;
 }

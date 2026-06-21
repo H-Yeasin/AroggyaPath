@@ -1,8 +1,10 @@
-﻿import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/config/app_theme.dart';
+import 'core/navigation/app_navigator.dart';
 import 'firebase_options.dart';
 import 'providers/appointment_provider.dart';
 import 'providers/auth_provider.dart';
@@ -20,6 +22,20 @@ import 'screens/patient/profile/edit_dependent_screen.dart';
 import 'screens/patient/profile/personal_info_screen.dart';
 import 'screens/splash/splash_screen.dart';
 import 'services/api_service.dart';
+import 'services/push_notification_service.dart';
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+  await PushNotificationService.instance.showNotificationFromRemoteMessage(
+    message,
+  );
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +46,10 @@ Future<void> main() async {
     );
   }
 
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
   await ApiService.init();
+  await PushNotificationService.instance.initialize();
   runApp(const MyApp());
 }
 
@@ -56,6 +75,7 @@ class MyApp extends StatelessWidget {
               isDoctor ? AroggyaColors.doctor() : AroggyaColors.patient();
 
           return MaterialApp(
+            navigatorKey: navigatorKey,
             title: 'AroggyaPath',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(

@@ -16,12 +16,12 @@ class CallKitService {
   }
 
   /// Check for and consume any pending call data from a push notification.
-  static bool consumePendingCallData() {
-    if (pendingCallData != null) {
+  static Map<String, dynamic>? consumePendingCallData() {
+    final data = pendingCallData;
+    if (data != null) {
       debugPrint('[CallKit] Consuming pending call data');
       pendingCallData = null;
-      return true;
     }
-    return false;
+    return data;
   }
 }

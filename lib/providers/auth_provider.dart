@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../services/api_service.dart';
+import '../services/push_notification_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -21,6 +22,7 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = false;
     if (result['success'] == true) {
       _user = result['data']?['user'] ?? result['data'];
+      await PushNotificationService.instance.syncDeviceToken();
       notifyListeners();
       return true;
     } else {
@@ -125,6 +127,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    await PushNotificationService.instance.unregisterDeviceToken();
     await ApiService.logout();
     _user = null;
     _error = null;

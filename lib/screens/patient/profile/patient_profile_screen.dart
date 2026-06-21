@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_provider.dart';
+import '../../../services/push_notification_service.dart';
 import '../medical_records/medical_records_screen.dart';
 
 class PatientProfileScreen extends StatefulWidget {
@@ -42,6 +43,8 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     );
 
     if (confirm != true) return;
+
+    await PushNotificationService.instance.unregisterDeviceToken();
 
     // Clear auth state
     final prefs = await SharedPreferences.getInstance();

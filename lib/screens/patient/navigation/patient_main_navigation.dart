@@ -7,6 +7,7 @@ import '../medical_records/medical_records_screen.dart';
 import '../profile/patient_profile_screen.dart';
 import '../messages/patient_messages_list_screen.dart';
 import '../../../services/call_manager_service.dart';
+import '../../../services/push_notification_service.dart';
 import '../../../services/socket_service.dart';
 
 /// Patient Main Navigation - 5-tab bottom nav:
@@ -43,6 +44,8 @@ class _PatientMainNavigationState extends State<PatientMainNavigation> {
     await SocketService.instance.connect(userId);
     if (!mounted) return;
     CallManager.instance.initialize(context);
+    await PushNotificationService.instance.syncDeviceToken();
+    await PushNotificationService.instance.openPendingCallIfAny();
   }
 
   @override

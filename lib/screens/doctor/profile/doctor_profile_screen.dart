@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../providers/auth_provider.dart';
 import '../../../providers/user_provider.dart';
+import '../../../services/push_notification_service.dart';
 import 'doctor_schedule_screen.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
@@ -45,6 +46,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
       ),
     );
     if (confirm != true) return;
+
+    await PushNotificationService.instance.unregisterDeviceToken();
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -122,7 +125,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                     Icons.location_on,
                     'Practice Location',
                     user?.latitude != null && user?.longitude != null
-                        ? 'Location set â€” tap to update'
+                        ? 'Location set & tap to update'
                         : 'Set your clinic location on the map',
                     onTap: () async {
                   final u = user;
