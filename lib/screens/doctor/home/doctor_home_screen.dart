@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/appointment_provider.dart';
 import '../../../providers/user_provider.dart';
+import '../../../widgets/notification_bell_button.dart';
 
 class DoctorHomeScreen extends StatefulWidget {
   const DoctorHomeScreen({super.key});
@@ -75,6 +76,8 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                               fontSize: 14, color: Colors.grey)),
                     ]),
               ),
+              const SizedBox(width: 8),
+              const NotificationBellButton(),
             ]),
             const SizedBox(height: 28),
 

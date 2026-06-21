@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../models/user_model.dart';
+import '../../../../widgets/notification_bell_button.dart';
 
 class PatientHomeHeader extends StatelessWidget {
   final UserModel? user;
@@ -96,6 +97,8 @@ class PatientHomeHeader extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          const NotificationBellButton(),
           const SizedBox(width: 8),
           GestureDetector(
             onTap: onSearchTap,
