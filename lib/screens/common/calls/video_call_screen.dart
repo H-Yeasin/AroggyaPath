@@ -156,9 +156,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       if (token == null) {
         for (int attempt = 0; attempt < 2; attempt++) {
           try {
-            final result =
-                await ApiService.getAgoraToken(channelName: widget.chatId)
-                    .timeout(const Duration(seconds: 8));
+            final result = await ApiService.getAgoraToken(
+              channelName: widget.chatId,
+              account: _currentUserId,
+            ).timeout(const Duration(seconds: 8));
             token =
                 (result['success'] == true) ? result['data']['token'] : null;
             if (token != null) break;

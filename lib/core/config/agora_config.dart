@@ -1,8 +1,6 @@
 class AgoraConfig {
   // Replace with your Agora App ID
   static const String appId = '8299a6de4a084700a4a48d1c15f15d21';
-  // Replace with your Agora Temp Token
-  static const String token = '875690246eb429b9854852880402f39';
   // Channel profile mode
   static const channelProfile = 'communication';
   // Agora Chat App Key

@@ -5,7 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../models/appointment_model.dart';
+import '../../../models/doctor_model.dart';
 import '../../../providers/appointment_provider.dart';
+import '../../shared/appointment_chat_screen.dart';
+import '../doctor/book_appointment_screen.dart';
 import '../medical_records/medical_records_screen.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
@@ -30,6 +33,14 @@ class AppointmentDetailScreen extends StatelessWidget {
         title: Text('Appointment Details',
             style:
                 TextStyle(color: colors.heading, fontWeight: FontWeight.bold)),
+        actions: [
+          if (_canOpenChat(appointment))
+            IconButton(
+              tooltip: 'Chat',
+              icon: Icon(Icons.chat_bubble_outline, color: colors.primaryDark),
+              onPressed: () => _openChat(context),
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -167,8 +178,25 @@ class AppointmentDetailScreen extends StatelessWidget {
             ],
 
             // Actions
-            if (appointment.status.toLowerCase() == 'pending' ||
-                appointment.status.toLowerCase() == 'accepted') ...[
+            if (appointment.status.toLowerCase() == 'accepted' ||
+                appointment.status.toLowerCase() == 'confirmed') ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _openReschedule(context),
+                  icon: const Icon(Icons.event_repeat, color: Colors.white),
+                  label: const Text('Reschedule Appointment'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ] else if (appointment.status.toLowerCase() == 'pending') ...[
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -212,6 +240,54 @@ class AppointmentDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  bool _canOpenChat(AppointmentModel appointment) {
+    final status = appointment.status.toLowerCase();
+    return status == 'accepted' || status == 'confirmed';
+  }
+
+  void _openChat(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AppointmentChatScreen(
+          appointmentId: appointment.id,
+          title: appointment.doctorName ?? 'Doctor Chat',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openReschedule(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BookAppointmentScreen(
+          doctor: _doctorFromAppointment(),
+          isReschedule: true,
+          existingAppointment: appointment,
+        ),
+      ),
+    );
+
+    if (context.mounted) {
+      context.read<AppointmentProvider>().fetchAppointments();
+    }
+  }
+
+  Doctor _doctorFromAppointment() {
+    return Doctor(
+      id: appointment.doctorId,
+      name: appointment.doctorName ?? 'Doctor',
+      fullName: appointment.doctorName ?? 'Doctor',
+      specialty: appointment.specialty ?? '',
+      image: appointment.doctorImage ?? 'assets/images/doctor_booking.png',
+      rating: 0,
+      reviews: 0,
+      experience: '0',
+      location: '',
     );
   }
 

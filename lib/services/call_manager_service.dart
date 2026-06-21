@@ -2,9 +2,9 @@
 
 import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/common/calls/audio_call_screen.dart';
 import '../screens/common/calls/video_call_screen.dart';
+import '../services/api_service.dart';
 import '../services/socket_service.dart';
 
 class CallManager {
@@ -72,14 +72,16 @@ class CallManager {
     final isVideo = callData['isVideo'] == true;
     final chatId = callData['chatId']?.toString() ?? '';
     final fromUserId = callData['fromUserId']?.toString() ?? '';
-    final fromUserName = callData['fromUserName']?.toString() ?? 'Caller';
-    final fromUserAvatar = callData['fromUserAvatar']?.toString();
+    final fromUserName =
+        callData['fromUserName']?.toString() ??
+        callData['callerName']?.toString() ??
+        'Caller';
+    final fromUserAvatar =
+        callData['fromUserAvatar']?.toString() ??
+        callData['callerAvatar']?.toString();
     final uuid = callData['uuid']?.toString();
 
     if (_context == null || !_context!.mounted) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    final currentUserId = prefs.getString('user_id') ?? '';
 
     showDialog(
       context: _context!,
@@ -88,8 +90,18 @@ class CallManager {
         callerName: fromUserName,
         callerAvatar: fromUserAvatar,
         isVideo: isVideo,
-        onAccept: () {
+        onAccept: () async {
           Navigator.pop(ctx);
+          final accepted = await ApiService.acceptCall(
+            chatId: chatId,
+            fromUserId: fromUserId,
+          );
+          if (accepted['success'] != true) {
+            await SocketService.instance.emit('call:accepted', {
+              'chatId': chatId,
+              'fromUserId': fromUserId,
+            });
+          }
           if (isVideo) {
             Navigator.push(
                 _context!,
@@ -100,6 +112,7 @@ class CallManager {
                     userAvatar: fromUserAvatar,
                     otherUserId: fromUserId,
                     isInitiator: false,
+                    uuid: uuid,
                   ),
                 ));
           } else {
@@ -112,17 +125,24 @@ class CallManager {
                     userAvatar: fromUserAvatar,
                     otherUserId: fromUserId,
                     isInitiator: false,
+                    uuid: uuid,
                   ),
                 ));
           }
         },
-        onReject: () {
+        onReject: () async {
           Navigator.pop(ctx);
-          SocketService.instance.emit('call:rejected', {
-            'toUserId': fromUserId,
-            'chatId': chatId,
-            'uuid': uuid,
-          });
+          final rejected = await ApiService.rejectCall(
+            chatId: chatId,
+            toUserId: fromUserId,
+          );
+          if (rejected['success'] != true) {
+            await SocketService.instance.emit('call:reject', {
+              'toUserId': fromUserId,
+              'chatId': chatId,
+              'uuid': uuid,
+            });
+          }
         },
       ),
     );

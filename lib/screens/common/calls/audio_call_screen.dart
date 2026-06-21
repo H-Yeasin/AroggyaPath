@@ -137,6 +137,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
           try {
             final result = await ApiService.getAgoraToken(
               channelName: widget.chatId,
+              account: _currentUserId,
             ).timeout(const Duration(seconds: 8));
             token =
                 (result['success'] == true) ? result['data']['token'] : null;

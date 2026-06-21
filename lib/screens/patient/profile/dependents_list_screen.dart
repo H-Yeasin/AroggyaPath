@@ -1,6 +1,7 @@
 ﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../../models/dependent_model.dart';
 import '../../../providers/dependent_provider.dart';
 import 'add_dependents_screen.dart';
@@ -103,7 +104,7 @@ class _DependentsListScreenState extends State<DependentsListScreen> {
         title: Text(dep.displayName,
             style:
                 TextStyle(fontWeight: FontWeight.bold, color: colors.heading)),
-        subtitle: Text('${dep.relationship ?? 'Family'} â€¢ Age ${dep.age}',
+        subtitle: Text('${dep.relationship ?? 'Family'} Age ${dep.age}',
             style: const TextStyle(color: Colors.grey)),
         trailing: PopupMenuButton<String>(
           onSelected: (value) async {

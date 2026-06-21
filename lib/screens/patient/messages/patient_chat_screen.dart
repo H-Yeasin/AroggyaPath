@@ -10,9 +10,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../services/agora_chat_service.dart';
 import '../../../services/api_service.dart';
 import '../../../services/socket_service.dart';
+import '../../common/calls/audio_call_screen.dart';
+import '../../common/calls/video_call_screen.dart';
 import '../../../widgets/chat/chat_app_bar.dart';
 import '../../../widgets/chat/chat_bubble.dart';
 import '../../../widgets/chat/chat_input.dart';
+import 'utils/patient_message_time_formatter.dart';
+import 'widgets/call_log_placeholder.dart';
 
 class ChatDetailScreen extends StatefulWidget {
   final String chatId;
@@ -194,14 +198,33 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
     if (widget.doctorId == null) return;
 
-    // Emit call event via socket
-    SocketService.instance.emit('call:initiate', {
+    final result = await ApiService.initiateCall(
+      chatId: widget.chatId,
+      receiverId: widget.doctorId!,
+      isVideo: isVideo,
+    );
+
+    if (result['success'] != true) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Could not start call'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final uuid = result['data']?['uuid']?.toString();
+
+    await SocketService.instance.emit('call:request', {
       'toUserId': widget.doctorId,
       'chatId': widget.chatId,
       'fromUserId': userId,
       'fromUserName': userName,
       'fromUserAvatar': avatar,
       'isVideo': isVideo,
+      'uuid': uuid,
     });
 
     // Navigate to call screen
@@ -213,7 +236,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                   isVideo: true,
                   userName: widget.doctorName,
                   otherUserId: widget.doctorId!,
-                  avatar: widget.doctorAvatar)));
+                  avatar: widget.doctorAvatar,
+                  uuid: uuid)));
     } else {
       Navigator.push(
           context,
@@ -222,7 +246,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                   isVideo: false,
                   userName: widget.doctorName,
                   otherUserId: widget.doctorId!,
-                  avatar: widget.doctorAvatar)));
+                  avatar: widget.doctorAvatar,
+                  uuid: uuid)));
     }
   }
 
@@ -231,9 +256,27 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     required String userName,
     required String otherUserId,
     String? avatar,
+    String? uuid,
   }) {
-    // Uses dynamic imports to avoid circular deps; resolved at runtime
-    return const SizedBox.shrink();
+    if (isVideo) {
+      return VideoCallScreen(
+        chatId: widget.chatId,
+        userName: userName,
+        userAvatar: avatar,
+        otherUserId: otherUserId,
+        isInitiator: true,
+        uuid: uuid,
+      );
+    }
+
+    return AudioCallScreen(
+      chatId: widget.chatId,
+      userName: userName,
+      userAvatar: avatar,
+      otherUserId: otherUserId,
+      isInitiator: true,
+      uuid: uuid,
+    );
   }
 
   @override
@@ -294,7 +337,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                     return ChatBubble(
                       message: {
                         'content': msg.body.toString(),
-                        'createdAt': _formatTime(
+                        'createdAt': formatChatMessageTime(
                             DateTime.fromMillisecondsSinceEpoch(
                                 msg.serverTime)),
                         'fileUrl': [],
@@ -325,39 +368,4 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
-  String _formatTime(DateTime dateTime) {
-    final hour = dateTime.hour.toString().padLeft(2, '0');
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
-}
-
-class CallLogPlaceholder extends StatelessWidget {
-  final bool isMe;
-  final String text;
-
-  const CallLogPlaceholder({super.key, required this.isMe, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = AppTheme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.grey.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.call, size: 14, color: Colors.grey[500]),
-            const SizedBox(width: 8),
-            Text(text.replaceAll('call:', ''),
-                style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-          ]),
-        ),
-      ),
-    );
-  }
 }

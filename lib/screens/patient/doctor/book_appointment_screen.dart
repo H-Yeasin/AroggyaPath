@@ -105,8 +105,12 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         final slotsData = response['data']['slots'] as List;
         final unbookedSlots = slotsData
             .map((slot) => TimeSlot.fromJson(slot))
+            .expand(_splitIntoThirtyMinuteSlots)
             .where((slot) => slot.isBooked != true)
-            .toList();
+            .toList()
+          ..sort((a, b) => _timeToMinutes(a.start).compareTo(
+                _timeToMinutes(b.start),
+              ));
         if (unbookedSlots.isEmpty) {
           _loadFromWeeklySchedule(date);
         } else {
@@ -168,7 +172,43 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       setState(() => availableSlots = []);
       return;
     }
-    setState(() => availableSlots = daySchedule!.slots);
+    final slots = daySchedule!.slots
+        .expand(_splitIntoThirtyMinuteSlots)
+        .toList()
+      ..sort((a, b) => _timeToMinutes(a.start).compareTo(
+            _timeToMinutes(b.start),
+          ));
+    setState(() => availableSlots = slots);
+  }
+
+  int _timeToMinutes(String time) {
+    final parts = time.split(':');
+    if (parts.length != 2) return 0;
+    final hours = int.tryParse(parts[0]) ?? 0;
+    final minutes = int.tryParse(parts[1]) ?? 0;
+    return hours * 60 + minutes;
+  }
+
+  String _minutesToTime(int totalMinutes) {
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+  }
+
+  List<TimeSlot> _splitIntoThirtyMinuteSlots(TimeSlot slot) {
+    final startMinutes = _timeToMinutes(slot.start);
+    final endMinutes = _timeToMinutes(slot.end);
+    if (startMinutes >= endMinutes) return [];
+
+    final slots = <TimeSlot>[];
+    for (var current = startMinutes; current + 30 <= endMinutes; current += 30) {
+      slots.add(TimeSlot(
+        start: _minutesToTime(current),
+        end: _minutesToTime(current + 30),
+        isBooked: slot.isBooked,
+      ));
+    }
+    return slots;
   }
 
   String _getDayName(DateTime date) {
@@ -208,9 +248,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(selectedType == 'Video Call'
-                  ? 'Video appointment request submitted!'
-                  : 'Appointment booked successfully!'),
+              content: Text(widget.isReschedule
+                  ? 'Reschedule request submitted!'
+                  : selectedType == 'Video Call'
+                      ? 'Video appointment request submitted!'
+                      : 'Appointment booked successfully!'),
               backgroundColor: Colors.green),
         );
         Navigator.pop(context);
@@ -397,7 +439,9 @@ Patient: $patientName
                             color: Colors.white, strokeWidth: 2.5),
                       )
                     : Text(
-                        selectedType == 'Video Call'
+                        widget.isReschedule
+                            ? 'Submit Reschedule Request'
+                            : selectedType == 'Video Call'
                             ? 'Request Video Call Appointment'
                             : 'Submit Appointment',
                         style: const TextStyle(

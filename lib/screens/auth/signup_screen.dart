@@ -160,12 +160,12 @@ class _SignupScreenState extends State<SignupScreen> {
         ]),
         content: const SingleChildScrollView(
           child: Text(
-            'By accepting, you agree to our Terms of Service and EULA.\n\n'
-            'Safety Policy:\n'
-            'â€¢ Zero tolerance for objectionable content\n'
-            'â€¢ No defamatory, obscene, or illegal content\n'
-            'â€¢ Violators ejected within 24 hours\n\n'
-            'You can report or block users at any time.',
+            '• By accepting, you agree to our Terms of Service and EULA.\n\n'
+            '• Safety Policy:\n'
+            '• Zero tolerance for objectionable content\n'
+            '• No defamatory, obscene, or illegal content\n'
+            '• Violators ejected within 24 hours\n\n'
+            '• You can report or block users at any time.',
           ),
         ),
         actions: [

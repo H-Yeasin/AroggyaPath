@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../models/appointment_model.dart';
 import '../../../providers/appointment_provider.dart';
+import '../../shared/appointment_chat_screen.dart';
 
 class CompleteAppointmentScreen extends StatefulWidget {
   final AppointmentModel appointment;
@@ -109,6 +110,14 @@ class _CompleteAppointmentScreenState extends State<CompleteAppointmentScreen> {
           'Complete Appointment',
           style: TextStyle(color: colors.heading, fontWeight: FontWeight.bold),
         ),
+        actions: [
+          if (_canOpenChat(widget.appointment))
+            IconButton(
+              tooltip: 'Chat',
+              icon: Icon(Icons.chat_bubble_outline, color: colors.primaryDark),
+              onPressed: _openChat,
+            ),
+        ],
       ),
       body: SafeArea(
         child: Form(
@@ -225,6 +234,23 @@ class _CompleteAppointmentScreenState extends State<CompleteAppointmentScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  bool _canOpenChat(AppointmentModel appointment) {
+    final status = appointment.status.toLowerCase();
+    return status == 'accepted' || status == 'confirmed';
+  }
+
+  void _openChat() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AppointmentChatScreen(
+          appointmentId: widget.appointment.id,
+          title: widget.appointment.patientName ?? 'Patient Chat',
         ),
       ),
     );

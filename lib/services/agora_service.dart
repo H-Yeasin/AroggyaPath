@@ -116,7 +116,7 @@ class AgoraService {
         await _engine!.disableVideo();
       }
       await _engine!.joinChannel(
-        token: token ?? AgoraConfig.token,
+        token: token ?? '',
         channelId: channelName,
         uid: uid,
         options: const ChannelMediaOptions(
@@ -159,7 +159,7 @@ class AgoraService {
         await _engine!.disableVideo();
       }
       await _engine!.joinChannelWithUserAccount(
-        token: token ?? AgoraConfig.token,
+        token: token ?? '',
         channelId: channelName,
         userAccount: userAccount,
         options: const ChannelMediaOptions(

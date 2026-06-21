@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../appointments/doctor_appointments_screen.dart';
 import '../home/doctor_home_screen.dart';
 import '../profile/doctor_profile_screen.dart';
+import '../../patient/messages/patient_messages_list_screen.dart';
 
 /// Doctor Main Navigation â€” 4-tab bottom nav:
 ///   0: Home         â†’ DoctorHomeScreen (appointment overview + stats)
@@ -23,7 +24,10 @@ class _DoctorMainNavigationState extends State<DoctorMainNavigation> {
   final List<Widget> _screens = const [
     DoctorHomeScreen(),
     DoctorAppointmentsScreen(),
-    _PlaceholderScreen(title: 'Messages', icon: Icons.message_outlined),
+    PatientMessagesListScreen(
+      counterpartFallbackName: 'Patient',
+      roleBadge: 'Pt.',
+    ),
     DoctorProfileScreen(),
   ];
 
