@@ -1,14 +1,15 @@
-﻿import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
+
+import '../messages/doctor_messages_list_screen.dart';
 import '../appointments/doctor_appointments_screen.dart';
 import '../home/doctor_home_screen.dart';
 import '../profile/doctor_profile_screen.dart';
-import '../../patient/messages/patient_messages_list_screen.dart';
 
 /// Doctor Main Navigation â€” 4-tab bottom nav:
 ///   0: Home         â†’ DoctorHomeScreen (appointment overview + stats)
 ///   1: Appointments â†’ DoctorAppointmentsScreen (pending/accepted/completed)
-///   2: Messages     â†’ Placeholder (Agora Chat â€” reuse patient chat)
+///   2: Messages     → Appointment-based chat (Socket.IO + REST)
 ///   3: Profile      â†’ DoctorProfileScreen
 
 class DoctorMainNavigation extends StatefulWidget {
@@ -24,10 +25,7 @@ class _DoctorMainNavigationState extends State<DoctorMainNavigation> {
   final List<Widget> _screens = const [
     DoctorHomeScreen(),
     DoctorAppointmentsScreen(),
-    PatientMessagesListScreen(
-      counterpartFallbackName: 'Patient',
-      roleBadge: 'Pt.',
-    ),
+    DoctorMessagesListScreen(),
     DoctorProfileScreen(),
   ];
 
