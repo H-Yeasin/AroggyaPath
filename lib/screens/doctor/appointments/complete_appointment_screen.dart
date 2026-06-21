@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../models/appointment_model.dart';
 import '../../../providers/appointment_provider.dart';
+import '../../../providers/user_provider.dart';
 import '../../shared/appointment_chat_screen.dart';
 
 class CompleteAppointmentScreen extends StatefulWidget {
@@ -245,12 +246,18 @@ class _CompleteAppointmentScreenState extends State<CompleteAppointmentScreen> {
   }
 
   void _openChat() {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userRole = userProvider.user?.role ?? 'doctor';
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => AppointmentChatScreen(
           appointmentId: widget.appointment.id,
           title: widget.appointment.patientName ?? 'Patient Chat',
+          receiverId: widget.appointment.patientId,
+          receiverAvatar: widget.appointment.patientImage,
+          userRole: userRole,
         ),
       ),
     );

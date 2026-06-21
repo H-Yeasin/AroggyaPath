@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -134,7 +134,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       if (widget.isInitiator) {
         setState(() => _callStatus = 'Calling...');
         _unansweredTimer = Timer(const Duration(seconds: 30), () {
-          if (mounted && !_isCallConnected) _showError('No answer');
+          if (mounted && !_isCallConnected) {
+            _endCall(isMissedCall: true);
+            _showError('No answer');
+          }
         });
       } else {
         await _joinAgoraChannel();
@@ -256,7 +259,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     _agoraService.switchCamera();
   }
 
-  void _endCall() async {
+  void _endCall({bool isMissedCall = false}) async {
     if (_isDisposed) return;
     _isDisposed = true;
     _callTimer?.cancel();
@@ -266,7 +269,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       await ApiService.endCall(
           chatId: widget.chatId,
           toUserId: widget.otherUserId,
-          uuid: widget.uuid);
+          uuid: widget.uuid,
+          isMissedCall: isMissedCall);
     } catch (e) {
       SocketService.instance.emit('call:end', {
         'chatId': widget.chatId,

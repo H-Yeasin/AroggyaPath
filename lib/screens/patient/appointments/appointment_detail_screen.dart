@@ -1,4 +1,4 @@
-﻿import 'package:arogya_path3/core/config/app_theme.dart';
+import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:arogya_path3/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../models/appointment_model.dart';
 import '../../../models/doctor_model.dart';
 import '../../../providers/appointment_provider.dart';
+import '../../../providers/user_provider.dart';
 import '../../shared/appointment_chat_screen.dart';
 import '../doctor/book_appointment_screen.dart';
 import '../medical_records/medical_records_screen.dart';
@@ -249,12 +250,18 @@ class AppointmentDetailScreen extends StatelessWidget {
   }
 
   void _openChat(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userRole = userProvider.user?.role ?? 'patient';
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => AppointmentChatScreen(
           appointmentId: appointment.id,
           title: appointment.doctorName ?? 'Doctor Chat',
+          receiverId: appointment.doctorId,
+          receiverAvatar: appointment.doctorImage,
+          userRole: userRole,
         ),
       ),
     );

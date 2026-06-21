@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -114,7 +114,10 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
       if (widget.isInitiator) {
         setState(() => _callStatus = 'Calling...');
         _unansweredTimer = Timer(const Duration(seconds: 30), () {
-          if (mounted && !_callConnected) _showError('No answer');
+          if (mounted && !_callConnected) {
+            _endCall(isMissedCall: true);
+            _showError('No answer');
+          }
         });
       } else {
         await _joinAgoraChannel();
@@ -231,7 +234,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
     await _agoraService.engine?.setEnableSpeakerphone(_isSpeakerOn);
   }
 
-  void _endCall() async {
+  void _endCall({bool isMissedCall = false}) async {
     if (_isDisposed) return;
     _isDisposed = true;
     _timer?.cancel();
@@ -242,7 +245,8 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
       await ApiService.endCall(
           chatId: widget.chatId,
           toUserId: widget.otherUserId,
-          uuid: widget.uuid);
+          uuid: widget.uuid,
+          isMissedCall: isMissedCall);
     } catch (e) {
       SocketService.instance.emit('call:end', {
         'chatId': widget.chatId,
