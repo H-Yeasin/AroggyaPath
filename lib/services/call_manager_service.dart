@@ -15,6 +15,7 @@ class CallManager {
   BuildContext? _context;
   bool _isListening = false;
   bool _isIncomingDialogShowing = false;
+  String? _activeIncomingCallKey;
   StreamSubscription<bool>? _connectionSubscription;
   StreamSubscription<void>? _reconnectSubscription;
   Timer? _incomingTimeout;
@@ -85,14 +86,24 @@ class CallManager {
         callData['fromUserAvatar']?.toString() ??
         callData['callerAvatar']?.toString();
     final uuid = callData['uuid']?.toString();
+    final callKey = uuid != null && uuid.isNotEmpty ? uuid : chatId;
 
     if (_context == null || !_context!.mounted) return;
     if (_isIncomingDialogShowing) {
-      await _rejectIncomingCall(chatId: chatId, fromUserId: fromUserId, uuid: uuid);
+      if (_activeIncomingCallKey == callKey) {
+        debugPrint('Ignoring duplicate incoming call: $callKey');
+        return;
+      }
+      await _rejectIncomingCall(
+        chatId: chatId,
+        fromUserId: fromUserId,
+        uuid: uuid,
+      );
       return;
     }
 
     _isIncomingDialogShowing = true;
+    _activeIncomingCallKey = callKey;
     _incomingTimeout?.cancel();
     BuildContext? dialogContext;
 
@@ -118,11 +129,16 @@ class CallManager {
             chatId: chatId,
             fromUserId: fromUserId,
           );
+          final acceptPayload = {
+            'chatId': chatId,
+            'fromUserId': fromUserId,
+          };
+          await SocketService.instance.emit('call:accept', acceptPayload);
+          Future.delayed(const Duration(milliseconds: 600), () {
+            SocketService.instance.emit('call:accept', acceptPayload);
+          });
           if (accepted['success'] != true) {
-            await SocketService.instance.emit('call:accepted', {
-              'chatId': chatId,
-              'fromUserId': fromUserId,
-            });
+            debugPrint('REST accept failed, socket accept fallback emitted');
           }
           if (isVideo) {
             Navigator.push(
@@ -165,6 +181,7 @@ class CallManager {
     );
     _incomingTimeout?.cancel();
     _isIncomingDialogShowing = false;
+    _activeIncomingCallKey = null;
   }
 
   Future<void> _rejectIncomingCall({
@@ -195,6 +212,8 @@ class CallManager {
     _reconnectSubscription?.cancel();
     _context = null;
     _isListening = false;
+    _isIncomingDialogShowing = false;
+    _activeIncomingCallKey = null;
     debugPrint('CallManager disposed');
   }
 }

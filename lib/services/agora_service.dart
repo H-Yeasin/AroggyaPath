@@ -23,7 +23,10 @@ class AgoraService {
   Function(int uid, bool muted)? onUserMuteAudio;
   Function(int uid, bool muted)? onUserMuteVideo;
 
-  Future<void> initialize({bool skipPermissions = false}) async {
+  Future<void> initialize({
+    bool skipPermissions = false,
+    bool isVideo = true,
+  }) async {
     if (_isInitialized && _engine != null) {
       debugPrint("Agora Engine already initialized â€” reusing");
       return;
@@ -39,7 +42,11 @@ class AgoraService {
 
     try {
       if (!skipPermissions) {
-        await [Permission.microphone, Permission.camera].request();
+        final permissions = [
+          Permission.microphone,
+          if (isVideo) Permission.camera,
+        ];
+        await permissions.request();
       }
 
       _engine = createAgoraRtcEngine();
@@ -48,17 +55,21 @@ class AgoraService {
         channelProfile: ChannelProfileType.channelProfileCommunication,
       ));
 
-      await _engine!.setVideoEncoderConfiguration(
-        const VideoEncoderConfiguration(
-          dimensions: VideoDimensions(width: 960, height: 540),
-          frameRate: 24,
-          bitrate: 1200,
-          orientationMode: OrientationMode.orientationModeAdaptive,
-        ),
-      );
+      if (isVideo) {
+        await _engine!.setVideoEncoderConfiguration(
+          const VideoEncoderConfiguration(
+            dimensions: VideoDimensions(width: 960, height: 540),
+            frameRate: 24,
+            bitrate: 1200,
+            orientationMode: OrientationMode.orientationModeAdaptive,
+          ),
+        );
 
-      await _engine!.enableVideo();
-      await _engine!.startPreview();
+        await _engine!.enableVideo();
+        await _engine!.startPreview();
+      } else {
+        await _engine!.disableVideo();
+      }
 
       _engine!.registerEventHandler(RtcEngineEventHandler(
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
@@ -105,22 +116,31 @@ class AgoraService {
     bool isVideo = true,
     String? token,
   }) async {
-    if (!_isInitialized) await initialize();
+    if (!_isInitialized) {
+      await initialize(skipPermissions: !isVideo, isVideo: isVideo);
+    }
     try {
       try {
         await _engine!.leaveChannel();
       } catch (_) {}
+      await _engine!.enableAudio();
       if (isVideo) {
         await _engine!.enableVideo();
+        await _engine!.startPreview();
       } else {
+        await _engine!.stopPreview();
         await _engine!.disableVideo();
       }
       await _engine!.joinChannel(
         token: token ?? '',
         channelId: channelName,
         uid: uid,
-        options: const ChannelMediaOptions(
+        options: ChannelMediaOptions(
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
+          publishMicrophoneTrack: true,
+          publishCameraTrack: isVideo,
+          autoSubscribeAudio: true,
+          autoSubscribeVideo: isVideo,
         ),
       );
       _currentChannel = channelName;
@@ -133,6 +153,8 @@ class AgoraService {
   Future<void> leaveChannel() async {
     try {
       await _engine?.leaveChannel();
+      await _engine?.stopPreview();
+      await _engine?.disableVideo();
       _currentChannel = null;
     } catch (e) {
       debugPrint("Error leaving channel: $e");
@@ -146,24 +168,33 @@ class AgoraService {
     bool isVideo = true,
     String? token,
   }) async {
-    if (!_isInitialized) await initialize(skipPermissions: !isVideo);
+    if (!_isInitialized) {
+      await initialize(skipPermissions: !isVideo, isVideo: isVideo);
+    }
     try {
       if (_currentChannel != null && _currentChannel != channelName) {
         try {
           await _engine!.leaveChannel();
         } catch (_) {}
       }
+      await _engine!.enableAudio();
       if (isVideo) {
         await _engine!.enableVideo();
+        await _engine!.startPreview();
       } else {
+        await _engine!.stopPreview();
         await _engine!.disableVideo();
       }
       await _engine!.joinChannelWithUserAccount(
         token: token ?? '',
         channelId: channelName,
         userAccount: userAccount,
-        options: const ChannelMediaOptions(
+        options: ChannelMediaOptions(
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
+          publishMicrophoneTrack: true,
+          publishCameraTrack: isVideo,
+          autoSubscribeAudio: true,
+          autoSubscribeVideo: isVideo,
         ),
       );
       _currentChannel = channelName;
@@ -185,6 +216,10 @@ class AgoraService {
     if (_engine != null) {
       try {
         await _engine!.leaveChannel();
+      } catch (_) {}
+      try {
+        await _engine!.stopPreview();
+        await _engine!.disableVideo();
       } catch (_) {}
       await _engine!.release();
       _engine = null;

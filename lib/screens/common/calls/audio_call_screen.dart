@@ -100,7 +100,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
         callType: 'audio',
       );
 
-      await _agoraService.initialize();
+      await _agoraService.initialize(isVideo: false);
       _agoraService.onUserJoined = (uid, elapsed) {
         if (mounted) {
           setState(() {

@@ -141,6 +141,7 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
 
     if (response['success'] == true) {
       final data = Map<String, dynamic>.from(response['data'] as Map);
+      final callChatId = data['chatId']?.toString() ?? widget.appointmentId;
       final isReceiverOnline = data['isReceiverOnline'] as bool? ?? false;
       final uuid = data['uuid'] as String?;
       final unansweredTimeout = isReceiverOnline
@@ -161,7 +162,7 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
           context,
           MaterialPageRoute(
             builder: (_) => VideoCallScreen(
-              chatId: widget.appointmentId,
+              chatId: callChatId,
               isInitiator: true,
               userName: widget.title,
               userAvatar: widget.receiverAvatar,
@@ -176,7 +177,7 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
           context,
           MaterialPageRoute(
             builder: (_) => AudioCallScreen(
-              chatId: widget.appointmentId,
+              chatId: callChatId,
               isInitiator: true,
               userName: widget.title,
               userAvatar: widget.receiverAvatar,
