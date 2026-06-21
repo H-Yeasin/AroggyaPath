@@ -247,7 +247,7 @@ class _CompleteAppointmentScreenState extends State<CompleteAppointmentScreen> {
 
   void _openChat() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final userRole = userProvider.user?.role ?? 'doctor';
+    final userRole = (userProvider.user?.role ?? 'doctor').toLowerCase();
 
     Navigator.push(
       context,

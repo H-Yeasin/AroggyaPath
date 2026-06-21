@@ -14,8 +14,11 @@ class CallManager {
 
   BuildContext? _context;
   bool _isListening = false;
+  bool _isIncomingDialogShowing = false;
   StreamSubscription<bool>? _connectionSubscription;
   StreamSubscription<void>? _reconnectSubscription;
+  Timer? _incomingTimeout;
+  Function(dynamic)? _incomingCallHandler;
 
   void initialize(BuildContext context) {
     _context = context;
@@ -48,11 +51,11 @@ class CallManager {
     final socket = SocketService.instance.socket;
     if (socket == null) return;
 
-    socket.off('call:incoming');
-    socket.off('call:accepted');
-    socket.off('call:rejected');
+    if (_incomingCallHandler != null) {
+      socket.off('call:incoming', _incomingCallHandler);
+    }
 
-    socket.on('call:incoming', (data) {
+    _incomingCallHandler = (data) {
       debugPrint('Incoming call: $data');
       Map<String, dynamic> callData;
       if (data is Map<String, dynamic>) {
@@ -65,7 +68,8 @@ class CallManager {
       if (_context != null && _context!.mounted) {
         _handleIncomingCall(callData);
       }
-    });
+    };
+    socket.on('call:incoming', _incomingCallHandler!);
   }
 
   void _handleIncomingCall(Map<String, dynamic> callData) async {
@@ -82,15 +86,32 @@ class CallManager {
     final uuid = callData['uuid']?.toString();
 
     if (_context == null || !_context!.mounted) return;
+    if (_isIncomingDialogShowing) {
+      await _rejectIncomingCall(chatId: chatId, fromUserId: fromUserId, uuid: uuid);
+      return;
+    }
 
-    showDialog(
+    _isIncomingDialogShowing = true;
+    _incomingTimeout?.cancel();
+    BuildContext? dialogContext;
+
+    _incomingTimeout = Timer(const Duration(seconds: 30), () async {
+      await _rejectIncomingCall(chatId: chatId, fromUserId: fromUserId, uuid: uuid);
+      if (dialogContext != null && dialogContext!.mounted) {
+        Navigator.of(dialogContext!).pop();
+      }
+    });
+
+    await showDialog(
       context: _context!,
       barrierDismissible: false,
       builder: (ctx) => IncomingCallDialog(
+        onDialogReady: (readyContext) => dialogContext = readyContext,
         callerName: fromUserName,
         callerAvatar: fromUserAvatar,
         isVideo: isVideo,
         onAccept: () async {
+          _incomingTimeout?.cancel();
           Navigator.pop(ctx);
           final accepted = await ApiService.acceptCall(
             chatId: chatId,
@@ -131,33 +152,44 @@ class CallManager {
           }
         },
         onReject: () async {
+          _incomingTimeout?.cancel();
           Navigator.pop(ctx);
-          final rejected = await ApiService.rejectCall(
+          await _rejectIncomingCall(
             chatId: chatId,
-            toUserId: fromUserId,
+            fromUserId: fromUserId,
+            uuid: uuid,
           );
-          if (rejected['success'] != true) {
-            await SocketService.instance.emit('call:reject', {
-              'toUserId': fromUserId,
-              'chatId': chatId,
-              'uuid': uuid,
-            });
-          }
         },
       ),
     );
+    _incomingTimeout?.cancel();
+    _isIncomingDialogShowing = false;
+  }
 
-    // Auto-reject after 60s
-    Future.delayed(const Duration(seconds: 60), () {
-      if (_context != null && _context!.mounted) {
-        try {
-          Navigator.of(_context!).popUntil((route) => route.isFirst);
-        } catch (_) {}
-      }
-    });
+  Future<void> _rejectIncomingCall({
+    required String chatId,
+    required String fromUserId,
+    required String? uuid,
+  }) async {
+    final rejected = await ApiService.rejectCall(
+      chatId: chatId,
+      toUserId: fromUserId,
+    );
+    if (rejected['success'] != true) {
+      await SocketService.instance.emit('call:reject', {
+        'toUserId': fromUserId,
+        'chatId': chatId,
+        'uuid': uuid,
+      });
+    }
   }
 
   void dispose() {
+    _incomingTimeout?.cancel();
+    if (_incomingCallHandler != null) {
+      SocketService.instance.socket?.off('call:incoming', _incomingCallHandler);
+      _incomingCallHandler = null;
+    }
     _connectionSubscription?.cancel();
     _reconnectSubscription?.cancel();
     _context = null;
@@ -170,20 +202,25 @@ class IncomingCallDialog extends StatelessWidget {
   final String callerName;
   final String? callerAvatar;
   final bool isVideo;
-  final VoidCallback onAccept;
-  final VoidCallback onReject;
+  final ValueChanged<BuildContext> onDialogReady;
+  final Future<void> Function() onAccept;
+  final Future<void> Function() onReject;
 
   const IncomingCallDialog({
     super.key,
     required this.callerName,
     this.callerAvatar,
     required this.isVideo,
+    required this.onDialogReady,
     required this.onAccept,
     required this.onReject,
   });
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) onDialogReady(context);
+    });
     final colors = AppTheme.of(context);
     return Dialog(
       backgroundColor: Colors.transparent,

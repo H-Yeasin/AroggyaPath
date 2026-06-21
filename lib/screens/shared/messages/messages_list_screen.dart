@@ -346,7 +346,9 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
                               widget.counterpartFallbackName,
                           onTap: () async {
                             final userProvider = Provider.of<UserProvider>(context, listen: false);
-                            final userRole = userProvider.user?.role ?? '';
+                            final userRole =
+                                (userProvider.user?.role ?? _currentUserRole ?? '')
+                                    .toLowerCase();
                             
                             await Navigator.push(
                               context,

@@ -38,6 +38,7 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
   bool _isLoading = true;
   bool _isSending = false;
   String? _currentUserId;
+  Function(dynamic)? _newMessageHandler;
 
   @override
   void initState() {
@@ -56,15 +57,18 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
       });
     }
 
-    SocketService.instance.off('appointment_message:new');
-    SocketService.instance.on('appointment_message:new', (payload) {
+    if (_newMessageHandler != null) {
+      SocketService.instance.off('appointment_message:new', _newMessageHandler);
+    }
+    _newMessageHandler = (payload) {
       final incomingAppointmentId = payload is Map
           ? payload['appointmentId']?.toString()
           : null;
       if (incomingAppointmentId == widget.appointmentId) {
         _loadMessages(showSpinner: false);
       }
-    });
+    };
+    SocketService.instance.on('appointment_message:new', _newMessageHandler!);
 
     await _loadMessages();
   }
@@ -117,6 +121,13 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
 
   Future<void> _startCall(bool isVideo) async {
     if (_isSending) return;
+    if (widget.userRole.toLowerCase() != 'doctor') return;
+    if (widget.receiverId.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not find the patient to call')),
+      );
+      return;
+    }
     setState(() => _isSending = true);
 
     final response = await ApiService.initiateCall(
@@ -129,9 +140,12 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
     setState(() => _isSending = false);
 
     if (response['success'] == true) {
-      final data = response['data'] as Map<String, dynamic>;
+      final data = Map<String, dynamic>.from(response['data'] as Map);
       final isReceiverOnline = data['isReceiverOnline'] as bool? ?? false;
       final uuid = data['uuid'] as String?;
+      final unansweredTimeout = isReceiverOnline
+          ? const Duration(seconds: 30)
+          : const Duration(seconds: 60);
 
       if (!isReceiverOnline) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -153,6 +167,7 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
               userAvatar: widget.receiverAvatar,
               otherUserId: widget.receiverId,
               uuid: uuid,
+              unansweredTimeout: unansweredTimeout,
             ),
           ),
         );
@@ -167,6 +182,7 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
               userAvatar: widget.receiverAvatar,
               otherUserId: widget.receiverId,
               uuid: uuid,
+              unansweredTimeout: unansweredTimeout,
             ),
           ),
         );
@@ -194,7 +210,10 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
     SocketService.instance.emit('appointment_chat:leave', {
       'appointmentId': widget.appointmentId,
     });
-    SocketService.instance.off('appointment_message:new');
+    if (_newMessageHandler != null) {
+      SocketService.instance.off('appointment_message:new', _newMessageHandler);
+      _newMessageHandler = null;
+    }
     _controller.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -213,7 +232,7 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
           widget.title,
           style: TextStyle(color: colors.heading, fontWeight: FontWeight.bold),
         ),
-        actions: widget.userRole == 'doctor'
+        actions: widget.userRole.toLowerCase() == 'doctor'
             ? [
                 IconButton(
                   icon: const Icon(Icons.call),

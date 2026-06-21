@@ -16,6 +16,7 @@ class AudioCallScreen extends StatefulWidget {
   final String otherUserId;
   final bool isInitiator;
   final String? uuid;
+  final Duration unansweredTimeout;
 
   const AudioCallScreen({
     super.key,
@@ -25,6 +26,7 @@ class AudioCallScreen extends StatefulWidget {
     required this.otherUserId,
     required this.isInitiator,
     this.uuid,
+    this.unansweredTimeout = const Duration(seconds: 30),
   });
 
   @override
@@ -45,6 +47,9 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   Timer? _timer;
   int _callDuration = 0;
   Timer? _unansweredTimer;
+  Function(dynamic)? _callAcceptedHandler;
+  Function(dynamic)? _callEndedHandler;
+  Function(dynamic)? _callRejectedHandler;
 
   @override
   void initState() {
@@ -113,10 +118,9 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
 
       if (widget.isInitiator) {
         setState(() => _callStatus = 'Calling...');
-        _unansweredTimer = Timer(const Duration(seconds: 30), () {
+        _unansweredTimer = Timer(widget.unansweredTimeout, () {
           if (mounted && !_callConnected) {
-            _endCall(isMissedCall: true);
-            _showError('No answer');
+            _showNoAnswerAndEnd();
           }
         });
       } else {
@@ -185,10 +189,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
     final socket = SocketService.instance.socket;
     if (socket == null) return;
 
-    socket.off('call:accepted');
-    socket.off('call:accept');
-    socket.off('call:ended');
-    socket.off('call:rejected');
+    _removeSocketListeners();
 
     void handleCallAccepted(dynamic data) async {
       if (data['chatId'] == widget.chatId && !_channelJoined) {
@@ -198,20 +199,41 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
         await _joinAgoraChannel();
       }
     }
-
-    socket.on('call:accepted', handleCallAccepted);
-    socket.on('call:accept', handleCallAccepted);
-    socket.on('call:ended', (data) {
+    _callAcceptedHandler = handleCallAccepted;
+    _callEndedHandler = (data) {
       if (data['chatId'] == widget.chatId) _endCall();
-    });
-    socket.on('call:rejected', (data) {
+    };
+    _callRejectedHandler = (data) {
       if (data['chatId'] == widget.chatId && mounted) {
         _showError('Call declined');
         Future.delayed(const Duration(seconds: 1), () {
           if (mounted) _endCall();
         });
       }
-    });
+    };
+
+    socket.on('call:accepted', _callAcceptedHandler!);
+    socket.on('call:accept', _callAcceptedHandler!);
+    socket.on('call:ended', _callEndedHandler!);
+    socket.on('call:rejected', _callRejectedHandler!);
+  }
+
+  void _removeSocketListeners() {
+    final socket = SocketService.instance.socket;
+    if (socket == null) return;
+    if (_callAcceptedHandler != null) {
+      socket.off('call:accepted', _callAcceptedHandler);
+      socket.off('call:accept', _callAcceptedHandler);
+    }
+    if (_callEndedHandler != null) {
+      socket.off('call:ended', _callEndedHandler);
+    }
+    if (_callRejectedHandler != null) {
+      socket.off('call:rejected', _callRejectedHandler);
+    }
+    _callAcceptedHandler = null;
+    _callEndedHandler = null;
+    _callRejectedHandler = null;
   }
 
   void _startTimer() {
@@ -238,6 +260,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
     if (_isDisposed) return;
     _isDisposed = true;
     _timer?.cancel();
+    _unansweredTimer?.cancel();
 
     await ActiveCallState.clearActiveCall();
 
@@ -258,6 +281,17 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
 
     await _agoraService.leaveChannel();
     if (mounted) Navigator.pop(context);
+  }
+
+  void _showNoAnswerAndEnd() {
+    if (!mounted || _isDisposed) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('No answer'), backgroundColor: Colors.red),
+    );
+    setState(() => _callStatus = 'No answer');
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted && !_isDisposed) _endCall(isMissedCall: true);
+    });
   }
 
   void _showError(String message) {
@@ -291,6 +325,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
         'uuid': widget.uuid
       });
     }
+    _removeSocketListeners();
     _agoraService.onUserJoined = null;
     _agoraService.onUserOffline = null;
     super.dispose();

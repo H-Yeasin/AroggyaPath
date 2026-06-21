@@ -251,7 +251,7 @@ class AppointmentDetailScreen extends StatelessWidget {
 
   void _openChat(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final userRole = userProvider.user?.role ?? 'patient';
+    final userRole = (userProvider.user?.role ?? 'patient').toLowerCase();
 
     Navigator.push(
       context,

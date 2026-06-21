@@ -151,7 +151,11 @@ class SocketService {
     _socket?.on(event, callback);
   }
 
-  void off(String event) {
+  void off(String event, [Function(dynamic)? callback]) {
+    if (callback != null) {
+      _socket?.off(event, callback);
+      return;
+    }
     _socket?.off(event);
   }
 
