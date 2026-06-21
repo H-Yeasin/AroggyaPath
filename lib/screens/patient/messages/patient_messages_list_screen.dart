@@ -1,7 +1,6 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
-import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:arogya_path3/providers/user_provider.dart';
 import 'package:arogya_path3/screens/patient/navigation/patient_main_navigation.dart';
 import 'package:arogya_path3/services/agora_chat_service.dart';
@@ -98,91 +97,91 @@ class _PatientMessagesListScreenState extends State<PatientMessagesListScreen> {
     }
   }
 
-Future<void> _loadChats({bool quiet = false}) async {
-  if (!quiet) {
-    setState(() {
-      _isLoading = true;
-    });
-  }
-
-  try {
-    debugPrint('Loading persisted chat user list from backend...');
-    final response = await ApiService.getMyChats();
-
-    if (response['success'] != true) {
-      throw Exception(response['message'] ?? 'Could not load chats');
+  Future<void> _loadChats({bool quiet = false}) async {
+    if (!quiet) {
+      setState(() {
+        _isLoading = true;
+      });
     }
 
-    final chats = response['data'] as List? ?? [];
-    final formattedChats = chats.map<Map<String, dynamic>>((rawChat) {
-      final chat = Map<String, dynamic>.from(rawChat as Map);
-      final participants = chat['participants'] as List? ?? [];
-      final otherUser = participants.firstWhere(
-        (p) => p is Map && p['_id']?.toString() != _currentUserId,
-        orElse: () {
-          if (participants.isNotEmpty) {
-            return participants.first;
-          }
-          return <dynamic>{};
-        },
-      );
-      final other = otherUser is Map
-          ? Map<String, dynamic>.from(otherUser)
-          : <String, dynamic>{};
-      final lastMessage = chat['lastMessage'];
-      final lastMessageMap = lastMessage is Map
-          ? Map<String, dynamic>.from(lastMessage)
-          : <String, dynamic>{};
+    try {
+      debugPrint('Loading persisted chat user list from backend...');
+      final response = await ApiService.getMyChats();
 
-      return {
-        '_id': chat['_id']?.toString() ?? '',
-        'actualUserId': other['_id']?.toString() ?? '',
-        'hasMessages': lastMessageMap.isNotEmpty,
-        'fullName':
-            other['fullName']?.toString() ?? widget.counterpartFallbackName,
-        'avatarUrl': other['avatar'] is Map
-            ? other['avatar']?['url'].toString()
-            : null,
-        'participants': participants,
-        'lastMessage': {
-          'content': _formatLastMessagePreview(lastMessageMap),
-          'createdAt': lastMessageMap['createdAt']?.toString() ??
+      if (response['success'] != true) {
+        throw Exception(response['message'] ?? 'Could not load chats');
+      }
+
+      final chats = response['data'] as List? ?? [];
+      final formattedChats = chats.map<Map<String, dynamic>>((rawChat) {
+        final chat = Map<String, dynamic>.from(rawChat as Map);
+        final participants = chat['participants'] as List? ?? [];
+        final otherUser = participants.firstWhere(
+          (p) => p is Map && p['_id']?.toString() != _currentUserId,
+          orElse: () {
+            if (participants.isNotEmpty) {
+              return participants.first;
+            }
+            return <dynamic>{};
+          },
+        );
+        final other = otherUser is Map
+            ? Map<String, dynamic>.from(otherUser)
+            : <String, dynamic>{};
+        final lastMessage = chat['lastMessage'];
+        final lastMessageMap = lastMessage is Map
+            ? Map<String, dynamic>.from(lastMessage)
+            : <String, dynamic>{};
+
+        return {
+          '_id': chat['_id']?.toString() ?? '',
+          'actualUserId': other['_id']?.toString() ?? '',
+          'hasMessages': lastMessageMap.isNotEmpty,
+          'fullName':
+              other['fullName']?.toString() ?? widget.counterpartFallbackName,
+          'avatarUrl': other['avatar'] is Map
+              ? (other['avatar'] as Map)['url']?.toString()
+              : null,
+          'participants': participants,
+          'lastMessage': {
+            'content': _formatLastMessagePreview(lastMessageMap),
+            'createdAt': lastMessageMap['createdAt']?.toString() ??
+                chat['updatedAt']?.toString(),
+          },
+          'unreadCount': chat['unreadCount'] ?? 0,
+          'updatedAt': lastMessageMap['createdAt']?.toString() ??
               chat['updatedAt']?.toString(),
-        },
-        'unreadCount': chat['unreadCount'] ?? 0,
-        'updatedAt': lastMessageMap['createdAt']?.toString() ??
-            chat['updatedAt']?.toString(),
-      };
-    }).where((chat) {
-      return chat['_id'].toString().isNotEmpty &&
-          chat['actualUserId'].toString().isNotEmpty &&
-          chat['hasMessages'] == true;
-    }).toList();
+        };
+      }).where((chat) {
+        return chat['_id'].toString().isNotEmpty &&
+            chat['actualUserId'].toString().isNotEmpty &&
+            chat['hasMessages'] == true;
+      }).toList();
 
-    formattedChats.sort((a, b) {
-      final aDate = DateTime.tryParse(a['updatedAt']?.toString() ?? '') ??
-          DateTime.fromMillisecondsSinceEpoch(0);
-      final bDate = DateTime.tryParse(b['updatedAt']?.toString() ?? '') ??
-          DateTime.fromMillisecondsSinceEpoch(0);
-      return bDate.compareTo(aDate);
-    });
+      formattedChats.sort((a, b) {
+        final aDate = DateTime.tryParse(a['updatedAt']?.toString() ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final bDate = DateTime.tryParse(b['updatedAt']?.toString() ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        return bDate.compareTo(aDate);
+      });
 
-    if (mounted) {
-      setState(() {
-        _chats = formattedChats;
-        _isLoading = false;
-      });
-      debugPrint('Loaded ${_chats.length} persisted conversations');
-    }
-  } catch (e) {
-    debugPrint(' Error loading chats: $e');
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _chats = formattedChats;
+          _isLoading = false;
+        });
+        debugPrint('Loaded ${_chats.length} persisted conversations');
+      }
+    } catch (e) {
+      debugPrint(' Error loading chats: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
-}
 
   String _formatLastMessagePreview(Map<String, dynamic> message) {
     final contentType = message['contentType']?.toString() ?? 'text';
@@ -291,7 +290,6 @@ Future<void> _loadChats({bool quiet = false}) async {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppTheme.of(context);
     return PopScope(
       canPop: !widget.showBackButton,
       onPopInvokedWithResult: (didPop, result) {
@@ -375,7 +373,8 @@ Future<void> _loadChats({bool quiet = false}) async {
                         final String convId = chat['_id']?.toString() ?? '';
                         return PatientChatItem(
                           chat: chat,
-                          counterpartFallbackName: widget.counterpartFallbackName,
+                          counterpartFallbackName:
+                              widget.counterpartFallbackName,
                           roleBadge: widget.roleBadge,
                           isSelected: _selectedConversationIds.contains(convId),
                           isSelectionMode: _isSelectionMode,

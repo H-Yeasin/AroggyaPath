@@ -172,12 +172,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       setState(() => availableSlots = []);
       return;
     }
-    final slots = daySchedule!.slots
-        .expand(_splitIntoThirtyMinuteSlots)
-        .toList()
-      ..sort((a, b) => _timeToMinutes(a.start).compareTo(
-            _timeToMinutes(b.start),
-          ));
+    final slots =
+        daySchedule!.slots.expand(_splitIntoThirtyMinuteSlots).toList()
+          ..sort((a, b) => _timeToMinutes(a.start).compareTo(
+                _timeToMinutes(b.start),
+              ));
     setState(() => availableSlots = slots);
   }
 
@@ -201,7 +200,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     if (startMinutes >= endMinutes) return [];
 
     final slots = <TimeSlot>[];
-    for (var current = startMinutes; current + 30 <= endMinutes; current += 30) {
+    for (var current = startMinutes;
+        current + 30 <= endMinutes;
+        current += 30) {
       slots.add(TimeSlot(
         start: _minutesToTime(current),
         end: _minutesToTime(current + 30),
@@ -442,8 +443,8 @@ Patient: $patientName
                         widget.isReschedule
                             ? 'Submit Reschedule Request'
                             : selectedType == 'Video Call'
-                            ? 'Request Video Call Appointment'
-                            : 'Submit Appointment',
+                                ? 'Request Video Call Appointment'
+                                : 'Submit Appointment',
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
