@@ -1,10 +1,13 @@
 import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../messages/doctor_messages_list_screen.dart';
 import '../appointments/doctor_appointments_screen.dart';
 import '../home/doctor_home_screen.dart';
 import '../profile/doctor_profile_screen.dart';
+import '../../../services/call_manager_service.dart';
+import '../../../services/socket_service.dart';
 
 /// Doctor Main Navigation â€” 4-tab bottom nav:
 ///   0: Home         â†’ DoctorHomeScreen (appointment overview + stats)
@@ -28,6 +31,30 @@ class _DoctorMainNavigationState extends State<DoctorMainNavigation> {
     DoctorMessagesListScreen(),
     DoctorProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _initializeCallSignaling();
+    });
+  }
+
+  Future<void> _initializeCallSignaling() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    if (userId == null || userId.isEmpty) return;
+
+    await SocketService.instance.connect(userId);
+    if (!mounted) return;
+    CallManager.instance.initialize(context);
+  }
+
+  @override
+  void dispose() {
+    CallManager.instance.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

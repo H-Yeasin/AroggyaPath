@@ -1,10 +1,13 @@
 ﻿import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../home/patient_home_screen.dart';
 import '../appointments/patient_appointments_screen.dart';
 import '../medical_records/medical_records_screen.dart';
 import '../profile/patient_profile_screen.dart';
 import '../messages/patient_messages_list_screen.dart';
+import '../../../services/call_manager_service.dart';
+import '../../../services/socket_service.dart';
 
 /// Patient Main Navigation - 5-tab bottom nav:
 ///   0: Home         â†’ PatientHomeScreen (Google Map + nearby doctors)
@@ -23,6 +26,30 @@ class PatientMainNavigation extends StatefulWidget {
 class _PatientMainNavigationState extends State<PatientMainNavigation> {
   int _currentIndex = 0;
   final List<Widget?> _initializedScreens = List.filled(5, null);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _initializeCallSignaling();
+    });
+  }
+
+  Future<void> _initializeCallSignaling() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    if (userId == null || userId.isEmpty) return;
+
+    await SocketService.instance.connect(userId);
+    if (!mounted) return;
+    CallManager.instance.initialize(context);
+  }
+
+  @override
+  void dispose() {
+    CallManager.instance.dispose();
+    super.dispose();
+  }
 
   Widget _getScreen(int index) {
     if (_initializedScreens[index] == null) {

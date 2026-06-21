@@ -24,6 +24,7 @@ class CallManager {
     _context = context;
     if (_isListening) {
       debugPrint('CallManager already listening - updating context');
+      _setupCallListeners();
       return;
     }
     _setupCallListeners();
