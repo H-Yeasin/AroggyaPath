@@ -5,15 +5,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/appointment_message_model.dart';
 import '../../services/appointment_message_service.dart';
 import '../../services/socket_service.dart';
+import '../common/calls/audio_call_screen.dart';
+import '../common/calls/video_call_screen.dart';
+import '../../services/api_service.dart';
 
 class AppointmentChatScreen extends StatefulWidget {
   final String appointmentId;
   final String title;
+  final String receiverId;
+  final String? receiverAvatar;
+  final String userRole;
 
   const AppointmentChatScreen({
     super.key,
     required this.appointmentId,
     required this.title,
+    required this.receiverId,
+    required this.userRole,
+    this.receiverAvatar,
   });
 
   @override
@@ -106,6 +115,69 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
     );
   }
 
+  Future<void> _startCall(bool isVideo) async {
+    if (_isSending) return;
+    setState(() => _isSending = true);
+
+    final response = await ApiService.initiateCall(
+      chatId: widget.appointmentId,
+      receiverId: widget.receiverId,
+      isVideo: isVideo,
+    );
+
+    if (!mounted) return;
+    setState(() => _isSending = false);
+
+    if (response['success'] == true) {
+      final data = response['data'] as Map<String, dynamic>;
+      final isReceiverOnline = data['isReceiverOnline'] as bool? ?? false;
+      final uuid = data['uuid'] as String?;
+
+      if (!isReceiverOnline) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Patient is offline. Ringing via push notification...'),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+
+      if (isVideo) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VideoCallScreen(
+              chatId: widget.appointmentId,
+              isInitiator: true,
+              userName: widget.title,
+              userAvatar: widget.receiverAvatar,
+              otherUserId: widget.receiverId,
+              uuid: uuid,
+            ),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AudioCallScreen(
+              chatId: widget.appointmentId,
+              isInitiator: true,
+              userName: widget.title,
+              userAvatar: widget.receiverAvatar,
+              otherUserId: widget.receiverId,
+              uuid: uuid,
+            ),
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response['message'] ?? 'Could not start call')),
+      );
+    }
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
@@ -141,6 +213,18 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen> {
           widget.title,
           style: TextStyle(color: colors.heading, fontWeight: FontWeight.bold),
         ),
+        actions: widget.userRole == 'doctor'
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.call),
+                  onPressed: () => _startCall(false),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.videocam),
+                  onPressed: () => _startCall(true),
+                ),
+              ]
+            : null,
       ),
       body: Column(
         children: [

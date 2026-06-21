@@ -309,11 +309,13 @@ class ApiService {
     required String chatId,
     required String toUserId,
     String? uuid,
+    bool isMissedCall = false,
   }) {
     return ApiChatService.endCall(
       chatId: chatId,
       toUserId: toUserId,
       uuid: uuid,
+      isMissedCall: isMissedCall,
     );
   }
 

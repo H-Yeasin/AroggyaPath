@@ -62,6 +62,7 @@ class ApiChatService {
     required String chatId,
     required String toUserId,
     String? uuid,
+    bool isMissedCall = false,
   }) {
     return ApiClient.post(
       '/api/v1/call/end',
@@ -69,6 +70,7 @@ class ApiChatService {
         'chatId': chatId,
         'userId': toUserId,
         'uuid': uuid ?? '',
+        'isMissedCall': isMissedCall,
       },
       requiresAuth: true,
     );

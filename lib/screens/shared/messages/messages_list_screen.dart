@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:arogya_path3/core/config/app_theme.dart';
 import 'package:arogya_path3/models/appointment_message_model.dart';
 import 'package:arogya_path3/models/appointment_model.dart';
@@ -5,6 +7,7 @@ import 'package:arogya_path3/providers/user_provider.dart';
 import 'package:arogya_path3/screens/shared/appointment_chat_screen.dart';
 import 'package:arogya_path3/services/appointment_message_service.dart';
 import 'package:arogya_path3/services/appointment_service.dart';
+import 'package:arogya_path3/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,6 +37,7 @@ class _AppointmentConversation {
   final DateTime? lastMessageAt;
   final String? counterpartName;
   final String? counterpartImage;
+  final String? counterpartId;
 
   _AppointmentConversation({
     required this.appointment,
@@ -41,6 +45,7 @@ class _AppointmentConversation {
     this.lastMessageAt,
     this.counterpartName,
     this.counterpartImage,
+    this.counterpartId,
   });
 }
 
@@ -51,6 +56,8 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
   List<_AppointmentConversation> _conversations = [];
   bool _isLoading = true;
   String? _currentUserId;
+  String? _currentUserRole;
+  StreamSubscription<void>? _socketReconnectSubscription;
 
   @override
   void initState() {
@@ -63,13 +70,122 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
   Future<void> _initializeScreen() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     _currentUserId = userProvider.user?.id;
+    _currentUserRole = userProvider.user?.role;
 
     if (_currentUserId == null) {
       await userProvider.fetchUserProfile();
       _currentUserId = userProvider.user?.id;
+      _currentUserRole = userProvider.user?.role;
     }
 
+    await _connectRealtime();
     await _loadConversations();
+  }
+
+  Future<void> _connectRealtime() async {
+    final userId = _currentUserId;
+    if (userId == null || userId.isEmpty) return;
+
+    await SocketService.instance.connect(userId);
+    _subscribeToMessageUpdates();
+
+    await _socketReconnectSubscription?.cancel();
+    _socketReconnectSubscription =
+        SocketService.instance.reconnectStream.listen((_) {
+      _subscribeToMessageUpdates();
+      _loadConversations(quiet: true);
+    });
+  }
+
+  void _subscribeToMessageUpdates() {
+    final socket = SocketService.instance.socket;
+    if (socket == null) return;
+
+    socket.off('appointment_message:new', _handleRealtimeMessage);
+    socket.on('appointment_message:new', _handleRealtimeMessage);
+  }
+
+  void _handleRealtimeMessage(dynamic payload) {
+    if (!mounted || payload is! Map) return;
+
+    final appointmentId = _extractAppointmentId(payload);
+    if (appointmentId == null || appointmentId.isEmpty) {
+      _loadConversations(quiet: true);
+      return;
+    }
+
+    final message = _extractMessage(payload, appointmentId);
+    if (message == null) {
+      _loadConversations(quiet: true);
+      return;
+    }
+
+    final conversationIndex = _conversations.indexWhere(
+      (conversation) => conversation.appointment.id == appointmentId,
+    );
+
+    if (conversationIndex == -1) {
+      _loadConversations(quiet: true);
+      return;
+    }
+
+    final existing = _conversations[conversationIndex];
+    final updated = _AppointmentConversation(
+      appointment: existing.appointment,
+      lastMessageContent: message.content,
+      lastMessageAt: message.createdAt,
+      counterpartName: existing.counterpartName,
+      counterpartImage: existing.counterpartImage,
+    );
+
+    final nextConversations = List<_AppointmentConversation>.from(_conversations)
+      ..removeAt(conversationIndex)
+      ..add(updated)
+      ..sort((a, b) {
+        final aDate = a.lastMessageAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bDate = b.lastMessageAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return bDate.compareTo(aDate);
+      });
+
+    setState(() => _conversations = nextConversations);
+  }
+
+  String? _extractAppointmentId(Map payload) {
+    final directId = payload['appointmentId']?.toString();
+    if (directId != null && directId.isNotEmpty) return directId;
+
+    final data = payload['data'];
+    if (data is Map) {
+      final dataId = _extractAppointmentId(data);
+      if (dataId != null && dataId.isNotEmpty) return dataId;
+    }
+
+    final message = payload['message'];
+    if (message is Map) {
+      final messageId = _extractAppointmentId(message);
+      if (messageId != null && messageId.isNotEmpty) return messageId;
+    }
+
+    final appointment = payload['appointment'];
+    if (appointment is Map) {
+      return appointment['_id']?.toString() ?? appointment['id']?.toString();
+    }
+
+    return appointment?.toString();
+  }
+
+  AppointmentMessageModel? _extractMessage(Map payload, String appointmentId) {
+    final rawMessage = payload['message'] is Map
+        ? payload['message'] as Map
+        : payload['data'] is Map
+            ? payload['data'] as Map
+            : payload;
+
+    if (rawMessage['content'] == null) return null;
+
+    final normalized = Map<String, dynamic>.from(rawMessage);
+    normalized['appointment'] ??= appointmentId;
+    return AppointmentMessageModel.fromJson(normalized);
   }
 
   Future<void> _loadConversations({bool quiet = false}) async {
@@ -104,6 +220,8 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
               isCurrentUserTheDoctor ? appt.patientName : appt.doctorName;
           final counterpartImage =
               isCurrentUserTheDoctor ? appt.patientImage : appt.doctorImage;
+          final counterpartId =
+              isCurrentUserTheDoctor ? appt.patientId : appt.doctorId;
 
           conversations.add(_AppointmentConversation(
             appointment: appt,
@@ -111,6 +229,7 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
             lastMessageAt: lastMsg.createdAt,
             counterpartName: counterpartName,
             counterpartImage: counterpartImage,
+            counterpartId: counterpartId,
           ));
         } catch (_) {
           // Keep the list usable if one appointment's messages fail to load.
@@ -226,6 +345,9 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
                           counterpartFallbackName:
                               widget.counterpartFallbackName,
                           onTap: () async {
+                            final userProvider = Provider.of<UserProvider>(context, listen: false);
+                            final userRole = userProvider.user?.role ?? '';
+                            
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -233,6 +355,9 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
                                   appointmentId: conv.appointment.id,
                                   title: conv.counterpartName ??
                                       widget.counterpartFallbackName,
+                                  receiverId: conv.counterpartId ?? '',
+                                  receiverAvatar: conv.counterpartImage,
+                                  userRole: userRole,
                                 ),
                               ),
                             );
@@ -244,6 +369,22 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
         ),
       ),
     );
+  }
+
+  String _counterpartId(AppointmentModel appointment) {
+    return appointment.doctorId == _currentUserId
+        ? appointment.patientId
+        : appointment.doctorId;
+  }
+
+  @override
+  void dispose() {
+    SocketService.instance.socket?.off(
+      'appointment_message:new',
+      _handleRealtimeMessage,
+    );
+    _socketReconnectSubscription?.cancel();
+    super.dispose();
   }
 }
 
