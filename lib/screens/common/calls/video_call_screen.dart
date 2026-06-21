@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../../services/active_call_state.dart';
-import '../../../services/agora_chat_service.dart';
 import '../../../services/agora_service.dart';
 import '../../../services/api_service.dart';
 import '../../../services/callkit_service.dart';
@@ -48,7 +47,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   Timer? _callTimer;
   int _callDurationSeconds = 0;
-  String _callDuration = '00:00';
   Timer? _unansweredTimer;
 
   @override
@@ -237,9 +235,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       if (mounted) {
         setState(() {
           _callDurationSeconds++;
-          final m = (_callDurationSeconds ~/ 60).toString().padLeft(2, '0');
-          final s = (_callDurationSeconds % 60).toString().padLeft(2, '0');
-          _callDuration = '$m:$s';
         });
       } else {
         timer.cancel();
@@ -266,21 +261,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     _isDisposed = true;
     _callTimer?.cancel();
     await ActiveCallState.clearActiveCall();
-
-    try {
-      if (widget.otherUserId.isNotEmpty && widget.isInitiator) {
-        await AgoraChatService.instance.sendCallLog(
-          conversationId: widget.otherUserId,
-          callType: 'video',
-          status: _isCallConnected ? 'ended' : 'cancelled',
-          duration: _isCallConnected ? _callDuration : '',
-          backendChatId: widget.chatId,
-          uuid: widget.uuid,
-        );
-      }
-    } catch (e) {
-      debugPrint('Failed to send call log: $e');
-    }
 
     try {
       await ApiService.endCall(

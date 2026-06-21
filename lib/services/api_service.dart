@@ -269,38 +269,6 @@ class ApiService {
     );
   }
 
-  static Future<Map<String, dynamic>> getAgoraChatToken() {
-    return ApiChatService.getAgoraChatToken();
-  }
-
-  static Future<Map<String, dynamic>> getMyChats() {
-    return ApiChatService.getMyChats();
-  }
-
-  static Future<Map<String, dynamic>> getChatMessages({
-    required String chatId,
-    required int page,
-    required int limit,
-  }) {
-    return ApiChatService.getChatMessages(
-      chatId: chatId,
-      page: page,
-      limit: limit,
-    );
-  }
-
-  static Future<Map<String, dynamic>> createOrGetChat({
-    required String userId,
-  }) {
-    return ApiChatService.createOrGetChat(userId: userId);
-  }
-
-  static Future<Map<String, dynamic>> markChatAsRead({
-    required String chatId,
-  }) {
-    return ApiChatService.markChatAsRead(chatId: chatId);
-  }
-
   static Future<Map<String, dynamic>> getAgoraToken({
     required String channelName,
     String? account,
@@ -346,20 +314,6 @@ class ApiService {
       chatId: chatId,
       toUserId: toUserId,
       uuid: uuid,
-    );
-  }
-
-  static Future<Map<String, dynamic>> sendMessage({
-    required String chatId,
-    String? content,
-    List<File>? files,
-    String? contentType,
-  }) {
-    return ApiChatService.sendMessage(
-      chatId: chatId,
-      content: content,
-      files: files,
-      contentType: contentType,
     );
   }
 

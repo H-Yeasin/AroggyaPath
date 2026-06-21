@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../../services/active_call_state.dart';
-import '../../../services/agora_chat_service.dart';
 import '../../../services/agora_service.dart';
 import '../../../services/api_service.dart';
 import '../../../services/callkit_service.dart';
@@ -238,22 +237,6 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
     _timer?.cancel();
 
     await ActiveCallState.clearActiveCall();
-
-    try {
-      if (widget.otherUserId.isNotEmpty && widget.isInitiator) {
-        String status = _callConnected ? 'ended' : 'cancelled';
-        await AgoraChatService.instance.sendCallLog(
-          conversationId: widget.otherUserId,
-          callType: 'audio',
-          status: status,
-          duration: _callConnected ? _formatDuration(_callDuration) : '',
-          backendChatId: widget.chatId,
-          uuid: widget.uuid,
-        );
-      }
-    } catch (e) {
-      debugPrint('Failed to send call log: $e');
-    }
 
     try {
       await ApiService.endCall(

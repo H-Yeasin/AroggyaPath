@@ -113,15 +113,6 @@ class ApiConfig {
   static const String myPosts = '/api/v1/posts/my-posts';
   static const String userPosts = '/api/v1/posts/user';
 
-  // Chat Endpoints
-  static const String chats = '/api/v1/chat';
-  static const String messages = '/api/v1/chat/messages';
-  static const String sendMessage = '/api/v1/chat/send';
-  static const String createChat = '/api/v1/chat/create';
-  static const String getChatById = '/api/v1/chat';
-  static const String deleteChatMessage = '/api/v1/chat/message';
-  static const String markChatAsRead = '/api/v1/chat';
-
   // Reel Endpoints
   static const String reels = '/api/v1/reels';
   static const String createReel = '/api/v1/reels';
@@ -178,7 +169,6 @@ class ApiConfig {
       '$doctorReviews/$doctorId';
   static String getMarkAsReadUrl(String notificationId) =>
       '$markAsRead/$notificationId/read';
-  static String getChatByIdUrl(String chatId) => '$chats/$chatId';
   static String getDependentByIdUrl(String id) => '$dependents/$id';
 
   // ═══════════════════════════════════════════════════════════════
