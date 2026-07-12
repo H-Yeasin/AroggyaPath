@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 class ApiConfig {
   /// Production URL — update after deploying thekingBackend
   /// Render/Railway deployment URL goes here
-  static const String prodUrl = 'https://api.aroggyapath.com';
+  static const String prodUrl = '';
 
   /// Development URLs
   static const String localhostUrl = 'http://localhost:5000';
